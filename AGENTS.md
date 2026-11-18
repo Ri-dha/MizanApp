@@ -8,7 +8,7 @@ the newest file in `docs/handovers/`, and the ADRs in `docs/adr/` for the area y
 - No external tracker has been used so far. Work is keyed by a short slug (`m9`, `live-prices`,
   `subscriptions`), and that slug names the task file (`docs/tasks/T-<slug>.md`), its status file
   and its ADRs (`docs/adr/<slug>-<n>-title.md`).
-- If GitHub Issues on `Ri-dha/mizan` are adopted, use `gh-<number>` as the key for new work.
+- If GitHub Issues on `Ri-dha/MizanApp` are adopted, use `gh-<number>` as the key for new work.
 - One task in progress at a time. Scope that grows becomes a new `proposed` task.
 
 ## Branches, commits, merges
@@ -26,13 +26,13 @@ the newest file in `docs/handovers/`, and the ADRs in `docs/adr/` for the area y
 ## Checks (all must pass before calling work done)
 
 ```bash
-cd api && ./mvnw -B test                     # JUnit, Testcontainers Postgres, jqwik
 cd web && npm run typecheck && npm test && npm run build
 cd web && npm audit --audit-level=high       # CI runs this too
 ```
 
-CI (`.github/workflows/ci.yml`) runs exactly these on every push to `main`. The API suite needs
-Docker; it starts its own Postgres and does not use port 5432.
+CI (`.github/workflows/web.yml`) runs these when `web/`, `shared/`, `docs/manual/` or
+`infra/caddy/` change. The server and its checks are in `Ri-dha/mizan` (`../MizanApi`, ADR split-1);
+an API change lands there first and stays backward compatible until the clients follow.
 
 ## Code rules (summary; the full local guide is `CLAUDE.md`, which is gitignored)
 
@@ -41,27 +41,25 @@ Docker; it starts its own Postgres and does not use port 5432.
   learning.
 - Money is integer minor units with a currency. Never a float.
 - Domain maths gets a case in `shared/test-vectors/` first. The server no longer calculates
-  (ADR e2e-1); the vectors are the contract for every client (web now, Flutter later).
+  (ADR e2e-1); the vectors are the contract for every client (web now, the Expo app from T-mobile-app).
 - The server must never receive a plain amount, name or note (ADR e2e-1, e2e-2). A new synced
   table is a `SyncTable` bean listing its field names. Its rows live in `vault_record`, so it
   needs no Flyway table. Every field
   except `visibility` and `deletedAt` is sealed by `web/src/vault/records.ts`. Never add a server
   feature that reads record values; do it on the device (`web/src/sync/duties.ts`).
-- Never edit an applied migration; add the next `V0NN__`.
 - Web writes to syncable tables only through `web/src/db/write.ts`.
 - Every user-facing string in both `web/src/i18n/en.json` and `ar.json`. Manual pages exist in
   both `docs/manual/en` and `docs/manual/ar` (the build fails otherwise).
-- Config never hardcoded: `application.yml` under `mizan.*` with `${MIZAN_X:default}`.
 
 ## Never commit
 
 - `.env` or any real secret, keys or tokens (scan the staged diff before committing).
-- `api/logs/`, `web/public/ocr/`, `web/*.pem`, `web/dist/`, `node_modules/`, `api/target/`.
+- `web/public/ocr/`, `web/*.pem`, `web/dist/`, `node_modules/`, `spikes/*/ios`, `spikes/*/android`.
 - `CLAUDE.md` and `PLAN.md` are local and gitignored; durable facts go in this file,
   `ARCHITECTURE.md` and `docs/`.
 
 ## Local environment facts
 
-- Project root is `myWallet/Mizan` (moved there on 2026-11-18). Compose project name is pinned to
-  `mizan`, so volumes are `mizan_pgdata`, `mizan_seaweeddata`, `mizan_esdata`.
+- This repository is `myWallet/MizanApp`; the server is the sibling `myWallet/MizanApi` (split from
+  `myWallet/Mizan` on 2026-11-18, ADR split-1).
 - Dev test accounts live only in the local database; their credentials are not recorded here.

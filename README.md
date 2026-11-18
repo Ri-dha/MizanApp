@@ -4,6 +4,10 @@ Personal budgeting and net worth for the Iraqi market: a monthly allocation plan
 register (cash, gold, belongings) that together answer "what am I worth, and why did that change?".
 Requirements live in the BRD; the build order is in [PLAN.md](PLAN.md).
 
+This repository holds the clients: the web app (`web/`) and, from T-mobile-app, the iPhone and
+Android app (`mobile/`) with the code they share (`packages/core`). The server lives in
+[Ri-dha/mizan](https://github.com/Ri-dha/mizan), cloned next to this one as `MizanApi` (ADR split-1).
+
 ## Tech stack
 
 **Backend (`api/`)**
@@ -48,15 +52,8 @@ Requirements live in the BRD; the build order is in [PLAN.md](PLAN.md).
 
 ## Run it locally
 
-Prerequisites: Java 25, Node 24, Docker.
-
-```bash
-cd api && ./mvnw spring-boot:run
-```
-
-That starts Postgres and SeaweedFS from `docker-compose.yml` automatically, migrates the schema, and
-serves the API. Verification and password-reset codes are printed to the API log in the dev
-profile (look for `[DEV ONLY]`).
+Prerequisites: Node 24, and the API running from `../MizanApi` (see its README; verification and
+password-reset codes are printed to the API log in the dev profile, look for `[DEV ONLY]`).
 
 ```bash
 cd web && npm install && npm run dev
@@ -65,15 +62,9 @@ cd web && npm install && npm run dev
 The PWA proxies `/api` to the API. `npm run api:types` regenerates the typed client from the
 running API's OpenAPI document; commit the result.
 
-To run everything in Docker, including the API image:
-
-```bash
-docker compose --profile full up --build
-```
-
-To deploy, use the `prod` profile: Caddy serves the built PWA with automatic TLS, proxies `/api`,
-and a backup container dumps Postgres nightly into SeaweedFS. Steps, restore, secret rotation and the
-scheduled jobs are in [docs/RUNBOOK.md](docs/RUNBOOK.md).
+Deployment is driven from MizanApi: its `prod` compose profile builds this repository's
+`web/Dockerfile` (Caddy serving the PWA, with `infra/caddy/`) from the sibling checkout. Steps
+are in its `docs/RUNBOOK.md`.
 
 ### On your phone, over the local network
 
@@ -277,29 +268,19 @@ than the configured timeout (30 seconds by default).
 ## Tests
 
 ```bash
-cd api && ./mvnw test
-```
-
-Integration tests run against a real Postgres in Testcontainers, so Docker must be running.
-
-```bash
 cd web && npm test && npm run typecheck
 ```
 
 ## Layout
 
-- `api/src/main/java/iq/mizan/<module>` — one package per module (`auth`, `household`, `sync`, `asset`, …) with
-  `controller`, `dto`, `entity`, `mapper`, `repository`, `service`. `common` holds security, tenancy,
-  audit, errors and storage. `vault` holds the key directory and migration. The server keeps no
-  money maths: it cannot read the values (ADR e2e-1).
-- `api/src/main/resources/db/migration` — Flyway migrations. Every syncable table is created with
-  `call make_syncable('<table>')`, which adds the change-feed trigger and the row-level security policy.
 - `web/src/features/<feature>` — screens. `db/` is the local store and the only place that writes to
   syncable tables. `sync/` is the change-log engine and the work devices do after a sync. `vault/` derives keys
   and seals every field. `lock/` is the PIN and biometric lock.
 - `shared/test-vectors/` — one JSON file per business rule, the contract every client's tests load.
 - `docs/manual/<lang>/` — the user manual, bundled into the app at `/help` and built into `dist/docs`.
 - `web/src/tours/` — guided tour definitions and the single Joyride mount; screens mark targets with `data-tour`.
+- `infra/caddy/` — the web image's Caddy config and security headers.
+- `spikes/` — throwaway experiments (`rn-crypto`: the vault on React Native).
 
 Project knowledge: [AGENTS.md](AGENTS.md) (how to work here), [ARCHITECTURE.md](ARCHITECTURE.md),
 and `docs/` (ADRs, tasks, status, learnings, handovers, runbook, manual).

@@ -5,6 +5,13 @@ register (cash, gold and silver, belongings, debts), Arabic and English, usable 
 is the source of truth for how it is built. Decisions behind it are in `docs/adr/`; changing any of
 them means a new ADR and an edit here in the same task.
 
+## Repositories (ADR split-1)
+
+- `Ri-dha/mizan` (`MizanApi`): the server, compose, backup and observability, the runbook.
+- `Ri-dha/MizanApp` (`MizanApp`): the web app, the shared test vectors, the manual, the web
+  image's Caddy config, and from T-mobile-app the shared core and the phone app.
+- This file is kept in both; each repository details its own side.
+
 ## Shape
 
 ```
@@ -163,7 +170,7 @@ after a set age through lifecycle policies (ADR obs-2: logs 14 days, container l
 One host with Docker Compose profiles: default (`postgres`, `seaweedfs`), `full` (plus the API),
 `prod` (plus Caddy with automatic TLS, nightly `pg_dump` to SeaweedFS, observability),
 `observability`, `containers` (Metricbeat). Flyway migrates on API start. Operations are in
-`docs/RUNBOOK.md`.
+`docs/RUNBOOK.md` in MizanApi.
 
 - Object storage is SeaweedFS (ADR storage-1), one `weed server -s3` container, reached only
   through the S3 API, so any S3 store can replace it. Receipt photos are shrunk to grey 1200 px
