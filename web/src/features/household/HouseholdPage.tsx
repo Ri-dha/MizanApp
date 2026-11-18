@@ -233,7 +233,10 @@ export function HouseholdPage() {
             <Button type="submit" variant="outline">{t("household.join")}</Button>
           </form>
           {session?.role !== "OWNER" && (
-            <Button variant="outline" className="self-start" onClick={() => void rebuild(leaveHousehold, t("household.left"))}>{t("household.leave")}</Button>
+            <div className="flex flex-col gap-1">
+              <Button variant="outline" className="self-start" onClick={() => void rebuild(leaveHousehold, t("household.left"))}>{t("household.leave")}</Button>
+              <p className="text-xs text-muted-foreground">{t("household.leaveNote")}</p>
+            </div>
           )}
         </CardContent>
       </Card>

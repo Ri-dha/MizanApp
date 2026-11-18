@@ -5,7 +5,7 @@ import type { LedgerTransaction } from "../schema"
 import type { LocalSession } from "../session"
 import { memoryStore } from "../store/memoryStore"
 import { installStore, rows, table } from "../store/store"
-import { createAccountKeys, derivePasswordKeys } from "../vault/crypto"
+import { createAccountKeys, derivePasswordKeys, newSharedKey, wrapForMember } from "../vault/crypto"
 import { holdsKey, setAccount } from "../vault/keyring"
 import { sealFields } from "../vault/records"
 import { startSyncEngine, syncNow, syncStatus } from "./engine"
@@ -17,15 +17,20 @@ const session: LocalSession = {
   verified: true, role: "OWNER", baseCurrency: "IQD", monthStartDay: 1, deletionRequestedAt: null, householdDeletionRequestedAt: null,
 }
 
-/** Just enough of the server for one device: it accepts every op and serves one pulled record. */
-function fakeServer(publicKey: string, pulled: unknown[]) {
+type Refusal = { status: number; error: { code: string } }
+
+/** Just enough of the server for one device: it accepts every op (unless told to refuse one push) and serves one pulled record. */
+function fakeServer(publicKey: string, pulled: unknown[], options: { grants?: () => unknown[]; refusePush?: () => Refusal | null } = {}) {
   const pushed: Op[] = []
   const ok = (data: unknown) => Promise.resolve({ data, response: new Response(null, { status: 200 }) })
   const routes: Record<string, (init?: { body?: unknown; params?: { query?: { since?: number } } }) => unknown> = {
-    "GET /api/v1/keys/me": () => ({ account: { publicKey }, grants: [] }),
+    "GET /api/v1/keys/me": () => ({ account: { publicKey }, grants: options.grants?.() ?? [] }),
     "GET /api/v1/keys/household/members": () => [],
+    "GET /api/v1/keys/household/state": () => [],
     "POST /api/v1/sync/devices": () => ({ id: "device-1" }),
     "POST /api/v1/sync/push": (init) => {
+      const refusal = options.refusePush?.()
+      if (refusal) return refusal
       const ops = (init?.body as { ops: Op[] }).ops
       pushed.push(...ops)
       return { applied: ops.map((op) => op.opId), conflicts: [] }
@@ -37,7 +42,11 @@ function fakeServer(publicKey: string, pulled: unknown[]) {
   const call = (method: string) => (path: string, init?: never) => {
     const route = routes[`${method} ${path}`]
     if (!route) throw new Error(`unexpected ${method} ${path}`)
-    return ok(route(init))
+    const answer = route(init) as Refusal | unknown
+    if (answer && typeof answer === "object" && "error" in answer && "status" in answer) {
+      return Promise.resolve({ error: (answer as Refusal).error, response: new Response(null, { status: (answer as Refusal).status }) })
+    }
+    return ok(answer)
   }
   const client = { GET: call("GET"), POST: call("POST"), PUT: call("PUT"), PATCH: call("PATCH"), DELETE: call("DELETE") } as unknown as ApiClient
   return { client, pushed }
@@ -86,5 +95,42 @@ describe("sync engine", () => {
     expect(pulled).toMatchObject({ payee: "Bakery", amount: 1500, vaulted: true })
     expect(await table("outbox").count()).toBe(0)
     expect((await rows("plans")).length).toBe(1)
+  })
+
+  it("after a push refused for a rotated key, fetches the new key and seals the outbox with it (ADR e2e-4)", async () => {
+    installStore(memoryStore())
+    const deviceKey = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"])
+    installSecretStore(aesSecretStore(async () => deviceKey))
+    const { wrapSecret } = await derivePasswordKeys(session.contact, "a long test passphrase")
+    const { account } = await createAccountKeys(wrapSecret)
+    await setAccount(account)
+    const grantFor = async (version: number) =>
+      ({ keyKind: "HOUSEHOLD", keyVersion: version, wrappedKey: await wrapForMember(await newSharedKey(), account.publicKey, "HOUSEHOLD", version) })
+    const held = [await grantFor(1)]
+    const secondVersion = await grantFor(2)
+    let rotatedElsewhere = true
+    const server = fakeServer(account.publicKey, [], {
+      grants: () => held,
+      refusePush: () => {
+        if (!rotatedElsewhere) return null
+        rotatedElsewhere = false
+        held.push(secondVersion)
+        return { status: 409, error: { code: "KEY_ROTATED" } }
+      },
+    })
+    installApi(server.client)
+    await writeFields<LedgerTransaction>("ledger_transaction", "shared-1", { visibility: "SHARED", payee: "Market", amount: 9000 } as never)
+
+    startSyncEngine({
+      lifecycle: { isOnline: () => true, onOnline: () => {}, onOffline: () => {}, onForeground: () => {} },
+      loadSession: async () => ({ ...session, role: "MEMBER" }), refreshProfile: async () => {}, vaultReady: () => true, onVaultReady: () => {},
+      onKeysReplaced: async () => {}, deviceName: () => "Test", afterDuties: async () => {}, afterSync: async () => {},
+    })
+    await syncNow()
+
+    expect(syncStatus()).toMatchObject({ phase: "idle", lastError: null })
+    const op = server.pushed.find((pushedOp) => pushedOp.rowId === "shared-1")!
+    expect(op.fields.payee).toMatch(/^e1\.h\.2\./)
+    expect(await table("outbox").count()).toBe(0)
   })
 })

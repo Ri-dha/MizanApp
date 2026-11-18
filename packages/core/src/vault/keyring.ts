@@ -1,4 +1,4 @@
-import { api, unwrap } from "../api/client"
+import { api, ApiError, unwrap } from "../api/client"
 import { deleteMeta, readMeta, writeMeta } from "../db/meta"
 import { secretStore, type SealedBox } from "../platform/secretStore"
 import {
@@ -125,7 +125,6 @@ export function canOpen(value: unknown): boolean {
   return header !== null && keyFor(header) !== null
 }
 
-/** Opens every grant addressed to this account; called on each sync so a new grant is picked up. */
 /** Thrown when this account started over on another device (ADR e2e-3): these keys open nothing now. */
 export class KeysReplacedError extends Error {
   constructor() {
@@ -133,6 +132,7 @@ export class KeysReplacedError extends Error {
   }
 }
 
+/** Opens every grant addressed to this account; called on each sync so a new grant is picked up. */
 export async function refreshGrants(): Promise<void> {
   if (!keyring) return
   const mine = await unwrap(api().GET("/api/v1/keys/me"))
@@ -177,10 +177,13 @@ function mayHold(member: KeyMember, kind: KeyKind): boolean {
   return kind === "HOUSEHOLD" ? member.mayHoldHouseholdKey : member.mayHoldReportKey
 }
 
+/** The server accepts at most this many grants in one request (KeyController.MAX_GRANTS). */
+const GRANTS_PER_REQUEST = 50
+
 /**
  * The owner's device creates the household's keys once; afterwards any device holding a key
- * hands it to members who may hold it and have none yet, so a new member is let in without
- * anyone having to do anything.
+ * hands each version it holds to members who may hold it and lack that version, so a new member
+ * is let in, and can read records from before a rotation (ADR e2e-4), without anyone acting.
  */
 export async function shareKeysWithMembers(isOwner: boolean): Promise<void> {
   if (!keyring) return
@@ -188,20 +191,60 @@ export async function shareKeysWithMembers(isOwner: boolean): Promise<void> {
   const grants: { userId: string; keyKind: KeyKind; keyVersion: number; wrappedKey: string }[] = []
   for (const kind of ["HOUSEHOLD", "REPORT"] as const) {
     const anyoneHolds = members.some((member) => member.holds.some((held) => held.keyKind === kind))
-    let entry = latest(kind)
-    if (!entry && isOwner && !anyoneHolds) {
-      entry = { kind, version: FIRST_VERSION, key: await newSharedKey() }
-      keyring.shared.push(entry)
+    if (!latest(kind) && isOwner && !anyoneHolds) {
+      keyring.shared.push({ kind, version: FIRST_VERSION, key: await newSharedKey() })
       await persist()
     }
-    if (!entry) continue
-    for (const member of members) {
-      if (!member.publicKey || !mayHold(member, kind)) continue
-      if (member.holds.some((held) => held.keyKind === kind && held.keyVersion === entry.version)) continue
-      grants.push({ userId: member.userId, keyKind: kind, keyVersion: entry.version, wrappedKey: await wrapForMember(entry.key, member.publicKey, kind, entry.version) })
+    for (const entry of keyring.shared.filter((held) => held.kind === kind)) {
+      for (const member of members) {
+        if (!member.publicKey || !mayHold(member, kind)) continue
+        if (member.holds.some((held) => held.keyKind === kind && held.keyVersion === entry.version)) continue
+        grants.push({ userId: member.userId, keyKind: kind, keyVersion: entry.version, wrappedKey: await wrapForMember(entry.key, member.publicKey, kind, entry.version) })
+      }
     }
   }
-  if (grants.length > 0) await unwrap(api().POST("/api/v1/keys/household/grants", { body: grants }))
+  for (let from = 0; from < grants.length; from += GRANTS_PER_REQUEST) {
+    await unwrap(api().POST("/api/v1/keys/household/grants", { body: grants.slice(from, from + GRANTS_PER_REQUEST) }))
+  }
+}
+
+interface KeyState {
+  keyKind: KeyKind
+  currentVersion: number
+  rotationDue: boolean
+}
+
+/** The server's answers that mean another device rotated first, or the members changed meanwhile; the next sync tries again. */
+const ROTATION_LOST = new Set(["KEY_ROTATION_CONFLICT", "KEY_ROTATION_REFUSED"])
+
+/**
+ * ADR e2e-4: once someone holding a shared key has lost access, a device that holds its current
+ * version makes the next one and wraps it for every remaining member, itself included. The key
+ * is kept only after the server accepts it, so a lost race leaves nothing behind.
+ */
+export async function rotateKeysIfDue(): Promise<KeyKind[]> {
+  if (!keyring) return []
+  const states = (await unwrap(api().GET("/api/v1/keys/household/state"))) as KeyState[]
+  const rotated: KeyKind[] = []
+  for (const state of states) {
+    if (!state.rotationDue || latest(state.keyKind)?.version !== state.currentVersion) continue
+    const members = await fetchMembers()
+    const version = state.currentVersion + 1
+    const key = await newSharedKey()
+    const grants = await Promise.all(members
+      .filter((member) => member.publicKey && mayHold(member, state.keyKind))
+      .map(async (member) => ({ userId: member.userId, wrappedKey: await wrapForMember(key, member.publicKey!, state.keyKind, version) })))
+    try {
+      await unwrap(api().POST("/api/v1/keys/household/rotate", { body: { keyKind: state.keyKind, keyVersion: version, grants } }))
+    } catch (error) {
+      if (error instanceof ApiError && ROTATION_LOST.has(error.code)) continue
+      throw error
+    }
+    keyring.shared.push({ kind: state.keyKind, version, key })
+    await persist()
+    rotated.push(state.keyKind)
+  }
+  return rotated
 }
 
 export function openAccount(): OpenAccount | null {

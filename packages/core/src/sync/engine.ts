@@ -7,7 +7,7 @@ import { mayHoldHouseholdKey } from "../roles"
 import { SYNC_TABLES, type Syncable, type SyncTableName } from "../schema"
 import type { LocalSession } from "../session"
 import { rows, sorted, store, table, type Table, type TableName } from "../store/store"
-import { KeysReplacedError, refreshGrants, shareKeysWithMembers } from "../vault/keyring"
+import { KeysReplacedError, refreshGrants, rotateKeysIfDue, shareKeysWithMembers } from "../vault/keyring"
 import { openFields, openValue, sealFields } from "../vault/records"
 import { completeMigrationIfDrained, runDeviceDuties } from "./duties"
 import { newNodeId, observe, type HlcState } from "./hlc"
@@ -109,11 +109,23 @@ async function sendableOps(): Promise<QueuedOp[]> {
   return ready
 }
 
+/** ADR e2e-4: a refused push means a key was rotated elsewhere; the outbox is sealed again with the new one. */
+const KEY_ROTATED = "KEY_ROTATED"
+
 async function push(device: string) {
+  let resealed = false
   for (;;) {
     const ops = await sendableOps()
     if (ops.length === 0) return
-    const result = await unwrap(api().POST("/api/v1/sync/push", { body: { deviceId: device, ops } }))
+    let result
+    try {
+      result = await unwrap(api().POST("/api/v1/sync/push", { body: { deviceId: device, ops } }))
+    } catch (error) {
+      if (resealed || !(error instanceof ApiError) || error.code !== KEY_ROTATED) throw error
+      await refreshGrants()
+      resealed = true
+      continue
+    }
     const appliedIds = result.applied
     const conflicts = await Promise.all(result.conflicts.map(async (conflict) => ({
       id: conflict.id,
@@ -223,7 +235,9 @@ async function exchangeKeys(session: LocalSession) {
     if (error instanceof KeysReplacedError) await host().onKeysReplaced()
     throw error
   }
-  if (mayHoldHouseholdKey(session.role)) await shareKeysWithMembers(session.role === "OWNER")
+  if (!mayHoldHouseholdKey(session.role)) return
+  await rotateKeysIfDue()
+  await shareKeysWithMembers(session.role === "OWNER")
 }
 
 export async function syncNow(): Promise<void> {

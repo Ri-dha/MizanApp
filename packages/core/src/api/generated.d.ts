@@ -199,6 +199,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/keys/household/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Store a new version of a shared key, wrapped for every remaining member who may hold it */
+        post: operations["rotate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/keys/household/grants": {
         parameters: {
             query?: never;
@@ -842,6 +859,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/keys/household/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The household's shared key versions and whether one is due for rotation (ADR e2e-4) */
+        get: operations["state"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/keys/household/members": {
         parameters: {
             query?: never;
@@ -1262,6 +1296,25 @@ export interface components {
             privateRecords: number;
             households: components["schemas"]["Household"][];
         };
+        Recipient: {
+            /** Format: uuid */
+            userId: string;
+            wrappedKey: string;
+        };
+        RotateKeyRequest: {
+            /** @enum {string} */
+            keyKind: "HOUSEHOLD" | "REPORT";
+            /** Format: int32 */
+            keyVersion?: number;
+            grants: components["schemas"]["Recipient"][];
+        };
+        KeyStateResponse: {
+            /** @enum {string} */
+            keyKind: "HOUSEHOLD" | "REPORT";
+            /** Format: int32 */
+            currentVersion: number;
+            rotationDue: boolean;
+        };
         GrantRequest: {
             /** Format: uuid */
             userId: string;
@@ -1553,6 +1606,7 @@ export interface components {
             catalogue: components["schemas"]["JsonNode"];
         };
         JsonNode: {
+            floatingPointNumber?: boolean;
             number?: boolean;
             /** @enum {string} */
             nodeType?: "ARRAY" | "BINARY" | "BOOLEAN" | "MISSING" | "NULL" | "NUMBER" | "OBJECT" | "POJO" | "STRING";
@@ -1571,7 +1625,6 @@ export interface components {
             textual?: boolean;
             boolean?: boolean;
             binary?: boolean;
-            floatingPointNumber?: boolean;
             empty?: boolean;
             array?: boolean;
             null?: boolean;
@@ -2005,6 +2058,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ResetPreviewResponse"];
+                };
+            };
+        };
+    };
+    rotate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RotateKeyRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["KeyStateResponse"];
                 };
             };
         };
@@ -2979,6 +3056,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ResetPreviewResponse"];
+                };
+            };
+        };
+    };
+    state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["KeyStateResponse"][];
                 };
             };
         };
