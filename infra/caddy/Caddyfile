@@ -12,6 +12,12 @@ handle /actuator/health* {
     reverse_proxy api:8080
 }
 
+# ADR storage-4: receipt and backup links are signed for this site, path-style, so the bucket's
+# path goes to storage as is; neither the path nor Host may change or the signature breaks.
+handle /{$MIZAN_STORAGE_BUCKET:mizan-attachments}/* {
+    reverse_proxy seaweedfs:8333
+}
+
 handle /docs/* {
     root * /srv
     file_server

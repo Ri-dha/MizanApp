@@ -29,3 +29,13 @@ describe("production security headers", () => {
     expect(inline).toEqual([])
   })
 })
+
+describe("Caddy routes storage on the site itself (ADR storage-4)", () => {
+  const caddyfile = readFileSync(path.resolve(import.meta.dirname, "../../../infra/caddy/Caddyfile"), "utf8")
+
+  it("forwards the bucket's path to storage untouched, before the app's own fallback", () => {
+    const block = /handle \/\{\$MIZAN_STORAGE_BUCKET:mizan-attachments\}\/\* \{\n([^}]*)\}/.exec(caddyfile)
+    expect(block?.[1].trim()).toBe("reverse_proxy seaweedfs:8333")
+    expect(block!.index).toBeLessThan(caddyfile.indexOf("try_files {path} /index.html"))
+  })
+})

@@ -219,3 +219,7 @@ One host with Docker Compose profiles: default (`postgres`, `seaweedfs`), `full`
 - Caddy's security headers, the Content-Security-Policy among them, live in
   `infra/caddy/security-headers.caddy` (ADR csp-and-job-lock-2); `vite preview` serves the same
   file.
+- Caddy serves storage on the site itself (ADR storage-4): `/mizan-attachments/*` goes to
+  `seaweedfs:8333` with path and `Host` untouched, so links the API signs for the site stay
+  valid. The CSP is then same-origin; `MIZAN_STORAGE_ORIGIN` is empty in a deployment and
+  `http://localhost:8333` only for local previews, where links still go to the storage port.
