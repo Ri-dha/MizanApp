@@ -38,18 +38,12 @@ export async function unwrap<T>(call: Promise<{ data?: T; error?: unknown; respo
   let result: { data?: T; error?: unknown; response: Response }
   try {
     result = await call
-  } catch {
-    throw NETWORK_ERROR
+  } catch (cause) {
+    throw new ApiError(NETWORK_ERROR.status, NETWORK_ERROR.code, NETWORK_ERROR.detail, { cause: cause instanceof Error ? cause.message : String(cause) })
   }
   if (result.error !== undefined || !result.response.ok) {
     const problem = (result.error ?? {}) as { code?: string; detail?: string; status?: number } & Record<string, unknown>
     throw new ApiError(result.response.status, problem.code ?? "UNKNOWN", problem.detail ?? result.response.statusText, problem)
   }
   return result.data as T
-}
-
-/** The server always sends this field; springdoc marks every response field optional, so say so here. */
-export function required<T>(value: T | null | undefined, field: string): T {
-  if (value === undefined || value === null) throw new ApiError(500, "MALFORMED_RESPONSE", `The server left out ${field}`)
-  return value
 }

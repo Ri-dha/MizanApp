@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { StyleSheet, Text, useColorScheme, View } from "react-native"
 
 import { PlatformContext, type PlatformInfo } from "@/platform/context"
+import "@/i18n"
 import { installPlatform } from "@/platform/install"
 
 SplashScreen.preventAutoHideAsync()

@@ -29,4 +29,6 @@
 - Phase 4 step 1 (uncommitted, `feat/mobile-foundation`): the Expo app in `mobile/` with SQLCipher
   storage, Keychain/Keystore secrets and lifecycle adapters; all 30 vault vectors pass on the iPhone
   simulator and the Android emulator.
-- Next: API client, sync host, UI system, i18n and RTL, PIN and biometrics. Blockers: none.
+- Phase 4 step 2 (uncommitted, `feat/mobile-app-shell`): sign-in and sync on the phone; web,
+  iPhone and Android open each other's sealed records (checked live).
+- Next: UI system, light and dark, RTL, PIN and biometrics. Blockers: none.

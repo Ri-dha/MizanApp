@@ -73,8 +73,17 @@
      (`src/platform/sqlite-store.ts`), `SecretStore` and the database key in the Keychain or
      Keystore, `Lifecycle` over AppState and NetInfo. A diagnostics screen runs core's
      `vaultVectorChecks`: 30 of 30 pass on the iPhone 17 simulator and the Android API 37
-     emulator. Next: the API client (refresh token in the body, kept in secure storage), the
-     sync host, NativeWind and the shadcn-style components, i18n with RTL, PIN and biometrics.
+     emulator.
+     Step 2 done 2026-11-19 (feat/mobile-app-shell): sign-in and the session moved to core
+     (`auth/session.ts` with an `AuthHost` for tokens and the lock; the web host keeps the cookie,
+     the phone keeps the refresh token in secure storage and sends it in the body); price fetches
+     in core; API types regenerated now that the server marks fields required, so the engine's
+     `required()` guards are gone. Phone: API client, auth and sync hosts, `useLiveQuery` over
+     `onStoreChange`, i18next with core's translations and the device language, and plain sign-in,
+     unlock, recovery-code and ledger screens. Checked live: a household made on the web opens on
+     the iPhone and Android, a transaction added on the iPhone shows decrypted on the web and on
+     Android. Next: NativeWind and the shadcn-style components, light and dark, RTL, PIN and
+     biometrics.
   5. Parity, in the web app's order: auth and vault screens, sync, home, ledger and quick add,
      plan, income, bills, debts, goals, cash, gold and silver, assets, net worth and month close,
      reports, household and join links, advisor, settings (theme, language, privacy, backup,

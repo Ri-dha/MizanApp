@@ -152,7 +152,8 @@ Plain TypeScript every client compiles through the `@mizan/core` alias, with no 
 dependencies and no browser-only globals: `domain/` maths, `schema.ts` record types and
 `SYNC_TABLES`, `sync/hlc.ts` and `merge.ts`, `vault/crypto.ts`, `ocr/` receipt parsing, `i18n/`
 translations, `api/generated.d.ts`, `db/` (every read and write of local records, the month view),
-`market/prices.ts` (price resolution) and `store/` (the `Store` interface every app implements:
+`market/prices.ts` (price resolution and fetches), `auth/session.ts` (sign-in, the session,
+clearing a device; each app gives it an `AuthHost`) and `store/` (the `Store` interface every app implements:
 Dexie on the web in `web/src/platform/dexieStore.ts`, an in-memory store for tests). Store helpers
 chain on the adapter's promises so Dexie live queries keep tracking reads. `api/client.ts` holds
 the slot for each app's typed client, `platform/secretStore.ts` the device secret that seals the
@@ -172,7 +173,10 @@ Expo SDK 58 with Expo Router (`src/app` routes only, `src/screens` bodies). `ind
 `react-native-quick-crypto` before anything else so core's vault finds WebCrypto. Platform
 adapters in `src/platform`: `Store` over SQLCipher (`expo-sqlite`, one JSON table per local table,
 keyed from `expo-secure-store`), `SecretStore` over a second Keychain/Keystore key, `Lifecycle`
-over AppState and NetInfo. The app refuses to start without SQLCipher. Native folders are
+over AppState and NetInfo. The app refuses to start without SQLCipher. `api-client.ts` keeps the rotating refresh token
+in secure storage and sends it in the body (the web uses the httpOnly cookie); `hosts.ts` gives
+core its `AuthHost` and `SyncHost`; `hooks/use-core.ts` turns core's subscriptions and
+`onStoreChange` into hooks. Native folders are
 generated (`ios/`, `android/` are ignored); development uses a development build.
 
 ## Web (`web/src`)

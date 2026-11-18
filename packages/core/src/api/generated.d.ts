@@ -1102,34 +1102,34 @@ export interface components {
             encryptedPrivateKey: string;
         };
         AccountKeysResponse: {
-            wrappedByPassword?: string;
-            wrappedByRecovery?: string;
-            publicKey?: string;
-            encryptedPrivateKey?: string;
+            wrappedByPassword: string;
+            wrappedByRecovery: string;
+            publicKey: string;
+            encryptedPrivateKey: string;
         };
         GrantResponse: {
             /** @enum {string} */
-            keyKind?: "HOUSEHOLD" | "REPORT";
+            keyKind: "HOUSEHOLD" | "REPORT";
             /** Format: int32 */
-            keyVersion?: number;
-            wrappedKey?: string;
+            keyVersion: number;
+            wrappedKey: string;
             /** Format: uuid */
             grantedBy?: string;
         };
         MyKeysResponse: {
             account?: components["schemas"]["AccountKeysResponse"];
-            grants?: components["schemas"]["GrantResponse"][];
+            grants: components["schemas"]["GrantResponse"][];
         };
         SettingUpdateRequest: {
             value: string;
         };
         SettingResponse: {
-            key?: string;
-            kind?: string;
-            value?: string;
-            defaultValue?: string;
-            overridden?: boolean;
-            choices?: string[];
+            key: string;
+            kind: string;
+            value: string;
+            defaultValue: string;
+            overridden: boolean;
+            choices: string[];
             /** Format: int64 */
             min?: number;
             /** Format: int64 */
@@ -1140,9 +1140,9 @@ export interface components {
             updatedAt?: string;
         };
         VaultStatusResponse: {
-            migrated?: boolean;
+            migrated: boolean;
             /** Format: int64 */
-            legacyRows?: number;
+            legacyRows: number;
         };
         SyncOp: {
             /** Format: uuid */
@@ -1164,33 +1164,33 @@ export interface components {
         };
         ConflictResponse: {
             /** Format: uuid */
-            id?: string;
-            table?: string;
+            id: string;
+            table: string;
             /** Format: uuid */
-            rowId?: string;
-            field?: string;
+            rowId: string;
+            field: string;
             clientValue?: unknown;
             serverValue?: unknown;
-            clientClock?: string;
-            serverClock?: string;
+            clientClock: string;
+            serverClock: string;
             /** Format: date-time */
-            detectedAt?: string;
+            detectedAt: string;
         };
         SyncPushResponse: {
-            applied?: string[];
-            conflicts?: components["schemas"]["ConflictResponse"][];
+            applied: string[];
+            conflicts: components["schemas"]["ConflictResponse"][];
         };
         RegisterDeviceRequest: {
             name: string;
         };
         DeviceResponse: {
             /** Format: uuid */
-            id?: string;
-            name?: string;
+            id: string;
+            name: string;
             /** Format: int64 */
-            lastPullSeq?: number;
+            lastPullSeq: number;
             /** Format: date-time */
-            lastSeenAt?: string;
+            lastSeenAt: string;
         };
         SubscribeRequest: {
             endpoint: string;
@@ -1199,48 +1199,48 @@ export interface components {
         };
         SubscriptionResponse: {
             /** Format: uuid */
-            id?: string;
-            endpoint?: string;
+            id: string;
+            endpoint: string;
             userAgent?: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
         };
         CurrentUserResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             email?: string;
             phone?: string;
-            displayName?: string;
-            locale?: string;
-            verified?: boolean;
+            displayName: string;
+            locale: string;
+            verified: boolean;
             /** Format: date-time */
             deletionRequestedAt?: string;
-            operator?: boolean;
-            household?: components["schemas"]["HouseholdResponse"];
+            operator: boolean;
+            household: components["schemas"]["HouseholdResponse"];
         };
         HouseholdResponse: {
             /** Format: uuid */
-            id?: string;
-            name?: string;
-            baseCurrency?: string;
+            id: string;
+            name: string;
+            baseCurrency: string;
             /** Format: int32 */
-            monthStartDay?: number;
+            monthStartDay: number;
             /** @enum {string} */
-            role?: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
+            role: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
             /** Format: date-time */
             deletionRequestedAt?: string;
         };
         QuoteResponse: {
             /** @enum {string} */
-            instrument?: "XAU" | "XAG" | "USDIQD_OFFICIAL" | "USDIQD_PARALLEL" | "XAU_LOCAL" | "XAG_LOCAL" | "XAU_LOCAL_BID" | "XAG_LOCAL_BID";
+            instrument: "XAU" | "XAG" | "USDIQD_OFFICIAL" | "USDIQD_PARALLEL" | "XAU_LOCAL" | "XAG_LOCAL" | "XAU_LOCAL_BID" | "XAG_LOCAL_BID";
             /** Format: int64 */
-            priceMicros?: number;
-            source?: string;
+            priceMicros: number;
+            source: string;
             /** Format: date-time */
-            quotedAt?: string;
+            quotedAt: string;
             /** Format: date-time */
-            fetchedAt?: string;
-            stale?: boolean;
+            fetchedAt: string;
+            stale: boolean;
         };
         ResetKeysRequest: {
             wrappedByPassword: string;
@@ -1251,16 +1251,16 @@ export interface components {
         };
         Household: {
             /** Format: uuid */
-            householdId?: string;
-            name?: string;
-            soleKeyHolder?: boolean;
+            householdId: string;
+            name: string;
+            soleKeyHolder: boolean;
             /** Format: int64 */
-            sharedRecordsLost?: number;
+            sharedRecordsLost: number;
         };
         ResetPreviewResponse: {
             /** Format: int64 */
-            privateRecords?: number;
-            households?: components["schemas"]["Household"][];
+            privateRecords: number;
+            households: components["schemas"]["Household"][];
         };
         GrantRequest: {
             /** Format: uuid */
@@ -1272,19 +1272,19 @@ export interface components {
             wrappedKey: string;
         };
         HeldKey: {
-            keyKind?: string;
+            keyKind: string;
             /** Format: int32 */
-            keyVersion?: number;
+            keyVersion: number;
         };
         KeyMemberResponse: {
             /** Format: uuid */
-            userId?: string;
-            displayName?: string;
-            role?: string;
-            mayHoldHouseholdKey?: boolean;
-            mayHoldReportKey?: boolean;
+            userId: string;
+            displayName: string;
+            role: string;
+            mayHoldHouseholdKey: boolean;
+            mayHoldReportKey: boolean;
             publicKey?: string;
-            holds?: components["schemas"]["HeldKey"][];
+            holds: components["schemas"]["HeldKey"][];
         };
         TransferOwnershipRequest: {
             /** Format: uuid */
@@ -1299,12 +1299,12 @@ export interface components {
         };
         InvitationResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** @enum {string} */
-            role?: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
+            role: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
             contact?: string;
             /** Format: date-time */
-            expiresAt?: string;
+            expiresAt: string;
             token?: string;
         };
         ConfirmPasswordRequest: {
@@ -1321,10 +1321,10 @@ export interface components {
             keys: components["schemas"]["AccountKeysRequest"];
         };
         TokenResponse: {
-            accessToken?: string;
-            refreshToken?: string;
+            accessToken: string;
+            refreshToken: string;
             /** Format: date-time */
-            accessTokenExpiresAt?: string;
+            accessTokenExpiresAt: string;
         };
         RefreshRequest: {
             refreshToken?: string;
@@ -1343,16 +1343,16 @@ export interface components {
             legacyPassword?: string;
         };
         PresignedUrlResponse: {
-            url?: string;
-            method?: string;
+            url: string;
+            method: string;
             /** Format: date-time */
-            expiresAt?: string;
+            expiresAt: string;
         };
         ElevateRequest: {
             authKey: string;
         };
         SessionResponse: {
-            operator?: boolean;
+            operator: boolean;
             /** Format: date-time */
             elevatedUntil?: string;
         };
@@ -1428,19 +1428,19 @@ export interface components {
         };
         AnnouncementResponse: {
             /** Format: uuid */
-            id?: string;
-            messageEn?: string;
-            messageAr?: string;
-            level?: string;
+            id: string;
+            messageEn: string;
+            messageAr: string;
+            level: string;
             /** Format: date-time */
-            startsAt?: string;
+            startsAt: string;
             /** Format: date-time */
             endsAt?: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
             retractedAt?: string;
-            live?: boolean;
+            live: boolean;
         };
         ReasonRequest: {
             reason: string;
@@ -1479,81 +1479,80 @@ export interface components {
         };
         MemberResponse: {
             /** Format: uuid */
-            userId?: string;
-            displayName?: string;
-            contact?: string;
+            userId: string;
+            displayName: string;
+            contact: string;
             /** @enum {string} */
-            role?: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
+            role: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
             /** Format: date-time */
-            joinedAt?: string;
+            joinedAt: string;
             /** Format: date-time */
             expiresAt?: string;
-            you?: boolean;
+            you: boolean;
         };
         SyncPullResponse: {
-            records?: components["schemas"]["SyncRecordResponse"][];
+            records: components["schemas"]["SyncRecordResponse"][];
             /** Format: int64 */
-            nextSeq?: number;
-            hasMore?: boolean;
+            nextSeq: number;
+            hasMore: boolean;
         };
         SyncRecordResponse: {
-            table?: string;
+            table: string;
             /** Format: uuid */
-            rowId?: string;
+            rowId: string;
             /** Format: uuid */
-            ownerId?: string;
-            fields?: {
+            ownerId: string;
+            fields: {
                 [key: string]: unknown;
             };
-            clocks?: {
+            clocks: {
                 [key: string]: string;
             };
             /** Format: int64 */
-            seq?: number;
-            encrypted?: boolean;
+            seq: number;
+            encrypted: boolean;
         };
         VapidKeyResponse: {
-            publicKey?: string;
+            publicKey: string;
         };
         HistoryPointResponse: {
             /** Format: date */
-            day?: string;
+            day: string;
             /** Format: int64 */
-            openMicros?: number;
+            openMicros: number;
             /** Format: int64 */
-            highMicros?: number;
+            highMicros: number;
             /** Format: int64 */
-            lowMicros?: number;
+            lowMicros: number;
             /** Format: int64 */
-            priceMicros?: number;
-            source?: string;
+            priceMicros: number;
+            source: string;
         };
         PriceChangeResponse: {
             /** Format: int64 */
-            id?: number;
+            id: number;
             /** Format: date-time */
-            observedAt?: string;
+            observedAt: string;
             /** Format: int64 */
-            priceMicros?: number;
+            priceMicros: number;
             /** Format: int64 */
             previousMicros?: number;
-            source?: string;
+            source: string;
         };
         PriceChangesResponse: {
-            changes?: components["schemas"]["PriceChangeResponse"][];
+            changes: components["schemas"]["PriceChangeResponse"][];
             /** Format: date-time */
             nextBefore?: string;
         };
         CatalogueResponse: {
-            source?: string;
+            source: string;
             /** Format: date-time */
-            fetchedAt?: string;
+            fetchedAt: string;
             /** Format: date-time */
-            asOf?: string;
-            catalogue?: components["schemas"]["JsonNode"];
+            asOf: string;
+            catalogue: components["schemas"]["JsonNode"];
         };
         JsonNode: {
-            floatingPointNumber?: boolean;
             number?: boolean;
             /** @enum {string} */
             nodeType?: "ARRAY" | "BINARY" | "BOOLEAN" | "MISSING" | "NULL" | "NUMBER" | "OBJECT" | "POJO" | "STRING";
@@ -1572,6 +1571,7 @@ export interface components {
             textual?: boolean;
             boolean?: boolean;
             binary?: boolean;
+            floatingPointNumber?: boolean;
             empty?: boolean;
             array?: boolean;
             null?: boolean;
@@ -1581,20 +1581,20 @@ export interface components {
             embeddedValue?: boolean;
         };
         InvitationPreviewResponse: {
-            householdName?: string;
-            invitedBy?: string;
+            householdName: string;
+            invitedBy: string;
             /** @enum {string} */
-            role?: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
+            role: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
             /** Format: date-time */
-            expiresAt?: string;
+            expiresAt: string;
         };
         MembershipResponse: {
             /** Format: uuid */
-            householdId?: string;
-            householdName?: string;
+            householdId: string;
+            householdName: string;
             /** @enum {string} */
-            role?: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
-            current?: boolean;
+            role: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
+            current: boolean;
         };
         Entry: {
             /** Format: uuid */

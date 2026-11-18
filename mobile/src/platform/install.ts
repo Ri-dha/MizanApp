@@ -2,6 +2,10 @@ import { openDatabaseAsync } from "expo-sqlite"
 
 import { installSecretStore } from "@mizan/core/platform/secretStore"
 import { installStore, TABLE_NAMES } from "@mizan/core/store/store"
+import { initialiseVault } from "@mizan/core/vault/account"
+import { loadSession } from "@mizan/core/auth/session"
+import { installApiClient } from "./api-client"
+import { installAuthHost, startSync } from "./hosts"
 import { secureSecretStore, deviceSecret } from "./secure-secret-store"
 import { createTables, sqliteStore } from "./sqlite-store"
 
@@ -25,5 +29,10 @@ export async function installPlatform(): Promise<{ cipherVersion: string }> {
   await createTables(db, TABLE_NAMES)
   installStore(sqliteStore(db))
   installSecretStore(secureSecretStore)
+  installApiClient()
+  installAuthHost()
+  await loadSession()
+  await initialiseVault()
+  startSync()
   return { cipherVersion: cipher.cipher_version }
 }

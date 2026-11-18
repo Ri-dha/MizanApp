@@ -1,4 +1,4 @@
-import { api, ApiError, required, unwrap } from "../api/client"
+import { api, ApiError, unwrap } from "../api/client"
 import { META_KEYS, readMeta, writeMeta } from "../db/meta"
 import { purgeExpiredDeletions } from "../db/transactions"
 import { onLocalWrite } from "../db/write"
@@ -82,9 +82,8 @@ async function deviceId(): Promise<string> {
   const known = await readMeta<string>(META_KEYS.deviceId)
   if (known) return known
   const device = await unwrap(api().POST("/api/v1/sync/devices", { body: { name: host().deviceName() } }))
-  const id = required(device.id, "device id")
-  await writeMeta(META_KEYS.deviceId, id)
-  return id
+  await writeMeta(META_KEYS.deviceId, device.id)
+  return device.id
 }
 
 
@@ -115,22 +114,17 @@ async function push(device: string) {
     const ops = await sendableOps()
     if (ops.length === 0) return
     const result = await unwrap(api().POST("/api/v1/sync/push", { body: { deviceId: device, ops } }))
-    const appliedIds = result.applied ?? []
-    const conflicts = await Promise.all((result.conflicts ?? []).map(async (conflict) => {
-      const conflictTable = required(conflict.table, "conflict table")
-      const rowId = required(conflict.rowId, "conflict row")
-      const field = required(conflict.field, "conflict field")
-      return {
-        id: required(conflict.id, "conflict id"),
-        table: conflictTable as SyncTableName,
-        rowId,
-        field,
-        clientValue: await openValue(conflictTable, rowId, field, conflict.clientValue),
-        serverValue: await openValue(conflictTable, rowId, field, conflict.serverValue),
-        detectedAt: required(conflict.detectedAt, "conflict time"),
-        dismissed: false,
-      }
-    }))
+    const appliedIds = result.applied
+    const conflicts = await Promise.all(result.conflicts.map(async (conflict) => ({
+      id: conflict.id,
+      table: conflict.table as SyncTableName,
+      rowId: conflict.rowId,
+      field: conflict.field,
+      clientValue: await openValue(conflict.table, conflict.rowId, conflict.field, conflict.clientValue),
+      serverValue: await openValue(conflict.table, conflict.rowId, conflict.field, conflict.serverValue),
+      detectedAt: conflict.detectedAt,
+      dismissed: false,
+    })))
     const applied = new Set(appliedIds)
     await store().transaction(["outbox", "conflicts", ...SYNCED_TABLES], async () => {
       await table("outbox").bulkDelete(appliedIds)

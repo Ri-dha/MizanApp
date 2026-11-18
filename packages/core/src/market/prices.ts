@@ -1,5 +1,6 @@
 import { rows } from "../store/store"
-import { readMeta } from "../db/meta"
+import { api, unwrap } from "../api/client"
+import { readMeta, writeMeta } from "../db/meta"
 import { type MarketInstrument, type MarketOverride, type MarketSetting, type Metal, type RateKind } from "../schema"
 import { writeFields } from "../db/write"
 import { todayIso } from "../domain/calendar/month"
@@ -17,6 +18,16 @@ export const QUOTES_KEY = "market.quotes"
 const STALE_AFTER_MS = 24 * 60 * 60 * 1000
 
 
+
+/** Pulled with every sync; served from the local copy so valuation works offline (FR-MKT-05). */
+export async function refreshQuotes(): Promise<void> {
+  await writeMeta(QUOTES_KEY, await unwrap(api().GET("/api/v1/market/quotes")))
+}
+
+/** The user asked for prices now: the server re-fetches from its feeds (within its cooldown) and answers with the result. */
+export async function fetchLiveQuotes(): Promise<void> {
+  await writeMeta(QUOTES_KEY, await unwrap(api().POST("/api/v1/market/refresh")))
+}
 
 export async function cachedQuotes(): Promise<Quote[]> {
   return (await readMeta<Quote[]>(QUOTES_KEY)) ?? []
