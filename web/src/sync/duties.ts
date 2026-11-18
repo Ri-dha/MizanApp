@@ -11,7 +11,7 @@ import { payloadOf, writeFields } from "@mizan/core/db/write"
 import { addDays, monthKeyFor, monthWindow, shiftKey, todayIso } from "@mizan/core/domain/calendar/month"
 import { monthViewFor } from "@/features/plan/useMonthFigures"
 import { deterministicId } from "@mizan/core/vault/crypto"
-import { holdsKey } from "@/vault/keyring"
+import { holdsKey } from "@mizan/core/vault/keyring"
 
 const APPEND_ONLY: ReadonlySet<string> = new Set(["net_worth_snapshot"])
 

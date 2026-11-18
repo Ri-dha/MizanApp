@@ -1,13 +1,12 @@
-import { api, unwrap } from "@/api/client"
-import { deleteMeta, readMeta, writeMeta } from "@mizan/core/db/meta"
+import { api, unwrap } from "../api/client"
+import { deleteMeta, readMeta, writeMeta } from "../db/meta"
+import { secretStore, type SealedBox } from "../platform/secretStore"
 import {
   newSharedKey, openGrant, readHeader, toBase64Url, wrapForMember, type KeyKind, type OpenAccount, type SealedHeader, type SealKind, type SealTarget,
-} from "@mizan/core/vault/crypto"
+} from "./crypto"
 
 const STORE_KEY = "vault.keyring"
-const DEVICE_KEY = "vault.deviceKey"
 const FIRST_VERSION = 1
-const IV_BYTES = 12
 
 interface SharedEntry {
   kind: KeyKind
@@ -20,10 +19,7 @@ interface Keyring {
   shared: SharedEntry[]
 }
 
-interface StoredKeyring {
-  iv: Uint8Array<ArrayBuffer>
-  sealed: ArrayBuffer
-}
+type StoredKeyring = SealedBox
 
 interface SerialisedKeyring {
   userKey: JsonWebKey
@@ -33,18 +29,6 @@ interface SerialisedKeyring {
 }
 
 let keyring: Keyring | null = null
-
-/**
- * The keys at rest on this device are sealed under a non-extractable key that IndexedDB keeps
- * as an opaque handle, so a copy of the database files alone does not yield them.
- */
-async function deviceKey(): Promise<CryptoKey> {
-  const known = await readMeta<CryptoKey>(DEVICE_KEY)
-  if (known) return known
-  const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"])
-  await writeMeta(DEVICE_KEY, key)
-  return key
-}
 
 async function persist() {
   if (!keyring) {
@@ -57,16 +41,15 @@ async function persist() {
     publicKey: keyring.account.publicKey,
     shared: await Promise.all(keyring.shared.map(async (entry) => ({ kind: entry.kind, version: entry.version, key: await crypto.subtle.exportKey("jwk", entry.key) }))),
   }
-  const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES))
-  const sealed = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await deviceKey(), new TextEncoder().encode(JSON.stringify(serialised)))
-  await writeMeta(STORE_KEY, { iv, sealed } satisfies StoredKeyring)
+  const box: StoredKeyring = await secretStore().seal(new TextEncoder().encode(JSON.stringify(serialised)))
+  await writeMeta(STORE_KEY, box)
 }
 
 export async function loadKeyring(): Promise<boolean> {
   const stored = await readMeta<StoredKeyring>(STORE_KEY)
   if (!stored) return false
   try {
-    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: stored.iv }, await deviceKey(), stored.sealed)
+    const plain = await secretStore().open(stored)
     const data = JSON.parse(new TextDecoder().decode(plain)) as SerialisedKeyring
     const aes = (jwk: JsonWebKey) => crypto.subtle.importKey("jwk", jwk, { name: "AES-GCM" }, true, ["encrypt", "decrypt"])
     keyring = {
@@ -96,7 +79,10 @@ export async function dropSharedKeys() {
   await persist()
 }
 
-export const DEVICE_META_KEYS = [STORE_KEY, DEVICE_KEY] as const
+/** What a change of household keeps: the account's own keys and the device secret that seals them. */
+export function deviceMetaKeys(): string[] {
+  return [STORE_KEY, ...secretStore().metaKeys]
+}
 
 export async function clearKeyring() {
   keyring = null
@@ -149,7 +135,7 @@ export class KeysReplacedError extends Error {
 
 export async function refreshGrants(): Promise<void> {
   if (!keyring) return
-  const mine = await unwrap(api.GET("/api/v1/keys/me"))
+  const mine = await unwrap(api().GET("/api/v1/keys/me"))
   if (mine.account?.publicKey && mine.account.publicKey !== keyring.account.publicKey) throw new KeysReplacedError()
   let changed = false
   for (const grant of (mine.grants ?? []) as Grant[]) {
@@ -185,7 +171,7 @@ interface KeyMember {
   holds: { keyKind: KeyKind; keyVersion: number }[]
 }
 
-const fetchMembers = async () => (await unwrap(api.GET("/api/v1/keys/household/members"))) as KeyMember[]
+const fetchMembers = async () => (await unwrap(api().GET("/api/v1/keys/household/members"))) as KeyMember[]
 
 function mayHold(member: KeyMember, kind: KeyKind): boolean {
   return kind === "HOUSEHOLD" ? member.mayHoldHouseholdKey : member.mayHoldReportKey
@@ -215,7 +201,7 @@ export async function shareKeysWithMembers(isOwner: boolean): Promise<void> {
       grants.push({ userId: member.userId, keyKind: kind, keyVersion: entry.version, wrappedKey: await wrapForMember(entry.key, member.publicKey, kind, entry.version) })
     }
   }
-  if (grants.length > 0) await unwrap(api.POST("/api/v1/keys/household/grants", { body: grants }))
+  if (grants.length > 0) await unwrap(api().POST("/api/v1/keys/household/grants", { body: grants }))
 }
 
 export function openAccount(): OpenAccount | null {

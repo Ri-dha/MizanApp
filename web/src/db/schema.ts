@@ -1,6 +1,4 @@
 import Dexie, { type EntityTable } from "dexie"
-import { installStore } from "@mizan/core/store/store"
-import { dexieStore } from "@/platform/dexieStore"
 import type {
   AnnualReport, Asset, AssetValuation, Attachment, Bucket, BucketMove, CashAccount, CashAdjustment, Debt, DebtPayment, ExpenseOccurrence, Goal, GoalDeposit, IncomeReceipt, IncomeSource, IncomeSourceAmount, LedgerTransaction, LocalBlob, LocalConflict, MarketOverride, MarketSetting, MemberContribution, MetaEntry, MetalDisposal, MetalDisposalLot, MetalLot, MonthClose, NetWorthSnapshot, NotificationSetting, OutboxOp, Plan, PrivacySetting, RecurringExpense, SealedRecord, SyncTableName, Syncable,
 } from "@mizan/core/schema"
@@ -109,7 +107,6 @@ export class MizanDatabase extends Dexie {
 }
 
 export const db = new MizanDatabase()
-installStore(dexieStore(db))
 
 export function localTableFor(table: SyncTableName) {
   return db.table<Syncable, string>(SYNC_TABLES[table])

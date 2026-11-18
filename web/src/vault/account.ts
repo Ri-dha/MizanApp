@@ -6,7 +6,7 @@ import {
   createAccountKeys, newRecoveryCode, openAccountWithPassword, openAccountWithRecovery, wrapUserKeyForPassword, wrapUserKeyForRecovery,
   type AccountKeyMaterial,
 } from "@mizan/core/vault/crypto"
-import { hasAccountKeys, loadKeyring, openAccount, setAccount } from "./keyring"
+import { hasAccountKeys, loadKeyring, openAccount, setAccount } from "@mizan/core/vault/keyring"
 
 /** "needs-recovery": the password changed by reset, so only the recovery code can open the keys. */
 export type VaultState = "unknown" | "ready" | "needs-recovery" | "missing"

@@ -1,6 +1,9 @@
 import createClient, { type Middleware } from "openapi-fetch"
 
 import type { paths } from "@mizan/core/api/generated"
+import { installApi } from "@mizan/core/api/client"
+
+export { ApiError, NETWORK_ERROR, unwrap } from "@mizan/core/api/client"
 
 const REFRESH_PATH = "/api/v1/auth/refresh"
 const AUTH_PATHS_WITHOUT_TOKEN = new Set([
@@ -28,22 +31,6 @@ export function setSessionLostHandler(handler: () => void) {
   onSessionLost = handler
 }
 
-export class ApiError extends Error {
-  readonly status: number
-  readonly code: string
-  readonly detail: string
-  readonly properties: Record<string, unknown>
-
-  constructor(status: number, code: string, detail: string, properties: Record<string, unknown> = {}) {
-    super(detail)
-    this.status = status
-    this.code = code
-    this.detail = detail
-    this.properties = properties
-  }
-}
-
-export const NETWORK_ERROR = new ApiError(0, "NETWORK", "Cannot reach the server")
 
 /**
  * Refreshes through the httpOnly cookie. Only one refresh runs at a time; concurrent 401s
@@ -90,18 +77,4 @@ const bearer: Middleware = {
 
 export const api = createClient<paths>({ baseUrl: "/", credentials: "include" })
 api.use(bearer)
-
-/** Turns openapi-fetch's `{ data, error }` into a value or a typed ApiError. */
-export async function unwrap<T>(call: Promise<{ data?: T; error?: unknown; response: Response }>): Promise<T> {
-  let result: { data?: T; error?: unknown; response: Response }
-  try {
-    result = await call
-  } catch {
-    throw NETWORK_ERROR
-  }
-  if (result.error !== undefined || !result.response.ok) {
-    const problem = (result.error ?? {}) as { code?: string; detail?: string; status?: number } & Record<string, unknown>
-    throw new ApiError(result.response.status, problem.code ?? "UNKNOWN", problem.detail ?? result.response.statusText, problem)
-  }
-  return result.data as T
-}
+installApi(api)

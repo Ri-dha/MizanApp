@@ -6,7 +6,7 @@ import { db } from "@/db/schema"
 import { META_KEYS, deleteMeta, readMeta, writeMeta } from "@mizan/core/db/meta"
 import { derivePasswordKeys } from "@mizan/core/vault/crypto"
 import { forgetVault, newAccountKeys, openAccountAfterSignIn, type VaultState } from "@/vault/account"
-import { clearKeyring, DEVICE_META_KEYS, dropSharedKeys } from "@/vault/keyring"
+import { clearKeyring, deviceMetaKeys, dropSharedKeys } from "@mizan/core/vault/keyring"
 import { resetLock } from "@/lock/store"
 
 export type { LocalSession } from "@mizan/core/session"
@@ -171,14 +171,14 @@ export async function logout() {
   await persist(null)
 }
 
-const DEVICE_META: readonly string[] = [META_KEYS.pin, META_KEYS.webauthn, META_KEYS.lockAfterSeconds, ...DEVICE_META_KEYS]
+const deviceMeta = (): string[] => [META_KEYS.pin, META_KEYS.webauthn, META_KEYS.lockAfterSeconds, ...deviceMetaKeys()]
 
 /**
  * A change of household keeps what belongs to the person and the device (the PIN, the
  * account's own keys) and drops every row and shared key of the household being left.
  */
 export async function clearHouseholdData() {
-  const kept = (await db.meta.bulkGet([...DEVICE_META])).filter((entry) => entry !== undefined)
+  const kept = (await db.meta.bulkGet(deviceMeta())).filter((entry) => entry !== undefined)
   await db.transaction("rw", db.tables, async () => {
     for (const table of db.tables) await table.clear()
     await db.meta.bulkPut(kept)

@@ -20,5 +20,8 @@
 - Phase 2 step 2 done: the `Store` interface with a Dexie adapter (web) and an in-memory one
   (tests); all `db/` modules, the month view and price resolution are in core. Core 140 + web 39
   tests; checked live in the browser (sign-in, sync, sealed rows, live ledger updates).
-- Next: `SecretStore`, `Lifecycle`, then keyring, records, sync engine and duties. Blockers: none.
+- Phase 2 step 3 done (uncommitted): API client slot, `SecretStore`, keyring and records in core;
+  old keyrings still open (checked live). Core 142 + web 39 tests.
+- Next: `Lifecycle` and sync engine hooks (ADR mobile-3), then engine, duties, account, lock,
+  attachments, backup. Blockers: none.
 - Validated: spike results in `spikes/rn-crypto/harness/out/` (gitignored), rerun steps in the learning.

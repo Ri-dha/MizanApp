@@ -154,7 +154,10 @@ dependencies and no browser-only globals: `domain/` maths, `schema.ts` record ty
 translations, `api/generated.d.ts`, `db/` (every read and write of local records, the month view),
 `market/prices.ts` (price resolution) and `store/` (the `Store` interface every app implements:
 Dexie on the web in `web/src/platform/dexieStore.ts`, an in-memory store for tests). Store helpers
-chain on the adapter's promises so Dexie live queries keep tracking reads. Web keeps the Dexie
+chain on the adapter's promises so Dexie live queries keep tracking reads. `api/client.ts` holds
+the slot for each app's typed client, `platform/secretStore.ts` the device secret that seals the
+keyring (web: a non-extractable key in IndexedDB), and `vault/keyring.ts` and `records.ts` the
+keys and field sealing. `web/src/platform/install.ts` installs the web's adapters at start-up. Web keeps the Dexie
 database class, the React hooks, the API calls, the Tesseract worker and the screens.
 
 ## Web (`web/src`)
