@@ -14,12 +14,12 @@ import { Switch } from "@/components/ui/switch"
 import { microsToRate, RATE_SCALE, rateToMicros } from "@/db/income"
 import { createLot, removeLot, updateLot } from "@/db/metals"
 import type { Metal, MetalForm, MetalLot, WeightUnit } from "@/db/schema"
-import { todayIso } from "@/domain/calendar/month"
-import { PURITIES, toMilligrams, valueOf } from "@/domain/metal/valuation"
+import { todayIso } from "@mizan/core/domain/calendar/month"
+import { PURITIES, toMilligrams, valueOf } from "@mizan/core/domain/metal/valuation"
 import { perGramFor } from "@/db/metals"
 import { useMetals } from "./useMetals"
-import { formatMoney } from "@/domain/money/format"
-import { fromMinorUnits, toMinorUnits } from "@/domain/money/format"
+import { formatMoney } from "@/app/money"
+import { fromMinorUnits, toMinorUnits } from "@/app/money"
 
 const UNITS: WeightUnit[] = ["GRAM", "MITHQAL", "TOLA", "TROY_OUNCE", "KILOGRAM"]
 const FORMS: MetalForm[] = ["JEWELLERY", "COIN", "BAR", "SCRAP"]

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { liveCashAccounts } from "@/db/cashAccounts"
 import type { CashAccount } from "@/db/schema"
 import { restore, softDelete } from "@/db/write"
-import { formatMoney } from "@/domain/money/format"
+import { formatMoney } from "@/app/money"
 import { AccountSheet } from "./AccountSheet"
 
 export function AccountsPage() {

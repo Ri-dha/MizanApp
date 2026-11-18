@@ -1,7 +1,7 @@
 import { db, type Bucket, type BucketMove, type Plan } from "./schema"
 import { createTransaction, deleteTransaction } from "./transactions"
 import { softDelete, writeFields } from "./write"
-import { shiftKey } from "@/domain/calendar/month"
+import { shiftKey } from "@mizan/core/domain/calendar/month"
 
 export interface BucketInput {
   id?: string

@@ -2,8 +2,8 @@ import i18n from "i18next"
 import LanguageDetector from "i18next-browser-languagedetector"
 import { initReactI18next } from "react-i18next"
 
-import ar from "./ar.json"
-import en from "./en.json"
+import ar from "@mizan/core/i18n/ar.json"
+import en from "@mizan/core/i18n/en.json"
 
 export const SUPPORTED_LOCALES = ["en", "ar"] as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]

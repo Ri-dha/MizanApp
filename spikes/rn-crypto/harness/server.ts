@@ -4,7 +4,7 @@ import { FIELD_VALUES, IDENTIFIERS, PASSWORD, makeFixtures, runAll } from "./cas
 import type { CaseResult, Results } from "./cases.ts"
 import {
   derivePasswordKeys, openAccountWithPassword, openAccountWithRecovery, openField, openGrant, readHeader, toBase64Url,
-} from "../../../web/src/vault/crypto.ts"
+} from "../../../packages/core/src/vault/crypto.ts"
 
 const PORT = 8787
 const OUT = new URL("./out/", import.meta.url)

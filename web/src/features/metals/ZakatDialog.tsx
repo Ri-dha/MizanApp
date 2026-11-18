@@ -7,10 +7,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import type { LotValuation } from "@/db/metals"
-import { todayIso } from "@/domain/calendar/month"
-import { formatHijri } from "@/domain/calendar/hijri"
-import { formatMoney } from "@/domain/money/format"
-import { valueOf } from "@/domain/metal/valuation"
+import { todayIso } from "@mizan/core/domain/calendar/month"
+import { formatHijri } from "@mizan/core/domain/calendar/hijri"
+import { formatMoney } from "@/app/money"
+import { valueOf } from "@mizan/core/domain/metal/valuation"
 
 /** Classical nisab: 20 mithqal of gold (85 g) or 200 dirhams of silver (595 g); both editable. */
 const DEFAULT_NISAB_GOLD_G = 85

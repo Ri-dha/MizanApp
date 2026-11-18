@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { liveRecurringExpenses } from "@/db/expenses"
 import type { RecurringExpense } from "@/db/schema"
-import { todayIso } from "@/domain/calendar/month"
-import { subscriptionSummary } from "@/domain/expense/subscriptions"
-import { formatMoney } from "@/domain/money/format"
+import { todayIso } from "@mizan/core/domain/calendar/month"
+import { subscriptionSummary } from "@mizan/core/domain/expense/subscriptions"
+import { formatMoney } from "@/app/money"
 import { useMetals } from "@/features/metals/useMetals"
 
 /** Every bill in the Subscriptions category, what each costs per month and per year, and the totals in dinars and dollars. */

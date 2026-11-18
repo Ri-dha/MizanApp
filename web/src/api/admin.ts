@@ -1,6 +1,6 @@
 import { api, unwrap } from "./client"
 import { authKeyFor } from "./auth"
-import type { components } from "./generated"
+import type { components } from "@mizan/core/api/generated"
 
 export type Overview = components["schemas"]["Overview"]
 export type Setting = components["schemas"]["SettingResponse"]

@@ -1,8 +1,8 @@
 import {
   createAccountKeys, derivePasswordKeys, deterministicId, fromBase64Url, newRecoveryCode, newSharedKey, normaliseIdentifier,
   openAccountWithPassword, openAccountWithRecovery, openField, openGrant, readHeader, sealField, toBase64Url, wrapForMember,
-} from "../../../web/src/vault/crypto.ts"
-import type { AccountKeyMaterial } from "../../../web/src/vault/crypto.ts"
+} from "../../../packages/core/src/vault/crypto.ts"
+import type { AccountKeyMaterial } from "../../../packages/core/src/vault/crypto.ts"
 
 export const A_PKCS8 = "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgUFHbm4T7N9cUNesyBIYghhiTOumOi5yUA6F8Z_q2P2-hRANCAATZw2c53wYEBtYcV9CxRsXdysijiA5tpST3miTITOoyLkI3Ri1rU4NWiwyFgr8LjNsrXab-pCiX7nlMD7ISn_7Y"
 export const A_SPKI = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE2cNnOd8GBAbWHFfQsUbF3crIo4gObaUk95okyEzqMi5CN0Yta1ODVosMhYK_C4zbK12m_qQol-55TA-yEp_-2A"

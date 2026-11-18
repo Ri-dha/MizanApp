@@ -15,7 +15,7 @@ import { assetsTable, downloadBlob, lotsTable, toCsv, toXlsx, transactionsTable,
 import { db, type Attachment } from "@/db/schema"
 import { CsvImportDialog } from "./CsvImportDialog"
 import { clearBackupPassphrase, createBackup, openBackup, setAutomaticBackup, setBackupPassphrase, useBackupState, useBackups } from "@/backup/store"
-import { todayIso } from "@/domain/calendar/month"
+import { todayIso } from "@mizan/core/domain/calendar/month"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"

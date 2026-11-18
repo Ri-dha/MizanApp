@@ -1,0 +1,17 @@
+{
+  "name": "@mizan/core",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Logic every Mizan client shares: domain maths, record types, and later the vault and sync (ADR mobile-2). Plain TypeScript source with no runtime dependencies, compiled by each app.",
+  "scripts": {
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.4",
+    "fast-check": "^4.10.0",
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.0"
+  }
+}

@@ -13,9 +13,9 @@ import { Input } from "@/components/ui/input"
 import { currentValue, liveAssets, liveValuations } from "@/db/assets"
 import { liveDeposits, liveGoals, recordDeposit, savedOf, undoDeposit } from "@/db/goals"
 import type { Goal, GoalDeposit } from "@/db/schema"
-import { monthKeyFor, todayIso } from "@/domain/calendar/month"
-import { goalProjection } from "@/domain/goal/projection"
-import { formatMoney, toMinorUnits } from "@/domain/money/format"
+import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
+import { goalProjection } from "@mizan/core/domain/goal/projection"
+import { formatMoney, toMinorUnits } from "@/app/money"
 import { GoalSheet } from "./GoalSheet"
 
 export function GoalsPage() {

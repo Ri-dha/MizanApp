@@ -14,8 +14,8 @@ import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/com
 import { Switch } from "@/components/ui/switch"
 import { createIncomeSource, historyOf, microsToRate, RATE_SCALE, rateToMicros, recordAmountChange, removeAmountChange, updateIncomeSource } from "@/db/income"
 import type { Frequency, IncomeSource, IncomeSourceAmount } from "@/db/schema"
-import { todayIso } from "@/domain/calendar/month"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@/domain/money/format"
+import { todayIso } from "@mizan/core/domain/calendar/month"
+import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 
 const FREQUENCIES: Frequency[] = ["MONTHLY", "BIWEEKLY", "WEEKLY", "ONE_OFF"]
 const CURRENCIES = ["IQD", "USD"]

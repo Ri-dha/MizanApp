@@ -1,8 +1,8 @@
 import { db, type DisposalMethod, type MarketSetting, type Metal, type MetalDisposal, type MetalDisposalLot, type MetalLot, type Visibility } from "./schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
-import { planDisposal, type PlannerLot } from "@/domain/metal/disposal"
-import { PURITIES, metalValuation, valueOf } from "@/domain/metal/valuation"
+import { planDisposal, type PlannerLot } from "@mizan/core/domain/metal/disposal"
+import { PURITIES, metalValuation, valueOf } from "@mizan/core/domain/metal/valuation"
 import type { ResolvedPrices } from "@/market/store"
 
 export interface LotInput {

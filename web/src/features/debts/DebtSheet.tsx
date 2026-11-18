@@ -18,8 +18,8 @@ import { microsToRate, RATE_SCALE, rateToMicros } from "@/db/income"
 import { liveBucketsOf, livePlans, planFor } from "@/db/plan"
 import type { Debt, DebtDirection } from "@/db/schema"
 import { softDelete } from "@/db/write"
-import { todayIso } from "@/domain/calendar/month"
-import { fromMinorUnits, toMinorUnits } from "@/domain/money/format"
+import { todayIso } from "@mizan/core/domain/calendar/month"
+import { fromMinorUnits, toMinorUnits } from "@/app/money"
 
 const CURRENCIES = ["IQD", "USD"]
 const NONE = "__none__"

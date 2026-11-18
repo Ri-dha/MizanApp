@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch"
 import { createCashAccount, liveAdjustmentsOf, updateCashAccount } from "@/db/cashAccounts"
 import { useLiveQuery } from "dexie-react-hooks"
 import type { CashAccount, CashAccountKind } from "@/db/schema"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@/domain/money/format"
+import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 
 const KINDS: CashAccountKind[] = ["WALLET", "BANK", "CASH_AT_HOME", "OTHER"]
 const CURRENCIES = ["IQD", "USD"]

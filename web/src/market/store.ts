@@ -2,7 +2,7 @@ import { api, unwrap } from "@/api/client"
 import { META_KEYS, readMeta, writeMeta } from "@/db/meta"
 import { db, type MarketInstrument, type MarketOverride, type MarketSetting, type Metal, type RateKind } from "@/db/schema"
 import { writeFields } from "@/db/write"
-import { todayIso } from "@/domain/calendar/month"
+import { todayIso } from "@mizan/core/domain/calendar/month"
 
 export interface Quote {
   instrument: "XAU" | "XAG" | "USDIQD_OFFICIAL" | "USDIQD_PARALLEL" | "XAU_LOCAL" | "XAG_LOCAL" | "XAU_LOCAL_BID" | "XAG_LOCAL_BID"

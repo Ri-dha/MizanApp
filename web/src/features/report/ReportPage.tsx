@@ -7,7 +7,7 @@ import { shiftMonth, useSelectedMonth } from "@/app/month"
 import { MonthPicker } from "@/components/MonthPicker"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatMoney } from "@/domain/money/format"
+import { formatMoney } from "@/app/money"
 import { useMonthView } from "@/features/plan/useMonthFigures"
 
 const TOP_CATEGORIES = 5

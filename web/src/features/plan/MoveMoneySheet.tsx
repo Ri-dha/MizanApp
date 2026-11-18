@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { moveMoney } from "@/db/plan"
 import type { Bucket } from "@/db/schema"
-import { monthKeyFor, monthWindow, todayIso } from "@/domain/calendar/month"
-import { formatMoney, toMinorUnits } from "@/domain/money/format"
-import type { MonthFiguresResult } from "@/domain/plan/figures"
+import { monthKeyFor, monthWindow, todayIso } from "@mizan/core/domain/calendar/month"
+import { formatMoney, toMinorUnits } from "@/app/money"
+import type { MonthFiguresResult } from "@mizan/core/domain/plan/figures"
 
 interface Props {
   open: boolean

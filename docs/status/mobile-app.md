@@ -1,5 +1,6 @@
 # Status — mobile-app
-- Branch: `feat/mobile-crypto-spike` from develop (588eddf); uncommitted.
+- Repo: Ri-dha/MizanApp (ADR split-1). Phase 1 committed on `feat/mobile-crypto-spike`. Phase 2 on
+  `feat/mobile-core` (from `chore/split-clients`), uncommitted.
 - Exists: Phase 1 spike in `spikes/rn-crypto` (throwaway Expo SDK 58 app plus a Node verifier,
   `harness/`). It runs the unchanged `web/src/vault/crypto.ts` on the phone.
 - Result: `react-native-quick-crypto` matches the web byte for byte, 18 of 18 cases on the iPhone 17
@@ -13,5 +14,9 @@
   `packages/core` in Phase 2; all OCR must run on the device (ADR e2e-1).
 - Order: T-shadcn-ui, T-price-history and T-admin-dashboard finished first (main at d5099dc), so
   parity includes the Prices screen and the dashboard. Scope: full parity, iPhone and Android together.
-- Next: Phase 2, the shared core package. Blockers: none.
+- Phase 2 step 1 done: `packages/core` (source package, ADR mobile-2) holds domain maths, record
+  types, hlc, merge, vault crypto, receipt parsing, translations, API types. Core 126 + web 45
+  tests (171, unchanged); web build and the prod web image pass.
+- Next: platform interfaces (`Store`, `SecretStore`, `Lifecycle`) and the stateful modules.
+  Blockers: none.
 - Validated: spike results in `spikes/rn-crypto/harness/out/` (gitignored), rerun steps in the learning.

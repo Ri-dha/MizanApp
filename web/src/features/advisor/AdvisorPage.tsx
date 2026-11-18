@@ -7,7 +7,7 @@ import { db } from "@/db/schema"
 import { formatMonthKey } from "@/app/month"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatMoney } from "@/domain/money/format"
+import { formatMoney } from "@/app/money"
 
 /** §4.2 P4: what an advisor sees, built by members' devices from shared records; never a transaction. */
 export function AdvisorPage() {

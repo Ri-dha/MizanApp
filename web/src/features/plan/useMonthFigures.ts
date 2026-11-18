@@ -7,8 +7,8 @@ import { liveAmountHistory, liveIncomeSources, liveReceiptsFor, monthIncome, occ
 import { liveBucketsOf, liveMovesFor, livePlans, planFor } from "@/db/plan"
 import type { Bucket, BucketMove, Debt, DebtPayment, Goal, GoalDeposit, IncomeReceipt, IncomeSource, IncomeSourceAmount, LedgerTransaction, Plan, RecurringExpense } from "@/db/schema"
 import { liveTransactionsFor, spentByBucket, transfersByBucket } from "@/db/transactions"
-import { shiftKey } from "@/domain/calendar/month"
-import { monthFigures, type MonthFiguresResult } from "@/domain/plan/figures"
+import { shiftKey } from "@mizan/core/domain/calendar/month"
+import { monthFigures, type MonthFiguresResult } from "@mizan/core/domain/plan/figures"
 
 export interface MonthView {
   plan: Plan | undefined

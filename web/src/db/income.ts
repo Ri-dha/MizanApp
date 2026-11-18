@@ -1,8 +1,8 @@
-import { minorUnitsPerMajor } from "@/domain/money/format"
+import { minorUnitsPerMajor } from "@/app/money"
 import { db, type IncomeReceipt, type IncomeSource, type IncomeSourceAmount, type Visibility } from "./schema"
 import { softDelete, writeFields } from "./write"
-import { monthWindow } from "@/domain/calendar/month"
-import { amountOn, plannedIncome, type Occurrence } from "@/domain/income/planned"
+import { monthWindow } from "@mizan/core/domain/calendar/month"
+import { amountOn, plannedIncome, type Occurrence } from "@mizan/core/domain/income/planned"
 
 export const RATE_SCALE = 1_000_000
 

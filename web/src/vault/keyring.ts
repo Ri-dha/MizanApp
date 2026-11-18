@@ -2,7 +2,7 @@ import { api, unwrap } from "@/api/client"
 import { deleteMeta, readMeta, writeMeta } from "@/db/meta"
 import {
   newSharedKey, openGrant, readHeader, toBase64Url, wrapForMember, type KeyKind, type OpenAccount, type SealedHeader, type SealKind, type SealTarget,
-} from "./crypto"
+} from "@mizan/core/vault/crypto"
 
 const STORE_KEY = "vault.keyring"
 const DEVICE_KEY = "vault.deviceKey"

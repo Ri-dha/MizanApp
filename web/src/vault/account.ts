@@ -5,7 +5,7 @@ import { deleteMeta, readMeta, writeMeta } from "@/db/meta"
 import {
   createAccountKeys, newRecoveryCode, openAccountWithPassword, openAccountWithRecovery, wrapUserKeyForPassword, wrapUserKeyForRecovery,
   type AccountKeyMaterial,
-} from "./crypto"
+} from "@mizan/core/vault/crypto"
 import { hasAccountKeys, loadKeyring, openAccount, setAccount } from "./keyring"
 
 /** "needs-recovery": the password changed by reset, so only the recovery code can open the keys. */

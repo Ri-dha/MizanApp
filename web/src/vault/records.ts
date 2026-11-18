@@ -1,4 +1,4 @@
-import { openField, readHeader, sealField } from "./crypto"
+import { openField, readHeader, sealField } from "@mizan/core/vault/crypto"
 import { keyFor, sealTargetFor } from "./keyring"
 
 /** The only values the server reads (ADR e2e-1): who may see the row, and when it was deleted. */

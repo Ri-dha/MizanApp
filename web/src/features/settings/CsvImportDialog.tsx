@@ -11,13 +11,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { guessMapping, guessPositiveIs, headerSignature, mapRows, parseCsv, type CsvField, type CsvProfile, type CsvTable, type ImportedRow } from "@/data/csvImport"
 import { META_KEYS, readMeta, writeMeta } from "@/db/meta"
-import { suggestCategory } from "@/domain/categorise"
+import { suggestCategory } from "@mizan/core/domain/categorise"
 import { Input } from "@/components/ui/input"
 import { liveBucketsOf, livePlans, planFor } from "@/db/plan"
 import { db, type TransactionType } from "@/db/schema"
 import { createTransaction } from "@/db/transactions"
-import { monthKeyFor } from "@/domain/calendar/month"
-import { toMinorUnits } from "@/domain/money/format"
+import { monthKeyFor } from "@mizan/core/domain/calendar/month"
+import { toMinorUnits } from "@/app/money"
 
 const FIELDS: CsvField[] = ["ignore", "date", "amount", "type", "payee", "category", "note"]
 const NONE = "__none__"

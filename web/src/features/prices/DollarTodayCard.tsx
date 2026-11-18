@@ -4,7 +4,7 @@ import { Link } from "react-router"
 import { SourceCredit } from "@/components/SourceCredit"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatMoney } from "@/domain/money/format"
+import { formatMoney } from "@/app/money"
 import { cn } from "@/lib/utils"
 import { usePriceSeries } from "@/market/prices"
 

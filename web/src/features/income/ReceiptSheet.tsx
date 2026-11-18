@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/com
 import { microsToRate, RATE_SCALE, rateToMicros, recordReceipt, toBaseAmount } from "@/db/income"
 import type { IncomeReceipt } from "@/db/schema"
 import { softDelete, writeFields } from "@/db/write"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@/domain/money/format"
+import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 
 const CURRENCIES = ["IQD", "USD"]
 

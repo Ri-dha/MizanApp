@@ -1,8 +1,8 @@
 import { db, type Asset, type AssetType, type AssetValuation, type Liquidity, type Visibility } from "./schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
-import { depreciate, wholeMonthsBetween, type DepreciationMethod } from "@/domain/asset/depreciation"
-import type { AssetClass } from "@/domain/networth/networth"
+import { depreciate, wholeMonthsBetween, type DepreciationMethod } from "@mizan/core/domain/asset/depreciation"
+import type { AssetClass } from "@mizan/core/domain/networth/networth"
 
 export interface AssetInput {
   type: AssetType

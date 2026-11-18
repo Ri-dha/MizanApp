@@ -5,8 +5,8 @@ import { SourceCredit } from "@/components/SourceCredit"
 import { useSession } from "@/api/auth"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { premiumFor } from "@/db/metals"
-import { MICROGRAMS_PER_TROY_OUNCE, PURITIES, metalValuation } from "@/domain/metal/valuation"
-import { formatMoney } from "@/domain/money/format"
+import { MICROGRAMS_PER_TROY_OUNCE, PURITIES, metalValuation } from "@mizan/core/domain/metal/valuation"
+import { formatMoney } from "@/app/money"
 import type { MetalsView } from "./useMetals"
 
 /** FR-MKT-02: every intermediate of BR-08, with the numbers currently in use. */

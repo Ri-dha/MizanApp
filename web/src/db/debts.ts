@@ -2,7 +2,7 @@ import { db, type Debt, type DebtPayment, type Visibility } from "./schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
 import { createTransaction, deleteTransaction } from "./transactions"
-import { monthlyInterest } from "@/domain/debt/payoff"
+import { monthlyInterest } from "@mizan/core/domain/debt/payoff"
 
 export interface DebtInput {
   name: string

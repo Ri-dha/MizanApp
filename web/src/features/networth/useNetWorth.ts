@@ -6,8 +6,8 @@ import { liveCashAccounts } from "@/db/cashAccounts"
 import { liveDebts, livePayments } from "@/db/debts"
 import { liveMonthCloses, liveNetWorth, liveSnapshots } from "@/db/networth"
 import type { Asset, AssetValuation, MonthClose, NetWorthSnapshot } from "@/db/schema"
-import { todayIso } from "@/domain/calendar/month"
-import type { NetWorthResult } from "@/domain/networth/networth"
+import { todayIso } from "@mizan/core/domain/calendar/month"
+import type { NetWorthResult } from "@mizan/core/domain/networth/networth"
 import { useMetals } from "@/features/metals/useMetals"
 
 export interface NetWorthView {

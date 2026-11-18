@@ -28,7 +28,7 @@ docs/manual/  one Markdown source → in-app /help and static /docs
 ## End-to-end encryption (ADR e2e-1, e2e-2)
 
 - The server never sees a password, an amount, a name or a note. The device derives an auth key
-  and a wrapping key from the password (PBKDF2 600k, HKDF; `web/src/vault/crypto.ts`). Only the
+  and a wrapping key from the password (PBKDF2 600k, HKDF; `packages/core/src/vault/crypto.ts`). Only the
   auth key is sent, and the server hashes it with Argon2id.
 - Each user has a user key (wrapped by the password key and by a one-time recovery code) and an
   ECDH P-256 pair. Each household has a household key and a report key, versioned and granted by
@@ -103,7 +103,7 @@ docs/manual/  one Markdown source → in-app /help and static /docs
 
 ## Domain maths
 
-Pure code with no framework in `web/src/domain`; the server no longer calculates (ADR e2e-1). Each
+Pure code with no framework in `packages/core/src/domain`; the server no longer calculates (ADR e2e-1). Each
 module has a vector file in `shared/test-vectors/` that every client (web now, Flutter later) must
 pass: money split (largest remainder), month window, planned
 income, month figures (fixed buckets, carry-over, transfers), debt payoff, debt strategy,
@@ -146,9 +146,17 @@ contributions and annual reports), `vault` (key directory, grants, migration), `
 (security, tenancy, audit, errors, storage, web filters). Modules do not import each other's
 entities or repositories.
 
+## Shared core (`packages/core/src`, ADR mobile-2)
+
+Plain TypeScript every client compiles through the `@mizan/core` alias, with no runtime
+dependencies and no browser-only globals: `domain/` maths, `schema.ts` record types and
+`SYNC_TABLES`, `sync/hlc.ts` and `merge.ts`, `vault/crypto.ts`, `ocr/` receipt parsing, `i18n/`
+translations, `api/generated.d.ts`. Web keeps the Dexie database, the Tesseract worker and the
+screens.
+
 ## Web (`web/src`)
 
-`features/*` screens, `db/` the only writer to synced tables, `sync/` engine and device duties,
+`features/*` screens, `db/` the Dexie database and only writer to synced tables, `sync/` engine and device duties,
 `vault/` keys and field sealing, `lock/` PIN and WebAuthn, `attachments/` encrypted receipts, `market/` quotes, history and resolution, `ocr/`
 Tesseract on device, `tours/` react-joyride, `help/` bundled manual, `pwa/` install and service
 worker, `i18n/` en and ar with RTL. UI is standard shadcn/ui (Radix, Tailwind v4)

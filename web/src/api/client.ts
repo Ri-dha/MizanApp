@@ -1,6 +1,6 @@
 import createClient, { type Middleware } from "openapi-fetch"
 
-import type { paths } from "./generated"
+import type { paths } from "@mizan/core/api/generated"
 
 const REFRESH_PATH = "/api/v1/auth/refresh"
 const AUTH_PATHS_WITHOUT_TOKEN = new Set([

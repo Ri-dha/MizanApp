@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { balanceOf, recordPayment, undoPayment } from "@/db/debts"
 import type { Debt, DebtPayment } from "@/db/schema"
-import { monthKeyFor, todayIso } from "@/domain/calendar/month"
-import { debtPayoff } from "@/domain/debt/payoff"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@/domain/money/format"
+import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
+import { debtPayoff } from "@mizan/core/domain/debt/payoff"
+import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 
 interface Props {
   debt: Debt | null

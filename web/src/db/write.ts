@@ -1,6 +1,6 @@
 import { db, localTableFor, type Syncable, type SyncTableName } from "./schema"
 import { META_KEYS, readMeta, writeMeta } from "./meta"
-import { formatHlc, newNodeId, tick, type HlcState } from "@/sync/hlc"
+import { formatHlc, newNodeId, tick, type HlcState } from "@mizan/core/sync/hlc"
 
 export const ENVELOPE_FIELDS: ReadonlySet<string> = new Set(["id", "ownerId", "clocks", "vaulted"])
 

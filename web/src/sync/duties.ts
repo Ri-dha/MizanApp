@@ -8,9 +8,9 @@ import { liveMonthCloses, liveSnapshots, isMonthClosed, snapshotFor } from "@/db
 import { NOTIFICATION_DEFAULTS, liveNotificationSetting } from "@/db/notifications"
 import { db, localTableFor, SYNC_TABLES, type AnnualReport, type AnnualReportMonth, type Bucket, type Plan, type Syncable, type SyncTableName } from "@/db/schema"
 import { payloadOf, writeFields } from "@/db/write"
-import { addDays, monthKeyFor, monthWindow, shiftKey, todayIso } from "@/domain/calendar/month"
+import { addDays, monthKeyFor, monthWindow, shiftKey, todayIso } from "@mizan/core/domain/calendar/month"
 import { monthViewFor } from "@/features/plan/useMonthFigures"
-import { deterministicId } from "@/vault/crypto"
+import { deterministicId } from "@mizan/core/vault/crypto"
 import { holdsKey } from "@/vault/keyring"
 
 const APPEND_ONLY: ReadonlySet<string> = new Set(["net_worth_snapshot"])

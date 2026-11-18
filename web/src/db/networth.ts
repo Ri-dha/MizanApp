@@ -3,7 +3,7 @@ import { writeFields } from "./write"
 import { baseBalanceOf } from "./debts"
 import { toBaseAmount } from "./income"
 import { assetTotals } from "./assets"
-import { netWorth, type NetWorthResult } from "@/domain/networth/networth"
+import { netWorth, type NetWorthResult } from "@mizan/core/domain/networth/networth"
 import type { ResolvedPrices } from "@/market/store"
 
 const CENTS_PER_DOLLAR = 100

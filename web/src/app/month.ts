@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react"
 
-import { monthKeyFor, shiftKey, todayIso } from "@/domain/calendar/month"
+import { monthKeyFor, shiftKey, todayIso } from "@mizan/core/domain/calendar/month"
 
 let selected: string | null = null
 const listeners = new Set<() => void>()

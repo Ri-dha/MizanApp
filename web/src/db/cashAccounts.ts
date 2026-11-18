@@ -1,7 +1,7 @@
 import { db, type CashAccount, type CashAccountKind, type Visibility } from "./schema"
 import { writeFields } from "./write"
 import { recordCashAdjustment } from "./networth"
-import { todayIso } from "@/domain/calendar/month"
+import { todayIso } from "@mizan/core/domain/calendar/month"
 
 export interface CashAccountInput {
   name: string

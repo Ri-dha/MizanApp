@@ -27,4 +27,4 @@ web/public/ocr/
 .DS_Store
 /PLAN.md
 /CLAUDE.md
-/node_modules/
+node_modules/

@@ -13,8 +13,8 @@ import { openFields, openValue, sealFields } from "@/vault/records"
 import { mayHoldHouseholdKey } from "@/app/roles"
 import { completeMigrationIfDrained, runDeviceDuties } from "./duties"
 import { META_KEYS, readMeta, writeMeta } from "@/db/meta"
-import { newNodeId, observe, type HlcState } from "./hlc"
-import { mergeFields } from "./merge"
+import { newNodeId, observe, type HlcState } from "@mizan/core/sync/hlc"
+import { mergeFields } from "@mizan/core/sync/merge"
 
 export type SyncPhase = "idle" | "offline" | "syncing" | "error"
 

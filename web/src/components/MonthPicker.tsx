@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { shiftMonth, formatMonthKey } from "@/app/month"
 import { usePreferences } from "@/app/preferences"
-import { formatHijri } from "@/domain/calendar/hijri"
+import { formatHijri } from "@mizan/core/domain/calendar/hijri"
 import { Button } from "@/components/ui/button"
 
 export function MonthPicker({ value, onChange }: { value: string; onChange: (key: string) => void }) {

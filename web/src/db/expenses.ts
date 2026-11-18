@@ -2,8 +2,8 @@ import { db, type ExpenseOccurrence, type RecurringExpense, type Visibility } fr
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
 import { createTransaction, deleteTransaction } from "./transactions"
-import { monthWindow } from "@/domain/calendar/month"
-import { dueDates } from "@/domain/expense/schedule"
+import { monthWindow } from "@mizan/core/domain/calendar/month"
+import { dueDates } from "@mizan/core/domain/expense/schedule"
 
 export interface RecurringExpenseInput {
   name: string

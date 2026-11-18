@@ -1,5 +1,5 @@
 # T-mobile-app — iPhone and Android apps with Expo
-- Status: in-progress (2026-11-18), Phase 1 done on feat/mobile-crypto-spike
+- Status: in-progress (2026-11-18), Phase 1 done; Phase 2 step 1 on feat/mobile-core
 - Context: ADR mobile-1 (accepted), ADR e2e-1, e2e-2, sync-1, ui-1. Supersedes T-flutter-app.
   Owner decisions 2026-11-18: after T-shadcn-ui and before T-price-history and T-admin-dashboard;
   full parity in the first release; iPhone and Android together; **OCR on hold until the end**
@@ -14,7 +14,7 @@
      Done 2026-11-18: 18 of 18 cases pass on iOS and Android with the unchanged vault module, no
      fallback needed (`docs/learnings/2026-11-18-quick-crypto-matches-web-vault.md`,
      `spikes/rn-crypto`). Still open: PBKDF2 timing on a real mid-range phone.
-  2. Shared core: npm workspaces; `packages/core` (no React, no browser or RN globals). Move
+  2. Shared core: `packages/core` as a source package, no workspaces (ADR mobile-2) (no React, no browser or RN globals). Move
      `domain/`, receipt parsing, `sync/hlc.ts`, `sync/merge.ts`, `vault/crypto.ts`,
      `vault/records.ts`, schema types, translations, API types. Platform interfaces: `Store`
      (tables, transactions, change events, meta, outbox, conflicts, sealed inbox; web adapter
@@ -24,6 +24,12 @@
      `attachments/crypto.ts`, the backup format, and the logic of `useMonthFigures`,
      `useMetals`, `useNetWorth`. Web tests green after every step. ADR mobile-2 for the
      interfaces.
+     Step 1 done 2026-11-18 (feat/mobile-core): core package with its own tests and CI job;
+     moved `domain/`, record types and `SYNC_TABLES`, `sync/hlc.ts`, `sync/merge.ts`,
+     `vault/crypto.ts`, receipt parsing, translations, API types. `formatMoney` takes the digit
+     style as a parameter (`web/src/app/money.ts` passes the preference). Core 126 tests, web 45
+     (171 as before). `vault/records.ts` waits for the keyring (stateful). Next: the platform
+     interfaces and the stateful modules.
   3. Vectors: `shared/test-vectors/vault-*.json` (identifier normalisation, auth key and wrap
      secret, account key wrap/open, grant wrap/open, field seal/open, deterministic ids, blob
      keys), generated from the web with fixed randomness; core and mobile run them.

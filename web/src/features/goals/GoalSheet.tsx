@@ -18,7 +18,7 @@ import { createGoal, updateGoal } from "@/db/goals"
 import { liveBucketsOf, livePlans, planFor } from "@/db/plan"
 import type { Goal } from "@/db/schema"
 import { writeFields } from "@/db/write"
-import { fromMinorUnits, toMinorUnits } from "@/domain/money/format"
+import { fromMinorUnits, toMinorUnits } from "@/app/money"
 
 const CURRENCIES = ["IQD", "USD"]
 const NONE = "__none__"

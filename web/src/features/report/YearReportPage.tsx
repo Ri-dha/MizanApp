@@ -10,7 +10,7 @@ import { currentMonthKey, formatMonthKey } from "@/app/month"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { trailingSavingRate, yearSummary, type YearSummary } from "@/db/report"
-import { formatMoney } from "@/domain/money/format"
+import { formatMoney } from "@/app/money"
 
 const PALETTE = ["#88aaee", "#ffdc58", "#ff6b6b", "#a3e635", "#c4a1ff", "#fd9745", "#7fdbca", "#f472b6"]
 const TOP_CATEGORIES = 8

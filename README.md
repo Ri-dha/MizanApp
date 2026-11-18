@@ -268,6 +268,7 @@ than the configured timeout (30 seconds by default).
 ## Tests
 
 ```bash
+cd packages/core && npm install && npm test && npm run typecheck
 cd web && npm test && npm run typecheck
 ```
 
@@ -276,6 +277,8 @@ cd web && npm test && npm run typecheck
 - `web/src/features/<feature>` — screens. `db/` is the local store and the only place that writes to
   syncable tables. `sync/` is the change-log engine and the work devices do after a sync. `vault/` derives keys
   and seals every field. `lock/` is the PIN and biometric lock.
+- `packages/core/src` — logic every client shares (domain maths, record types, vault, clock and merge,
+  receipt parsing, translations, API types), imported as `@mizan/core/...` (ADR mobile-2).
 - `shared/test-vectors/` — one JSON file per business rule, the contract every client's tests load.
 - `docs/manual/<lang>/` — the user manual, bundled into the app at `/help` and built into `dist/docs`.
 - `web/src/tours/` — guided tour definitions and the single Joyride mount; screens mark targets with `data-tour`.

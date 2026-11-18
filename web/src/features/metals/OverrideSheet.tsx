@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import type { MarketInstrument } from "@/db/schema"
-import { PURITIES, MILLIGRAMS_PER_UNIT } from "@/domain/metal/valuation"
+import { PURITIES, MILLIGRAMS_PER_UNIT } from "@mizan/core/domain/metal/valuation"
 import { setOverride } from "@/market/store"
 import type { MetalsView } from "./useMetals"
 

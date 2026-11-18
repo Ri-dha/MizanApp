@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { usePreferences } from "./preferences"
-import { formatDate } from "@/domain/calendar/hijri"
+import { formatDate } from "@mizan/core/domain/calendar/hijri"
 
 /** One place for the app's date rendering so the Hijri preference applies everywhere. */
 export function useDateFormat() {

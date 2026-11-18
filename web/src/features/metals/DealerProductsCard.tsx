@@ -5,7 +5,7 @@ import { api, unwrap } from "@/api/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { readMeta, writeMeta } from "@/db/meta"
-import { formatMoney } from "@/domain/money/format"
+import { formatMoney } from "@/app/money"
 
 interface Item { id: string; name_ar: string; name_en: string; weight_g: number; karat: number; purity_label: string; bid_iqd: number; ask_iqd: number }
 interface Group { key: string; metal: string; title_ar: string; title_en: string; items: Item[] }

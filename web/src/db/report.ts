@@ -1,7 +1,7 @@
 import { liveMonthCloses, liveSnapshots, trendPoints } from "./networth"
 import type { LedgerTransaction } from "./schema"
 import { monthViewFor, type MonthView } from "@/features/plan/useMonthFigures"
-import { shiftKey } from "@/domain/calendar/month"
+import { shiftKey } from "@mizan/core/domain/calendar/month"
 
 export interface MonthSummary {
   key: string

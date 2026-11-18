@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { formatMoney } from "@/domain/money/format"
+import { formatMoney } from "@/app/money"
 import { cn } from "@/lib/utils"
 import { RANGES, SERIES, SERIES_KEYS, usePriceSeries, type Range, type SeriesKey } from "@/market/prices"
 

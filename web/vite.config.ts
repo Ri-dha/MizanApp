@@ -86,7 +86,10 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: { "@": path.resolve(import.meta.dirname, "./src") },
+    alias: {
+      "@mizan/core": path.resolve(import.meta.dirname, "../packages/core/src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
+    },
   },
   server: {
     host: lan ? true : undefined,

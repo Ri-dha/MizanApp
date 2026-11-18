@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import ar from "@/i18n/ar.json"
-import en from "@/i18n/en.json"
+import ar from "@mizan/core/i18n/ar.json"
+import en from "@mizan/core/i18n/en.json"
 import { TOURS } from "./steps"
 
 function has(dict: unknown, key: string): boolean {
