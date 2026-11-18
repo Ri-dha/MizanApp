@@ -1,16 +1,19 @@
 # T-mobile-app — iPhone and Android apps with Expo
-- Status: proposed (2026-11-18), plan approved; not started
+- Status: in-progress (2026-11-18), Phase 1 done on feat/mobile-crypto-spike
 - Context: ADR mobile-1 (accepted), ADR e2e-1, e2e-2, sync-1, ui-1. Supersedes T-flutter-app.
   Owner decisions 2026-11-18: after T-shadcn-ui and before T-price-history and T-admin-dashboard;
   full parity in the first release; iPhone and Android together; **OCR on hold until the end**
   (see `docs/status/mobile-app.md`).
 - Notes (phases; effort about 9–12 weeks before OCR):
-  0. Done 2026-11-18: the web work is on main and develop (d5099dc). Owner: install Xcode and Android Studio
+  0. Done 2026-11-18: the web work is on main and develop (d5099dc); Xcode, Android Studio and CocoaPods installed
      (Apple Developer $99/year for real iPhones, Google Play $25 at release).
   1. Spike (1–2 days): prove `react-native-quick-crypto` `subtle` matches the web byte for byte
      for PBKDF2-SHA256 600k (timed on a mid-range Android), HKDF, AES-GCM with AAD, AES-KW, ECDH
      P-256, import/export raw, spki, pkcs8, jwk, SHA-256. Gaps: `@noble/*`, but PBKDF2 stays
      native. Write a learning with the result.
+     Done 2026-11-18: 18 of 18 cases pass on iOS and Android with the unchanged vault module, no
+     fallback needed (`docs/learnings/2026-11-18-quick-crypto-matches-web-vault.md`,
+     `spikes/rn-crypto`). Still open: PBKDF2 timing on a real mid-range phone.
   2. Shared core: npm workspaces; `packages/core` (no React, no browser or RN globals). Move
      `domain/`, receipt parsing, `sync/hlc.ts`, `sync/merge.ts`, `vault/crypto.ts`,
      `vault/records.ts`, schema types, translations, API types. Platform interfaces: `Store`
