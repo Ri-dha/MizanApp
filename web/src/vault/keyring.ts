@@ -1,5 +1,5 @@
 import { api, unwrap } from "@/api/client"
-import { deleteMeta, readMeta, writeMeta } from "@/db/meta"
+import { deleteMeta, readMeta, writeMeta } from "@mizan/core/db/meta"
 import {
   newSharedKey, openGrant, readHeader, toBase64Url, wrapForMember, type KeyKind, type OpenAccount, type SealedHeader, type SealKind, type SealTarget,
 } from "@mizan/core/vault/crypto"

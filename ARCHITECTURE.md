@@ -151,8 +151,11 @@ entities or repositories.
 Plain TypeScript every client compiles through the `@mizan/core` alias, with no runtime
 dependencies and no browser-only globals: `domain/` maths, `schema.ts` record types and
 `SYNC_TABLES`, `sync/hlc.ts` and `merge.ts`, `vault/crypto.ts`, `ocr/` receipt parsing, `i18n/`
-translations, `api/generated.d.ts`. Web keeps the Dexie database, the Tesseract worker and the
-screens.
+translations, `api/generated.d.ts`, `db/` (every read and write of local records, the month view),
+`market/prices.ts` (price resolution) and `store/` (the `Store` interface every app implements:
+Dexie on the web in `web/src/platform/dexieStore.ts`, an in-memory store for tests). Store helpers
+chain on the adapter's promises so Dexie live queries keep tracking reads. Web keeps the Dexie
+database class, the React hooks, the API calls, the Tesseract worker and the screens.
 
 ## Web (`web/src`)
 

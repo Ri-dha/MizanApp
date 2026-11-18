@@ -1,8 +1,9 @@
-import { minorUnitsPerMajor } from "@/app/money"
-import { db, type IncomeReceipt, type IncomeSource, type IncomeSourceAmount, type Visibility } from "./schema"
+import { ALL_TABLES, rows, rowsBy, sorted, store, table } from "../store/store"
+import { minorUnitsPerMajor } from "../domain/money/format"
+import { type IncomeReceipt, type IncomeSource, type IncomeSourceAmount, type Visibility } from "../schema"
 import { softDelete, writeFields } from "./write"
-import { monthWindow } from "@mizan/core/domain/calendar/month"
-import { amountOn, plannedIncome, type Occurrence } from "@mizan/core/domain/income/planned"
+import { monthWindow } from "../domain/calendar/month"
+import { amountOn, plannedIncome, type Occurrence } from "../domain/income/planned"
 
 export const RATE_SCALE = 1_000_000
 
@@ -51,8 +52,8 @@ export function microsToRate(fxRateMicros: number, currency: string): string {
 
 export async function createIncomeSource(input: IncomeSourceInput): Promise<string> {
   const id = crypto.randomUUID()
-  const sortOrder = await db.incomeSources.count()
-  await db.transaction("rw", db.tables, async () => {
+  const sortOrder = await table("incomeSources").count()
+  await store().transaction(ALL_TABLES, async () => {
     await writeFields<IncomeSource>("income_source", id, { ...input, sortOrder })
     await writeFields<IncomeSourceAmount>("income_source_amount", crypto.randomUUID(), {
       visibility: input.visibility, incomeSourceId: id, effectiveFrom: input.activeFrom,
@@ -63,7 +64,7 @@ export async function createIncomeSource(input: IncomeSourceInput): Promise<stri
 }
 
 export function liveAmountHistory() {
-  return db.incomeSourceAmounts.filter((a) => a.deletedAt === null).sortBy("effectiveFrom")
+  return sorted(rows("incomeSourceAmounts", (a) => a.deletedAt === null), "effectiveFrom")
 }
 
 export function historyOf(source: IncomeSource, history: IncomeSourceAmount[]): IncomeSourceAmount[] {
@@ -76,8 +77,8 @@ export function historyOf(source: IncomeSource, history: IncomeSourceAmount[]): 
  * the months before the change keep planning on it.
  */
 export async function recordAmountChange(source: IncomeSource, amount: number, effectiveFrom: string, note: string | null) {
-  await db.transaction("rw", db.tables, async () => {
-    const existing = await db.incomeSourceAmounts.where("incomeSourceId").equals(source.id).filter((a) => a.deletedAt === null).count()
+  await store().transaction(ALL_TABLES, async () => {
+    const existing = await rowsBy("incomeSourceAmounts", "incomeSourceId", source.id, (a) => a.deletedAt === null).then((found) => found.length)
     if (existing === 0) {
       await writeFields<IncomeSourceAmount>("income_source_amount", crypto.randomUUID(), {
         visibility: source.visibility, incomeSourceId: source.id, effectiveFrom: source.activeFrom, amount: source.amount,
@@ -93,7 +94,7 @@ export async function recordAmountChange(source: IncomeSource, amount: number, e
 }
 
 export async function removeAmountChange(entry: IncomeSourceAmount, source: IncomeSource, history: IncomeSourceAmount[]) {
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     await softDelete("income_source_amount", entry.id)
     const remaining = historyOf(source, history).filter((a) => a.id !== entry.id).sort((a, b) => (a.effectiveFrom < b.effectiveFrom ? -1 : 1))
     const latest = remaining[remaining.length - 1]
@@ -116,11 +117,11 @@ export async function recordReceipt(input: ReceiptInput): Promise<string> {
 }
 
 export function liveIncomeSources() {
-  return db.incomeSources.filter((source) => source.deletedAt === null).sortBy("sortOrder")
+  return sorted(rows("incomeSources", (source) => source.deletedAt === null), "sortOrder")
 }
 
 export function liveReceiptsFor(monthKey: string) {
-  return db.incomeReceipts.where("monthKey").equals(monthKey).filter((r) => r.deletedAt === null).toArray()
+  return rowsBy("incomeReceipts", "monthKey", monthKey, (r) => r.deletedAt === null)
 }
 
 export interface PlannedOccurrence extends Occurrence {

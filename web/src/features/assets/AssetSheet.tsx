@@ -11,11 +11,11 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Switch } from "@/components/ui/switch"
-import { ATTRIBUTE_KEYS, DEFAULT_LIQUIDITY, createAsset, updateAsset } from "@/db/assets"
+import { ATTRIBUTE_KEYS, DEFAULT_LIQUIDITY, createAsset, updateAsset } from "@mizan/core/db/assets"
 import type { Asset, AssetType } from "@/db/schema"
 import type { DepreciationMethod } from "@mizan/core/domain/asset/depreciation"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
-import { rateToMicros } from "@/db/income"
+import { rateToMicros } from "@mizan/core/db/income"
 import { useMetals } from "@/features/metals/useMetals"
 
 const TYPES: AssetType[] = ["VEHICLE", "PROPERTY", "ELECTRONICS", "EQUIPMENT", "FURNITURE", "LIVESTOCK", "OTHER"]

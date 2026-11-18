@@ -1,4 +1,4 @@
-import { META_KEYS, readMeta, writeMeta } from "@/db/meta"
+import { META_KEYS, readMeta, writeMeta } from "@mizan/core/db/meta"
 import { currentDataKey } from "@/lock/store"
 
 const RAW_KEY = "attachments.rawKey"

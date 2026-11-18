@@ -17,6 +17,8 @@
 - Phase 2 step 1 done: `packages/core` (source package, ADR mobile-2) holds domain maths, record
   types, hlc, merge, vault crypto, receipt parsing, translations, API types. Core 126 + web 45
   tests (171, unchanged); web build and the prod web image pass.
-- Next: platform interfaces (`Store`, `SecretStore`, `Lifecycle`) and the stateful modules.
-  Blockers: none.
+- Phase 2 step 2 done: the `Store` interface with a Dexie adapter (web) and an in-memory one
+  (tests); all `db/` modules, the month view and price resolution are in core. Core 140 + web 39
+  tests; checked live in the browser (sign-in, sync, sealed rows, live ledger updates).
+- Next: `SecretStore`, `Lifecycle`, then keyring, records, sync engine and duties. Blockers: none.
 - Validated: spike results in `spikes/rn-crypto/harness/out/` (gitignored), rerun steps in the learning.

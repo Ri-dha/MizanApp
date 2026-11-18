@@ -1,9 +1,10 @@
-import { db, type ExpenseOccurrence, type RecurringExpense, type Visibility } from "./schema"
+import { ALL_TABLES, rows, rowsBy, sorted, store, table } from "../store/store"
+import { type ExpenseOccurrence, type RecurringExpense, type Visibility } from "../schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
 import { createTransaction, deleteTransaction } from "./transactions"
-import { monthWindow } from "@mizan/core/domain/calendar/month"
-import { dueDates } from "@mizan/core/domain/expense/schedule"
+import { monthWindow } from "../domain/calendar/month"
+import { dueDates } from "../domain/expense/schedule"
 
 export interface RecurringExpenseInput {
   name: string
@@ -26,7 +27,7 @@ export interface RecurringExpenseInput {
 
 export async function createRecurringExpense(input: RecurringExpenseInput): Promise<string> {
   const id = crypto.randomUUID()
-  const sortOrder = await db.recurringExpenses.count()
+  const sortOrder = await table("recurringExpenses").count()
   await writeFields<RecurringExpense>("recurring_expense", id, { ...input, sortOrder })
   return id
 }
@@ -36,11 +37,11 @@ export async function updateRecurringExpense(id: string, input: Partial<Recurrin
 }
 
 export function liveRecurringExpenses() {
-  return db.recurringExpenses.filter((e) => e.deletedAt === null).sortBy("sortOrder")
+  return sorted(rows("recurringExpenses", (e) => e.deletedAt === null), "sortOrder")
 }
 
 export function liveOccurrencesFor(monthKey: string) {
-  return db.expenseOccurrences.where("monthKey").equals(monthKey).filter((o) => o.deletedAt === null).toArray()
+  return rowsBy("expenseOccurrences", "monthKey", monthKey, (o) => o.deletedAt === null)
 }
 
 export interface BillDue {
@@ -69,7 +70,7 @@ export function billsDue(expenses: RecurringExpense[], occurrences: ExpenseOccur
 
 /** BR-03: paying records the transaction and settles the obligation in one step. */
 export async function markBillPaid(bill: BillDue, monthKey: string, actualAmount: number, paidOn: string): Promise<void> {
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     const transactionId = await createTransaction({
       type: "EXPENSE",
       occurredOn: paidOn,
@@ -100,7 +101,7 @@ export async function markBillPaid(bill: BillDue, monthKey: string, actualAmount
 }
 
 export async function undoBillPaid(occurrence: ExpenseOccurrence): Promise<void> {
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     if (occurrence.transactionId) await deleteTransaction(occurrence.transactionId)
     await softDelete("expense_occurrence", occurrence.id)
   })

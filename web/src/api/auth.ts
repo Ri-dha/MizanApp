@@ -1,29 +1,15 @@
 import { useSyncExternalStore } from "react"
+import type { LocalSession } from "@mizan/core/session"
 
 import { api, ApiError, setAccessToken, setSessionLostHandler, unwrap } from "./client"
 import { db } from "@/db/schema"
-import { META_KEYS, deleteMeta, readMeta, writeMeta } from "@/db/meta"
+import { META_KEYS, deleteMeta, readMeta, writeMeta } from "@mizan/core/db/meta"
 import { derivePasswordKeys } from "@mizan/core/vault/crypto"
 import { forgetVault, newAccountKeys, openAccountAfterSignIn, type VaultState } from "@/vault/account"
 import { clearKeyring, DEVICE_META_KEYS, dropSharedKeys } from "@/vault/keyring"
 import { resetLock } from "@/lock/store"
 
-export interface LocalSession {
-  userId: string
-  householdId: string
-  householdName: string
-  displayName: string
-  contact: string
-  locale: string
-  verified: boolean
-  role: string
-  baseCurrency: string
-  monthStartDay: number
-  deletionRequestedAt: string | null
-  householdDeletionRequestedAt: string | null
-  /** Runs the service (ADR admin-1); the server still checks on every admin call. */
-  operator?: boolean
-}
+export type { LocalSession } from "@mizan/core/session"
 
 type Listener = () => void
 

@@ -1,15 +1,16 @@
-import type { LocalSession } from "@/api/auth"
-import { deterministicId } from "@mizan/core/vault/crypto"
+import { rows, table } from "../store/store"
+import type { LocalSession } from "../session"
+import { deterministicId } from "../vault/crypto"
 import { liveAssets, liveValuations, assetTotals } from "./assets"
 import { liveCashAccounts } from "./cashAccounts"
 import { liveDebts, livePayments } from "./debts"
 import { liveDisposalLots, liveLots, lotStates, portfolio, valueLots } from "./metals"
 import { cashInBase, debtBalances, liveMonthCloses } from "./networth"
-import { db, type MemberContribution, type MonthClose, type NetWorthSnapshot, type Visibility } from "./schema"
+import { type MemberContribution, type MonthClose, type NetWorthSnapshot, type Visibility } from "../schema"
 import { writeFields } from "./write"
-import { todayIso } from "@mizan/core/domain/calendar/month"
-import { netWorth, type NetWorthInput, type NetWorthResult } from "@mizan/core/domain/networth/networth"
-import { cachedQuotes, liveOverrides, liveSetting, resolvePrices } from "@/market/store"
+import { todayIso } from "../domain/calendar/month"
+import { netWorth, type NetWorthInput, type NetWorthResult } from "../domain/networth/networth"
+import { cachedQuotes, liveOverrides, liveSetting, resolvePrices } from "../market/prices"
 
 type Owned = { visibility: Visibility; ownerId: string | null }
 type RowFilter = (row: Owned) => boolean
@@ -58,7 +59,7 @@ function add(a: NetWorthInput, b: NetWorthInput): NetWorthInput {
   }
 }
 
-export const liveContributions = () => db.memberContributions.filter((c) => c.deletedAt === null).toArray()
+export const liveContributions = () => rows("memberContributions", (c) => c.deletedAt === null)
 
 /**
  * BR-16: the household figure counts every member's private holdings without itemising them.
@@ -78,7 +79,7 @@ export async function publishMyContribution(session: LocalSession) {
   const result = netWorth(input)
   const id = await deterministicId("member_contribution", session.householdId, session.userId)
   const composition = { shares: result.composition, illiquidAssets: result.illiquidAssets }
-  const existing = await db.memberContributions.get(id)
+  const existing = await table("memberContributions").get(id)
   if (existing && existing.deletedAt === null && existing.totalAssets === result.totalAssets && existing.totalLiabilities === result.totalLiabilities
     && JSON.stringify(existing.composition) === JSON.stringify(composition)) return
   await writeFields<MemberContribution>("member_contribution", id, {

@@ -1,4 +1,5 @@
-import { db, type Goal, type GoalDeposit, type Visibility } from "./schema"
+import { ALL_TABLES, rows, sorted, store, table } from "../store/store"
+import { type Goal, type GoalDeposit, type Visibility } from "../schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
 import { createTransaction, deleteTransaction } from "./transactions"
@@ -17,7 +18,7 @@ export interface GoalInput {
 
 export async function createGoal(input: GoalInput): Promise<string> {
   const id = crypto.randomUUID()
-  const sortOrder = await db.goals.count()
+  const sortOrder = await table("goals").count()
   await writeFields<Goal>("goal", id, { ...input, backingAssetType: input.backingAssetId ? "ASSET" : null, status: "ACTIVE", completedOn: null, sortOrder })
   return id
 }
@@ -28,11 +29,11 @@ export async function updateGoal(id: string, input: Partial<GoalInput>) {
 }
 
 export function liveGoals() {
-  return db.goals.filter((g) => g.deletedAt === null).sortBy("sortOrder")
+  return sorted(rows("goals", (g) => g.deletedAt === null), "sortOrder")
 }
 
 export function liveDeposits() {
-  return db.goalDeposits.filter((d) => d.deletedAt === null).sortBy("depositedOn")
+  return sorted(rows("goalDeposits", (d) => d.deletedAt === null), "depositedOn")
 }
 
 /** FR-GOL-02 / BR-07: progress is the deposit ledger, or the backing asset's value when one is set. */
@@ -44,7 +45,7 @@ export function savedOf(goal: Goal, deposits: GoalDeposit[], assetValues: Record
 }
 
 export async function recordDeposit(goal: Goal, deposits: GoalDeposit[], amount: number, direction: GoalDeposit["direction"], on: string, monthKey: string, note: string | null) {
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     const transactionId = await createTransaction({
       type: "TRANSFER",
       occurredOn: on,
@@ -74,7 +75,7 @@ export async function recordDeposit(goal: Goal, deposits: GoalDeposit[], amount:
 }
 
 export async function undoDeposit(deposit: GoalDeposit) {
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     if (deposit.transactionId) await deleteTransaction(deposit.transactionId)
     await softDelete("goal_deposit", deposit.id)
   })

@@ -1,4 +1,4 @@
-import { META_KEYS, readMeta, writeMeta, deleteMeta } from "@/db/meta"
+import { META_KEYS, readMeta, writeMeta, deleteMeta } from "@mizan/core/db/meta"
 import { unwrapDataKey, wrapDataKey, type WrappedKey } from "./crypto"
 
 interface WebAuthnEntry extends WrappedKey {

@@ -1,6 +1,6 @@
 import { api, unwrap } from "@/api/client"
 import { db, type Attachment } from "@/db/schema"
-import { softDelete, writeFields } from "@/db/write"
+import { softDelete, writeFields } from "@mizan/core/db/write"
 import { decryptBytes, encryptBytes } from "./crypto"
 import { downscaleImage } from "./images"
 

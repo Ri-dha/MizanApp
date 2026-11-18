@@ -1,10 +1,11 @@
-import { db, type Asset, type AssetValuation, type CashAccount, type CashAdjustment, type Debt, type DebtPayment, type MonthClose, type NetWorthSnapshot } from "./schema"
+import { rows, sorted } from "../store/store"
+import { type Asset, type AssetValuation, type CashAccount, type CashAdjustment, type Debt, type DebtPayment, type MonthClose, type NetWorthSnapshot } from "../schema"
 import { writeFields } from "./write"
 import { baseBalanceOf } from "./debts"
 import { toBaseAmount } from "./income"
 import { assetTotals } from "./assets"
-import { netWorth, type NetWorthResult } from "@mizan/core/domain/networth/networth"
-import type { ResolvedPrices } from "@/market/store"
+import { netWorth, type NetWorthResult } from "../domain/networth/networth"
+import type { ResolvedPrices } from "../market/prices"
 
 const CENTS_PER_DOLLAR = 100
 
@@ -37,8 +38,8 @@ export function liveNetWorth(
   return netWorth({ cash: cashInBase(accounts, base, prices), metals: metalsValue, receivables, ...assetTotals(assets, valuations, today), liabilities })
 }
 
-export const liveSnapshots = () => db.netWorthSnapshots.filter((s) => s.deletedAt === null).sortBy("takenAt")
-export const liveMonthCloses = () => db.monthCloses.filter((m) => m.deletedAt === null).toArray()
+export const liveSnapshots = () => sorted(rows("netWorthSnapshots", (s) => s.deletedAt === null), "takenAt")
+export const liveMonthCloses = () => rows("monthCloses", (m) => m.deletedAt === null)
 
 /** The snapshot a month closed on: the latest one taken for that month while it is closed. */
 export function snapshotFor(monthKey: string, closes: MonthClose[], snapshots: NetWorthSnapshot[]): NetWorthSnapshot | undefined {

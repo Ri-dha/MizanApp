@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
 
-import { createCashAccount } from "@/db/cashAccounts"
+import { createCashAccount } from "@mizan/core/db/cashAccounts"
 import { db } from "@/db/schema"
 import { applyImport, buildExport, EXPORT_FORMAT, EXPORT_VERSION, ImportError, validateImport } from "./export"
 

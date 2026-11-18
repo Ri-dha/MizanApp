@@ -1,6 +1,7 @@
-import { db, localTableFor, type Syncable, type SyncTableName } from "./schema"
+import { SYNC_TABLES, type Syncable, type SyncTableName } from "../schema"
+import { store, table as localTable, type Table, type TableName } from "../store/store"
 import { META_KEYS, readMeta, writeMeta } from "./meta"
-import { formatHlc, newNodeId, tick, type HlcState } from "@mizan/core/sync/hlc"
+import { formatHlc, newNodeId, tick, type HlcState } from "../sync/hlc"
 
 export const ENVELOPE_FIELDS: ReadonlySet<string> = new Set(["id", "ownerId", "clocks", "vaulted"])
 
@@ -25,10 +26,11 @@ export async function writeFields<T extends Syncable>(
   id: string,
   changes: Partial<Omit<T, keyof Syncable>> & { deletedAt?: string | null },
 ): Promise<void> {
-  const local = localTableFor(table)
-  await db.transaction("rw", [local, db.outbox, db.meta], async () => {
+  const name: TableName = SYNC_TABLES[table]
+  const local = localTable(name) as unknown as Table<T>
+  await store().transaction([name, "outbox", "meta"], async () => {
     const stamp = await nextStamp()
-    const existing = (await local.get(id)) as T | undefined
+    const existing = await local.get(id)
     const changed = Object.fromEntries(Object.entries(changes).filter(([key]) => !ENVELOPE_FIELDS.has(key)))
     const fields = movesBetweenKeys(existing, changed) ? { ...payloadOf(existing!), ...changed } : changed
     const clocks = Object.fromEntries(Object.keys(fields).map((field) => [field, stamp]))
@@ -39,7 +41,7 @@ export async function writeFields<T extends Syncable>(
       clocks: { ...(existing?.clocks ?? {}), ...clocks },
     } as T)
 
-    await db.outbox.add({
+    await localTable("outbox").put({
       opId: crypto.randomUUID(),
       table,
       rowId: id,

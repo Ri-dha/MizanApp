@@ -1,7 +1,8 @@
-import { db, type Bucket, type BucketMove, type Plan } from "./schema"
+import { ALL_TABLES, rows, rowsBy, sorted, store } from "../store/store"
+import { type Bucket, type BucketMove, type Plan } from "../schema"
 import { createTransaction, deleteTransaction } from "./transactions"
 import { softDelete, writeFields } from "./write"
-import { shiftKey } from "@mizan/core/domain/calendar/month"
+import { shiftKey } from "../domain/calendar/month"
 
 export interface BucketInput {
   id?: string
@@ -13,12 +14,12 @@ export interface BucketInput {
 }
 
 export async function livePlans(): Promise<Plan[]> {
-  return db.plans.filter((plan) => plan.deletedAt === null).toArray()
+  return rows("plans", (plan) => plan.deletedAt === null)
 }
 
 export async function liveBucketsOf(planId: string | undefined): Promise<Bucket[]> {
   if (!planId) return []
-  return db.buckets.where("planId").equals(planId).filter((b) => b.deletedAt === null).sortBy("sortOrder")
+  return sorted(rowsBy("buckets", "planId", planId, (b) => b.deletedAt === null), "sortOrder")
 }
 
 /** The version in force for a month: latest effectiveFrom at or before it, not yet ended. */
@@ -34,7 +35,7 @@ export function planFor(plans: Plan[], monthKey: string): Plan | undefined {
  * months already run keep their percentages (FR-PLN-06).
  */
 export async function saveBuckets(monthKey: string, buckets: BucketInput[]): Promise<string> {
-  return db.transaction("rw", [db.plans, db.buckets, db.outbox, db.meta], async () => {
+  return store().transaction(["plans", "buckets", "outbox", "meta"], async () => {
     const current = planFor(await livePlans(), monthKey)
     const planId = current && current.effectiveFrom === monthKey ? current.id : await startVersion(current, monthKey)
     const existing = planId === current?.id ? await liveBucketsOf(planId) : []
@@ -71,7 +72,7 @@ async function startVersion(previous: Plan | undefined, monthKey: string): Promi
 }
 
 export function liveMovesFor(monthKey: string) {
-  return db.bucketMoves.where("monthKey").equals(monthKey).filter((m) => m.deletedAt === null).reverse().sortBy("movedOn")
+  return sorted(rowsBy("bucketMoves", "monthKey", monthKey, (m) => m.deletedAt === null), "movedOn", "desc")
 }
 
 /**
@@ -79,7 +80,7 @@ export function liveMovesFor(monthKey: string) {
  * it; the move row keeps the reason for the audit trail.
  */
 export async function moveMoney(from: Bucket, to: Bucket, amount: number, movedOn: string, monthKey: string, reason: string | null, currency: string) {
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     const transactionId = await createTransaction({
       type: "TRANSFER", occurredOn: movedOn, monthKey, amount, currency, fxRateMicros: 1_000_000,
       bucketId: from.id, category: null, payee: to.name, note: reason, counterpartyType: "BUCKET", counterpartyId: to.id,
@@ -92,7 +93,7 @@ export async function moveMoney(from: Bucket, to: Bucket, amount: number, movedO
 }
 
 export async function undoMove(move: BucketMove) {
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     if (move.transactionId) await deleteTransaction(move.transactionId)
     await softDelete("bucket_move", move.id)
   })

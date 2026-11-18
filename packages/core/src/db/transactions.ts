@@ -1,4 +1,5 @@
-import { db, type CounterpartyType, type LedgerTransaction, type TransactionType, type Visibility } from "./schema"
+import { ALL_TABLES, rows, rowsBy, sorted, store, table } from "../store/store"
+import { type CounterpartyType, type LedgerTransaction, type TransactionType, type Visibility } from "../schema"
 import { restore, softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
 
@@ -31,22 +32,22 @@ export async function createTransaction(input: TransactionInput): Promise<string
 export async function createSplit(base: Omit<TransactionInput, "bucketId" | "amount">, parts: { bucketId: string; amount: number }[]): Promise<string> {
   if (parts.some((p) => p.amount <= 0)) throw new Error("SPLIT_PART_NOT_POSITIVE")
   const splitGroupId = crypto.randomUUID()
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     for (const part of parts) await createTransaction({ ...base, bucketId: part.bucketId, amount: part.amount, splitGroupId })
   })
   return splitGroupId
 }
 
-export const liveSplitGroup = (splitGroupId: string) => db.transactions.where("splitGroupId").equals(splitGroupId).filter((t) => t.deletedAt === null).toArray()
+export const liveSplitGroup = (splitGroupId: string) => rowsBy("transactions", "splitGroupId", splitGroupId, (t) => t.deletedAt === null)
 
 /** FR-AST-07: expenses linked to an asset, all months, in base units. */
 export async function runningCostsOf(assetId: string): Promise<number> {
-  const rows = await db.transactions.where("assetId").equals(assetId).filter((t) => t.deletedAt === null && t.type === "EXPENSE").toArray()
-  return rows.reduce((sum, t) => sum + t.baseAmount, 0)
+  const expenses = await rowsBy("transactions", "assetId", assetId, (t) => t.deletedAt === null && t.type === "EXPENSE")
+  return expenses.reduce((sum, t) => sum + t.baseAmount, 0)
 }
 
 export async function updateTransaction(id: string, input: Partial<TransactionInput>) {
-  const existing = await db.transactions.get(id)
+  const existing = await table("transactions").get(id)
   const amount = input.amount ?? existing?.amount ?? 0
   const rate = input.fxRateMicros ?? existing?.fxRateMicros ?? 1_000_000
   await writeFields<LedgerTransaction>("ledger_transaction", id, { ...input, baseAmount: toBaseAmount(amount, rate) })
@@ -56,20 +57,21 @@ export const deleteTransaction = (id: string) => softDelete("ledger_transaction"
 export const restoreTransaction = (id: string) => restore("ledger_transaction", id)
 
 export function liveTransactionsFor(monthKey: string) {
-  return db.transactions.where("monthKey").equals(monthKey).filter((t) => t.deletedAt === null).reverse().sortBy("occurredOn")
+  return sorted(rowsBy("transactions", "monthKey", monthKey, (t) => t.deletedAt === null), "occurredOn", "desc")
 }
 
 const RECYCLE_BIN_DAYS = 30
 
 export function liveRecentlyDeleted() {
   const cutoff = new Date(Date.now() - RECYCLE_BIN_DAYS * 86_400_000).toISOString()
-  return db.transactions.filter((t) => t.deletedAt !== null && t.deletedAt > cutoff).reverse().sortBy("deletedAt")
+  return sorted(rows("transactions", (t) => t.deletedAt !== null && t.deletedAt > cutoff), "deletedAt", "desc")
 }
 
 /** Mirrors the server's recycle-bin purge (BR-15) on this device's copy. */
 export async function purgeExpiredDeletions() {
   const cutoff = new Date(Date.now() - RECYCLE_BIN_DAYS * 86_400_000).toISOString()
-  await db.transactions.filter((t) => t.deletedAt !== null && t.deletedAt <= cutoff).delete()
+  const expired = await rows("transactions", (t) => t.deletedAt !== null && t.deletedAt <= cutoff)
+  await table("transactions").bulkDelete(expired.map((t) => t.id))
 }
 
 export interface TransactionFilter {

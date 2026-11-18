@@ -1,8 +1,9 @@
-import { db, type Debt, type DebtPayment, type Visibility } from "./schema"
+import { ALL_TABLES, rows, sorted, store } from "../store/store"
+import { type Debt, type DebtPayment, type Visibility } from "../schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
 import { createTransaction, deleteTransaction } from "./transactions"
-import { monthlyInterest } from "@mizan/core/domain/debt/payoff"
+import { monthlyInterest } from "../domain/debt/payoff"
 
 export interface DebtInput {
   name: string
@@ -31,11 +32,11 @@ export async function updateDebt(id: string, input: Partial<DebtInput>) {
 }
 
 export function liveDebts() {
-  return db.debts.filter((d) => d.deletedAt === null).toArray()
+  return rows("debts", (d) => d.deletedAt === null)
 }
 
 export function livePayments() {
-  return db.debtPayments.filter((p) => p.deletedAt === null).sortBy("paidOn")
+  return sorted(rows("debtPayments", (p) => p.deletedAt === null), "paidOn")
 }
 
 /** FR-DBT-04: the balance is the ledger, never an edited number. */
@@ -54,7 +55,7 @@ export function baseBalanceOf(debt: Debt, payments: DebtPayment[]): number {
 export async function recordPayment(debt: Debt, payments: DebtPayment[], amount: number, paidOn: string, monthKey: string, note: string | null) {
   const balanceBefore = balanceOf(debt, payments)
   const interest = monthlyInterest(balanceBefore, debt.annualRateBasisPoints)
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     const transactionId = await createTransaction({
       type: "TRANSFER",
       occurredOn: paidOn,
@@ -89,7 +90,7 @@ export async function recordPayment(debt: Debt, payments: DebtPayment[], amount:
 }
 
 export async function undoPayment(payment: DebtPayment) {
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     if (payment.transactionId) await deleteTransaction(payment.transactionId)
     await softDelete("debt_payment", payment.id)
     await writeFields<Debt>("debt", payment.debtId, { status: "ACTIVE" })

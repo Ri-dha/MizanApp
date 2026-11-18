@@ -1,5 +1,5 @@
 import { db, SYNC_TABLES, type SyncTableName } from "@/db/schema"
-import { writeFields } from "@/db/write"
+import { writeFields } from "@mizan/core/db/write"
 import type { LocalSession } from "@/api/auth"
 
 export const EXPORT_FORMAT = "mizan-export"

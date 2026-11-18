@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react"
 
-import { META_KEYS, deleteMeta, readMeta, writeMeta } from "@/db/meta"
+import { META_KEYS, deleteMeta, readMeta, writeMeta } from "@mizan/core/db/meta"
 import { generateDataKey, secretFromPin, unwrapDataKey, wrapDataKey, type WrappedKey } from "./crypto"
 import { removeWebAuthn, unlockWithWebAuthn } from "./webauthn"
 

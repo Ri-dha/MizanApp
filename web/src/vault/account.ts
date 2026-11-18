@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react"
 
 import { api, unwrap } from "@/api/client"
-import { deleteMeta, readMeta, writeMeta } from "@/db/meta"
+import { deleteMeta, readMeta, writeMeta } from "@mizan/core/db/meta"
 import {
   createAccountKeys, newRecoveryCode, openAccountWithPassword, openAccountWithRecovery, wrapUserKeyForPassword, wrapUserKeyForRecovery,
   type AccountKeyMaterial,

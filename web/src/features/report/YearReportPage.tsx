@@ -9,7 +9,7 @@ import { useSession } from "@/api/auth"
 import { currentMonthKey, formatMonthKey } from "@/app/month"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { trailingSavingRate, yearSummary, type YearSummary } from "@/db/report"
+import { trailingSavingRate, yearSummary, type YearSummary } from "@mizan/core/db/report"
 import { formatMoney } from "@/app/money"
 
 const PALETTE = ["#88aaee", "#ffdc58", "#ff6b6b", "#a3e635", "#c4a1ff", "#fd9745", "#7fdbca", "#f472b6"]

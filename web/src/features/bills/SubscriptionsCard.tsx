@@ -2,7 +2,7 @@ import { useLiveQuery } from "dexie-react-hooks"
 import { useTranslation } from "react-i18next"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { liveRecurringExpenses } from "@/db/expenses"
+import { liveRecurringExpenses } from "@mizan/core/db/expenses"
 import type { RecurringExpense } from "@/db/schema"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { subscriptionSummary } from "@mizan/core/domain/expense/subscriptions"

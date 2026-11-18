@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { saveBuckets, undoMove, type BucketInput } from "@/db/plan"
+import { saveBuckets, undoMove, type BucketInput } from "@mizan/core/db/plan"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
 import { MoveMoneySheet } from "./MoveMoneySheet"
 import { formatMoney } from "@/app/money"

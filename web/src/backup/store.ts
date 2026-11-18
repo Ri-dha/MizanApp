@@ -4,9 +4,9 @@ import { useLiveQuery } from "dexie-react-hooks"
 import { api, unwrap } from "@/api/client"
 import type { LocalSession } from "@/api/auth"
 import { buildExport, validateImport, type ImportPreview } from "@/data/export"
-import { META_KEYS, readMeta, writeMeta, deleteMeta } from "@/db/meta"
+import { META_KEYS, readMeta, writeMeta, deleteMeta } from "@mizan/core/db/meta"
 import { db, type Attachment } from "@/db/schema"
-import { softDelete, writeFields } from "@/db/write"
+import { softDelete, writeFields } from "@mizan/core/db/write"
 
 import { BACKUP_OWNER_TYPE } from "@/attachments/store"
 export { BACKUP_OWNER_TYPE }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
 import { api, unwrap } from "@/api/client"
-import { readMeta, writeMeta } from "@/db/meta"
+import { readMeta, writeMeta } from "@mizan/core/db/meta"
 import type { Quote } from "./store"
 
 type Instrument = Quote["instrument"]

@@ -1,6 +1,6 @@
 import { useLiveQuery } from "dexie-react-hooks"
 
-import { liveDisposalLots, liveDisposals, liveLots, lotStates, portfolio, valueLots, type LotValuation, type PortfolioLine } from "@/db/metals"
+import { liveDisposalLots, liveDisposals, liveLots, lotStates, portfolio, valueLots, type LotValuation, type PortfolioLine } from "@mizan/core/db/metals"
 import type { MarketOverride, MarketSetting, MetalDisposal, MetalDisposalLot, MetalLot } from "@/db/schema"
 import { cachedQuotes, liveOverrides, liveSetting, resolvePrices, type Quote, type ResolvedPrices } from "@/market/store"
 

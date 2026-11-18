@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest"
 
+import { memoryStore } from "../store/memoryStore"
+import { installStore, table } from "../store/store"
+
 import { liveBucketsOf, livePlans, planFor, saveBuckets } from "./plan"
-import { db } from "./schema"
 
 describe("plan versions", () => {
   beforeEach(async () => {
-    await db.delete()
-    await db.open()
+    installStore(memoryStore())
   })
 
   it("edits a plan in place in the month it started", async () => {
@@ -45,6 +46,6 @@ describe("plan versions", () => {
     await saveBuckets("2026-09", [{ id: a.id, name: "A", colour: "#000", shareBasisPoints: 10000, fixedAmount: null, carryOver: false }])
 
     expect(await liveBucketsOf(planId)).toHaveLength(1)
-    expect(await db.buckets.count()).toBe(2)
+    expect(await table("buckets").count()).toBe(2)
   })
 })

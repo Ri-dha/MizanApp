@@ -1,8 +1,8 @@
 import { strToU8, zipSync } from "fflate"
 
 import type { Asset, AssetValuation, LedgerTransaction, MetalLot, MetalDisposalLot, Bucket } from "@/db/schema"
-import { currentValue } from "@/db/assets"
-import { lotStates } from "@/db/metals"
+import { currentValue } from "@mizan/core/db/assets"
+import { lotStates } from "@mizan/core/db/metals"
 
 export type Cell = string | number | null
 export interface Table {

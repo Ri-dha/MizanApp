@@ -1,4 +1,5 @@
-import { db } from "./schema"
+import { table } from "../store/store"
+
 
 export const META_KEYS = {
   session: "session",
@@ -16,14 +17,14 @@ export const META_KEYS = {
 } as const
 
 export async function readMeta<T>(key: string): Promise<T | undefined> {
-  const entry = await db.meta.get(key)
+  const entry = await table("meta").get(key)
   return entry?.value as T | undefined
 }
 
 export async function writeMeta(key: string, value: unknown) {
-  await db.meta.put({ key, value })
+  await table("meta").put({ key, value })
 }
 
 export async function deleteMeta(key: string) {
-  await db.meta.delete(key)
+  await table("meta").delete(key)
 }

@@ -1,8 +1,9 @@
-import { db, type Asset, type AssetType, type AssetValuation, type Liquidity, type Visibility } from "./schema"
+import { rows, sorted, table } from "../store/store"
+import { type Asset, type AssetType, type AssetValuation, type Liquidity, type Visibility } from "../schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
-import { depreciate, wholeMonthsBetween, type DepreciationMethod } from "@mizan/core/domain/asset/depreciation"
-import type { AssetClass } from "@mizan/core/domain/networth/networth"
+import { depreciate, wholeMonthsBetween, type DepreciationMethod } from "../domain/asset/depreciation"
+import type { AssetClass } from "../domain/networth/networth"
 
 export interface AssetInput {
   type: AssetType
@@ -37,7 +38,7 @@ export const ATTRIBUTE_KEYS: Record<AssetType, string[]> = {
 
 export async function createAsset(input: AssetInput): Promise<string> {
   const id = crypto.randomUUID()
-  const sortOrder = await db.assets.count()
+  const sortOrder = await table("assets").count()
   await writeFields<Asset>("asset", id, { ...input, status: "HELD", soldOn: null, salePrice: null, sortOrder })
   return id
 }
@@ -64,8 +65,8 @@ export async function unsellAsset(id: string) {
   await writeFields<Asset>("asset", id, { status: "HELD", soldOn: null, salePrice: null })
 }
 
-export const liveAssets = () => db.assets.filter((a) => a.deletedAt === null).sortBy("sortOrder")
-export const liveValuations = () => db.assetValuations.filter((v) => v.deletedAt === null).toArray()
+export const liveAssets = () => sorted(rows("assets", (a) => a.deletedAt === null), "sortOrder")
+export const liveValuations = () => rows("assetValuations", (v) => v.deletedAt === null)
 
 export function valuationsOf(assetId: string, valuations: AssetValuation[]): AssetValuation[] {
   return valuations.filter((v) => v.assetId === assetId).sort((a, b) => (a.valuedOn < b.valuedOn ? 1 : -1))

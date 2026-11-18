@@ -14,17 +14,17 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Switch } from "@/components/ui/switch"
-import { liveCashAccounts } from "@/db/cashAccounts"
-import { liveDebts } from "@/db/debts"
-import { liveGoals } from "@/db/goals"
-import { microsToRate, RATE_SCALE, rateToMicros } from "@/db/income"
-import { liveBucketsOf, livePlans, planFor } from "@/db/plan"
+import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
+import { liveDebts } from "@mizan/core/db/debts"
+import { liveGoals } from "@mizan/core/db/goals"
+import { microsToRate, RATE_SCALE, rateToMicros } from "@mizan/core/db/income"
+import { liveBucketsOf, livePlans, planFor } from "@mizan/core/db/plan"
 import type { Bucket, CounterpartyType, LedgerTransaction, TransactionType } from "@/db/schema"
-import { createSplit, createTransaction, deleteTransaction, knownCategories, liveTransactionsFor, updateTransaction } from "@/db/transactions"
-import { liveAssets } from "@/db/assets"
+import { createSplit, createTransaction, deleteTransaction, knownCategories, liveTransactionsFor, updateTransaction } from "@mizan/core/db/transactions"
+import { liveAssets } from "@mizan/core/db/assets"
 import { suggestCategory } from "@mizan/core/domain/categorise"
 import { db } from "@/db/schema"
-import { isMonthClosed, liveMonthCloses } from "@/db/networth"
+import { isMonthClosed, liveMonthCloses } from "@mizan/core/db/networth"
 import { formatMonthKey } from "@/app/month"
 import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
@@ -192,7 +192,7 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
   async function remove() {
     if (!transaction) return
     await deleteTransaction(transaction.id)
-    toast(t("transactions.deleted"), { action: { label: t("accounts.restore"), onClick: () => void import("@/db/transactions").then((m) => m.restoreTransaction(transaction.id)) } })
+    toast(t("transactions.deleted"), { action: { label: t("accounts.restore"), onClick: () => void import("@mizan/core/db/transactions").then((m) => m.restoreTransaction(transaction.id)) } })
     onClose()
   }
 

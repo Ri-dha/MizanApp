@@ -1,9 +1,10 @@
-import { db, type DisposalMethod, type MarketSetting, type Metal, type MetalDisposal, type MetalDisposalLot, type MetalLot, type Visibility } from "./schema"
+import { ALL_TABLES, rows, sorted, store } from "../store/store"
+import { type DisposalMethod, type MarketSetting, type Metal, type MetalDisposal, type MetalDisposalLot, type MetalLot, type Visibility } from "../schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
-import { planDisposal, type PlannerLot } from "@mizan/core/domain/metal/disposal"
-import { PURITIES, metalValuation, valueOf } from "@mizan/core/domain/metal/valuation"
-import type { ResolvedPrices } from "@/market/store"
+import { planDisposal, type PlannerLot } from "../domain/metal/disposal"
+import { PURITIES, metalValuation, valueOf } from "../domain/metal/valuation"
+import type { ResolvedPrices } from "../market/prices"
 
 export interface LotInput {
   metal: Metal
@@ -39,9 +40,9 @@ export async function updateLot(id: string, input: Partial<LotInput>) {
 
 export const removeLot = (id: string) => softDelete("metal_lot", id)
 
-export const liveLots = () => db.metalLots.filter((l) => l.deletedAt === null).sortBy("purchaseDate")
-export const liveDisposals = () => db.metalDisposals.filter((d) => d.deletedAt === null).reverse().sortBy("soldOn")
-export const liveDisposalLots = () => db.metalDisposalLots.filter((d) => d.deletedAt === null).toArray()
+export const liveLots = () => sorted(rows("metalLots", (l) => l.deletedAt === null), "purchaseDate")
+export const liveDisposals = () => sorted(rows("metalDisposals", (d) => d.deletedAt === null), "soldOn", "desc")
+export const liveDisposalLots = () => rows("metalDisposalLots", (d) => d.deletedAt === null)
 
 export interface LotState {
   lot: MetalLot
@@ -165,7 +166,7 @@ export async function recordSale(states: LotState[], input: SaleInput) {
   const proceedsBase = toBaseAmount(input.proceeds - input.fees, input.fxRateMicros)
   const plan = planDisposal(candidates, input.weightMg, input.method, input.specificLotIds, proceedsBase)
 
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     const disposalId = crypto.randomUUID()
     await writeFields<MetalDisposal>("metal_disposal", disposalId, {
       visibility: "SHARED", metal: input.metal, soldOn: input.soldOn, weightMg: input.weightMg, proceeds: input.proceeds, fees: input.fees,
@@ -182,7 +183,7 @@ export async function recordSale(states: LotState[], input: SaleInput) {
 }
 
 export async function undoSale(disposal: MetalDisposal, disposalLots: MetalDisposalLot[]) {
-  await db.transaction("rw", db.tables, async () => {
+  await store().transaction(ALL_TABLES, async () => {
     for (const row of disposalLots.filter((d) => d.disposalId === disposal.id)) await softDelete("metal_disposal_lot", row.id)
     await softDelete("metal_disposal", disposal.id)
   })

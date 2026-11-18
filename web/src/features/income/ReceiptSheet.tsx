@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { microsToRate, RATE_SCALE, rateToMicros, recordReceipt, toBaseAmount } from "@/db/income"
+import { microsToRate, RATE_SCALE, rateToMicros, recordReceipt, toBaseAmount } from "@mizan/core/db/income"
 import type { IncomeReceipt } from "@/db/schema"
-import { softDelete, writeFields } from "@/db/write"
+import { softDelete, writeFields } from "@mizan/core/db/write"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 
 const CURRENCIES = ["IQD", "USD"]

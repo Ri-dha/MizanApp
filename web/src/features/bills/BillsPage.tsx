@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { markBillPaid, undoBillPaid, type BillDue } from "@/db/expenses"
+import { markBillPaid, undoBillPaid, type BillDue } from "@mizan/core/db/expenses"
 import type { RecurringExpense } from "@/db/schema"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
@@ -159,7 +159,7 @@ function RecurringExpenseListOutsideMonth({ monthBills, onEdit }: { monthBills: 
 }
 
 import { useLiveQuery } from "dexie-react-hooks"
-import { liveRecurringExpenses } from "@/db/expenses"
+import { liveRecurringExpenses } from "@mizan/core/db/expenses"
 
 function useOthers(shown: Set<string>) {
   const all = useLiveQuery(liveRecurringExpenses, [], [])
