@@ -1,6 +1,6 @@
 import { Link, Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
-import { FlatList, StyleSheet, View } from "react-native"
+import { FlatList, Pressable, StyleSheet, View } from "react-native"
 
 import { logout } from "@mizan/core/auth/session"
 import { formatDate } from "@mizan/core/domain/calendar/hijri"
@@ -11,7 +11,8 @@ import { syncNow } from "@mizan/core/sync/engine"
 import { Button } from "@/components/button"
 import { Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
-import { useLiveQuery, useSyncStatus } from "@/hooks/use-core"
+import { Notice } from "@/components/notice"
+import { useLiveQuery, useSession, useSyncStatus } from "@/hooks/use-core"
 import { colors, radius, spacing, type } from "@/theme"
 
 const NO_ROWS: LedgerTransaction[] = []
@@ -20,6 +21,7 @@ const DAY: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", mont
 export function Ledger() {
   const { t, i18n } = useTranslation()
   const status = useSyncStatus()
+  const session = useSession()
   const transactions = useLiveQuery(() => sorted(rows("transactions", (row) => row.deletedAt === null), "occurredOn", "desc"), [], NO_ROWS)
   const statusText = status.pending > 0 ? t("sync.status.pending", { count: status.pending }) : t(`sync.status.${status.phase}`)
 
@@ -41,7 +43,18 @@ export function Ledger() {
         contentContainerStyle={styles.content}
         data={transactions}
         keyExtractor={(row) => row.id}
-        ListHeaderComponent={<ThemedText testID="sync-status" variant="subhead" onPress={() => void syncNow()}>{statusText}</ThemedText>}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            {session && !session.verified ? (
+              <Link href="/verify" asChild>
+                <Pressable testID="open-verify" accessibilityRole="link">
+                  <Notice>{`${t("auth.verifyTitle")} · ${t("auth.verify")}`}</Notice>
+                </Pressable>
+              </Link>
+            ) : null}
+            <ThemedText testID="sync-status" variant="subhead" onPress={() => void syncNow()}>{statusText}</ThemedText>
+          </View>
+        }
         ListEmptyComponent={<ThemedText variant="subhead">{t("transactions.none")}</ThemedText>}
         renderItem={({ item, index }) => (
           <View style={[styles.cell, index === 0 && styles.first, index === transactions.length - 1 && styles.last]}>
@@ -69,4 +82,5 @@ const styles = StyleSheet.create({
   first: { borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md, marginTop: spacing.sm },
   last: { borderBottomLeftRadius: radius.md, borderBottomRightRadius: radius.md },
   footer: { gap: spacing.md, marginTop: spacing.xl },
+  header: { gap: spacing.md },
 })

@@ -14,6 +14,7 @@ export function RecoveryCode({ code }: { code: string }) {
   return (
     <Screen centered>
       <ThemedText variant="title">{t("vault.recoveryTitle")}</ThemedText>
+      <ThemedText variant="subhead">{t("vault.recoveryBody")}</ThemedText>
       <Group>
         <ThemedText selectable testID="recovery-code" style={styles.code}>{code}</ThemedText>
       </Group>

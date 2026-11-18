@@ -5,6 +5,7 @@ import { ActivityIndicator, View } from "react-native"
 import { useRecoveryCodeToShow, useSession, useVaultState } from "@/hooks/use-core"
 import { colors } from "@/theme"
 import { Ledger } from "./ledger"
+import { Recover } from "./recover"
 import { RecoveryCode } from "./recovery-code"
 import { SignIn } from "./sign-in"
 import { Unlock } from "./unlock"
@@ -18,8 +19,8 @@ export function Home() {
   if (session && !recoveryCode && vault === "ready") return <Ledger />
   return (
     <>
-      <Stack.Screen options={{ title: t("app.name"), headerShown: false }} />
-      {!session ? <SignIn /> : recoveryCode ? <RecoveryCode code={recoveryCode} /> : <Unlock />}
+      <Stack.Screen options={{ title: t("app.name"), headerShown: false, headerRight: () => null }} />
+      {!session ? <SignIn /> : recoveryCode ? <RecoveryCode code={recoveryCode} /> : vault === "needs-recovery" ? <Recover /> : <Unlock />}
     </>
   )
 }

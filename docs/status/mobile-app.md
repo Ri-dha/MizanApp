@@ -35,4 +35,6 @@
   light, dark and Arabic RTL checked on the iPhone simulator.
 - Phase 4 step 4 (uncommitted, `feat/mobile-lock`): PIN, Face ID or fingerprint, re-lock after
   the grace period, privacy cover; lock logic shared with the web in core. Phase 4 complete.
-- Next: Phase 5, the parity screens. Blockers: none.
+- Phase 5 step 1 (uncommitted, `feat/mobile-auth-screens`): register, reset, verify, recovery and
+  start over on the phone; checked live on the iPhone.
+- Next: Phase 5 step 2, sync status and conflicts. Blockers: none.

@@ -100,6 +100,12 @@
      plan, income, bills, debts, goals, cash, gold and silver, assets, net worth and month close,
      reports, household and join links, advisor, settings (theme, language, privacy, backup,
      notifications, CSV via share sheet), help, tours, receipt photos (no OCR), charts.
+     Step 1 done 2026-11-19 (feat/mobile-auth-screens): register, reset password (code, then new
+     password), verify contact (one-time-code field, from a banner on the ledger), recovery after
+     a reset, and start over without the code (server's own count of what is lost, typed word).
+     `describeError` and an inline `Notice` replace the web's toasts. Checked live on the iPhone:
+     register, recovery code, PIN, verify, reset, sign in with the new password, wrong and right
+     recovery code. The start-over confirm itself was not run.
   6. Push and release: `PushSubscription` channel and token, `ExpoPushSender` beside
      `WebPushSender`, a Flyway migration; mobile registers its token and uploads the reminder
      schedule; icons, store listings in English and Arabic, TestFlight and Play internal testing.
