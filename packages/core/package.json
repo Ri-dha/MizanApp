@@ -6,7 +6,8 @@
   "description": "Logic every Mizan client shares: domain maths, record types, and later the vault and sync (ADR mobile-2). Plain TypeScript source with no runtime dependencies, compiled by each app.",
   "scripts": {
     "typecheck": "tsc",
-    "test": "vitest run"
+    "test": "vitest run",
+    "vectors:vault": "node scripts/make-vault-vectors.ts"
   },
   "devDependencies": {
     "@types/node": "^24.13.4",

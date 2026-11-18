@@ -1,0 +1,42 @@
+[
+  {
+    "name": "a receipt file opens with its own key",
+    "input": {
+      "kind": "attachment",
+      "iv": "lfhXQqz0UPKq6Qvc",
+      "blobKey": "h9eIPCiuNPFkPRhegeZXMTdJE26ZYyEQqnW8lpg3C+A=",
+      "cipher": "2X9I_B1KAIWbrsso64AA65LerDnG6tetEk8FELyHespGwvF7daS5CV5w"
+    },
+    "expected": {
+      "plain": "cmVjZWlwdCBwaG90byBieXRlcyDZodmi2aM"
+    }
+  },
+  {
+    "name": "an MZB1 backup opens with its passphrase (gzip inside)",
+    "input": {
+      "kind": "backup",
+      "passphrase": "correct horse",
+      "iv": "TVRbYmlwd36FjJOa",
+      "bytes": "TVpCMQkQFx4lLDM6QUhPVl1ka3IAAAPoHCSP6QinNVXVcQ3dCkG_GRGVlGVaddolOzN6sL6n3fCCcvDtc5aT9TwmtgX3u6OtoSrYmmX2umuwr1zKRrGFVltnfh_f3qIJ09zzciDQL7TPZ9ktpkyFngRlJon81JFJk0Ji"
+    },
+    "expected": {
+      "json": "{\"format\":\"mizan-export\",\"note\":\"نسخة احتياطية\"}",
+      "wrongPassphrase": "WRONG_PASSPHRASE"
+    }
+  },
+  {
+    "name": "the PIN-wrapped data key opens with the PIN only",
+    "input": {
+      "kind": "lock",
+      "pin": "2580",
+      "wrongPin": "0000",
+      "entry": {
+        "salt": "KvgrJx3TwBVlocMJ8fhS9g==",
+        "wrapped": "2oAwN/T/mMr9n7oSF0qE6ResS7FTLnqw64GWzpd0YzR25tQbqFboWw=="
+      }
+    },
+    "expected": {
+      "key": "ydDX3uXs8_oBCA8WHSQrMjlAR05VXGNqcXh_ho2Um6I"
+    }
+  }
+]

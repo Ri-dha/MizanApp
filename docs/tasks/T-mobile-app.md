@@ -1,5 +1,5 @@
 # T-mobile-app — iPhone and Android apps with Expo
-- Status: in-progress (2026-11-18), Phase 1 done; Phase 2 done on feat/mobile-core, merged to main
+- Status: in-progress (2026-11-18), Phase 1 done; Phases 1–3 done; Phase 3 on feat/vault-vectors (uncommitted)
 - Context: ADR mobile-1 (accepted), ADR e2e-1, e2e-2, sync-1, ui-1. Supersedes T-flutter-app.
   Owner decisions 2026-11-18: after T-shadcn-ui and before T-price-history and T-admin-dashboard;
   full parity in the first release; iPhone and Android together; **OCR on hold until the end**
@@ -57,6 +57,12 @@
   3. Vectors: `shared/test-vectors/vault-*.json` (identifier normalisation, auth key and wrap
      secret, account key wrap/open, grant wrap/open, field seal/open, deterministic ids, blob
      keys), generated from the web with fixed randomness; core and mobile run them.
+     Done 2026-11-18: nine `shared/test-vectors/vault-*.json` files (identifiers, password keys,
+     recovery codes, key wrapping, account, grants, fields, deterministic ids, device files:
+     receipt file, MZB1 backup, PIN lock), 30 cases, run by
+     `packages/core/src/vault/vectors.test.ts`. Written once by `npm run vectors:vault` in
+     `packages/core`; changing the padding or an HKDF label fails them (checked). The phone app's
+     tests load the same files in Phase 4.
   4. Mobile foundation: Expo with Expo Router and development builds; adapters over `expo-sqlite`
      with SQLCipher, quick-crypto, `expo-secure-store`, AppState and NetInfo; `openapi-fetch`
      with the refresh token in secure storage; NativeWind and react-native-reusables (shadcn

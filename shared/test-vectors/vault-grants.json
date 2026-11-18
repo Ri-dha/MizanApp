@@ -1,0 +1,28 @@
+[
+  {
+    "name": "household key version 1 granted to the account",
+    "input": {
+      "kind": "HOUSEHOLD",
+      "version": 1,
+      "privateKeyPkcs8": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgPETJSjoRcZ7mvDN4iDxs-JRNFUPlrS7H8TSKyDXgQvWhRANCAAS82gYOqDY6BDgiiLx8HTPaXqhPiRUtJXnZfwKuezz2vejq5dpxMmM0eBOtJg1ngGCUcA2Ocu6nxHFMJAVn6tFa",
+      "wrapped": "BKQkLqKRqv9oddtRMarF5PQrtMko_VD8Gtv5QmEsnfTSBo94c1o7vItJm889dMmyal24epwM-jTGuPIcx_4FE7nDwDsf54pKCjLhmnSspL8WmFi7qoMSuSnOTAvIEua5tctxm_-Ejc92HV8xBmsyx0lX8XQAdmV7GBEWnEQ"
+    },
+    "expected": {
+      "key": "ZWxzeoGIj5adpKuyucDHztXc4-rx-P8GDRQbIikwNz4",
+      "opensAsVersion2": false
+    }
+  },
+  {
+    "name": "report key version 3",
+    "input": {
+      "kind": "REPORT",
+      "version": 3,
+      "privateKeyPkcs8": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgPETJSjoRcZ7mvDN4iDxs-JRNFUPlrS7H8TSKyDXgQvWhRANCAAS82gYOqDY6BDgiiLx8HTPaXqhPiRUtJXnZfwKuezz2vejq5dpxMmM0eBOtJg1ngGCUcA2Ocu6nxHFMJAVn6tFa",
+      "wrapped": "BDSVWApeqi_bq8hewu_TsrbxrP_CRBCXEIWZzRu2CV7Xalnq-XXWumNdCGieUD84gVHey-AeR1CACvF7z_mDWZORcxtsk4qC-gcNZkc_aqFavOKKNnRYJU99FY2s4vF500tb1iRCMx3OTmv9QPKJ87mAvO5zEDrJyEqN5i4"
+    },
+    "expected": {
+      "key": "l56lrLO6wcjP1t3k6_L5AAcOFRwjKjE4P0ZNVFtiaXA",
+      "opensAsVersion2": false
+    }
+  }
+]

@@ -43,6 +43,9 @@ an API change lands there first and stays backward compatible until the clients 
 - Money is integer minor units with a currency. Never a float.
 - Logic every client shares lives in `packages/core`, imported as `@mizan/core/...`; it has no
   runtime dependencies and no browser-only globals (ADR mobile-2).
+- The encryption format is pinned by `shared/test-vectors/vault-*.json` (ADR mobile-1). Never
+  regenerate them (`npm run vectors:vault` in `packages/core`) unless the format itself changes,
+  with an ADR; a failing vault vector means a client would lock people out.
 - Domain maths gets a case in `shared/test-vectors/` first. The server no longer calculates
   (ADR e2e-1); the vectors are the contract for every client (web now, the Expo app from T-mobile-app).
 - The server must never receive a plain amount, name or note (ADR e2e-1, e2e-2). A new synced

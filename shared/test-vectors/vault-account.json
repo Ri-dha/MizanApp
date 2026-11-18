@@ -1,0 +1,22 @@
+[
+  {
+    "name": "an account opens with its password and with its recovery code; its private key agrees with a fixed peer",
+    "input": {
+      "identifier": "ali@example.iq",
+      "password": "correct horse battery staple",
+      "recoveryCode": "WHUS-R5RW-TMY5-H89P-JG7X-S4HL-GSXV-77LL",
+      "material": {
+        "wrappedByPassword": "aB4SNPzQzZYzNV4pOXwRj_BI5kWWkpfowteBgBhEiEF7SeljtsLCsA",
+        "wrappedByRecovery": "IWmPychMW4ytQ2Ni-SHNAe_NiSBUmYUIYjtDHbnPnUwd3KAO5cIL-w",
+        "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvNoGDqg2OgQ4Ioi8fB0z2l6oT4kVLSV52X8Crns89r3o6uXacTJjNHgTrSYNZ4BglHANjnLup8RxTCQFZ-rRWg",
+        "encryptedPrivateKey": "OIb-DPn8ZTriKXGa0ioiPljdqS2E4E0vXr2IbvJmkx81ZqrDwi5s1MPmaozzvX-_GQF25WAwRU2VAc7Ufkuk01JaTjz0yog1j7ks42kHLPe5OlfSde08l_WfBJ7VUwwiea0o2Hf3kEQfObv1VmGNKHpWocjeWWFXLoS0JRRLJ6bsQJGnNhRdTW9_d7dTUarLFK2GePeHDIlzUHBRqnHJzqm69TDhlg"
+      },
+      "peerPublicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbJ7in9x6i4Xo4ZgE4rpMql6eVTCtR-GkvEMi1pobs-RVLiivaPvIWc21ZUCax8gNc8C3MTk-HV2fu93lNBjNuQ"
+    },
+    "expected": {
+      "userKey": "HEEFel1dXVvvZhmX7jJ-f29ci9lUCNSMVAUpaCY3kdA",
+      "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvNoGDqg2OgQ4Ioi8fB0z2l6oT4kVLSV52X8Crns89r3o6uXacTJjNHgTrSYNZ4BglHANjnLup8RxTCQFZ-rRWg",
+      "sharedWithPeer": "a5shu_6z3gcDCy35m3jNBV1uv4CfVYW4OJTdtPq9I94"
+    }
+  }
+]

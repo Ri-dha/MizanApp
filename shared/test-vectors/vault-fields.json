@@ -1,0 +1,106 @@
+[
+  {
+    "name": "an amount in minor units",
+    "input": {
+      "key": "ZWxzeoGIj5adpKuyucDHztXc4-rx-P8GDRQbIikwNz4",
+      "table": "ledger_transaction",
+      "recordId": "row-1",
+      "field": "amount",
+      "sealed": "e1.h.1.fOeHeWN86EKL75yjXFYvytUaR2kfVsGgyjx9alYUCgLwqim4Ral6nUE8bLi5u9tk5btKZnl3jNJaDNQ6"
+    },
+    "expected": {
+      "value": 12345678901,
+      "kind": "h",
+      "version": 1,
+      "sealedBytes": 60
+    }
+  },
+  {
+    "name": "an Arabic payee",
+    "input": {
+      "key": "ZWxzeoGIj5adpKuyucDHztXc4-rx-P8GDRQbIikwNz4",
+      "table": "ledger_transaction",
+      "recordId": "row-1",
+      "field": "payee",
+      "sealed": "e1.h.1.AzlXeHPx9pZFZhN9TLgdfgpuVGqGiXb0WKZh8GdKQUiNkW3wdBNtsMo1fDleErmRlgIhTxhT1rdC__aI"
+    },
+    "expected": {
+      "value": "شاي وسكر ١٢٣",
+      "kind": "h",
+      "version": 1,
+      "sealedBytes": 60
+    }
+  },
+  {
+    "name": "an object with null inside",
+    "input": {
+      "key": "l56lrLO6wcjP1t3k6_L5AAcOFRwjKjE4P0ZNVFtiaXA",
+      "table": "annual_report",
+      "recordId": "rep-2026",
+      "field": "report",
+      "sealed": "e1.r.3.qd_bxmzoGcP0VS5R7NTXHXlWiYxbDHX-Ef1_lM-p1k2EhVU1KpT32qxjfpACI5vOC-tTwsXvXTjJmM5o4OvRHJks47nUV4aXI7IoaG_f1_yYnbZSusodqPelJmcMIl0_6wVgZl0WuacUUqNkm1_kYNrdjm8WLx-NvLgiFg"
+    },
+    "expected": {
+      "value": {
+        "months": [
+          {
+            "monthKey": "2026-01",
+            "received": 1500000
+          }
+        ],
+        "savingRate": null
+      },
+      "kind": "r",
+      "version": 3,
+      "sealedBytes": 124
+    }
+  },
+  {
+    "name": "null",
+    "input": {
+      "key": "CxIZICcuNTxDSlFYX2ZtdHuCiZCXnqWss7rByM_W3eQ",
+      "table": "ledger_transaction",
+      "recordId": "row-2",
+      "field": "note",
+      "sealed": "e1.u.1.F-DlQgDiX2bD5SNQA4x8lNGNJtq4JmaXGgL7WqZg3hQ7DDXYXvqbJPONtpmwfAcPenAI1weKyYDrC1cX"
+    },
+    "expected": {
+      "value": null,
+      "kind": "u",
+      "version": 1,
+      "sealedBytes": 60
+    }
+  },
+  {
+    "name": "a value that fills a pad block exactly",
+    "input": {
+      "key": "ZWxzeoGIj5adpKuyucDHztXc4-rx-P8GDRQbIikwNz4",
+      "table": "ledger_transaction",
+      "recordId": "row-3",
+      "field": "note",
+      "sealed": "e1.h.1.UaNLH0MIC_k6XpKxU4gBbHKGu425U-wbXjXkR35msxkGaU9LBvnwMsZ6JFil6rnWcBS1vAUCizCuDB-a"
+    },
+    "expected": {
+      "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "kind": "h",
+      "version": 1,
+      "sealedBytes": 60
+    }
+  },
+  {
+    "name": "a long note",
+    "input": {
+      "key": "ZWxzeoGIj5adpKuyucDHztXc4-rx-P8GDRQbIikwNz4",
+      "table": "ledger_transaction",
+      "recordId": "row-3",
+      "field": "category",
+      "sealed": "e1.h.1.3_nJj1OURil6EEygFnMtSBJsdnsi8vJUUuBzn4VCUbiyN18SG9RHYbokZTEpwX-e6JgsJzGpNBvFemIVB_WBIPqTKxWU6yfWmrRsGicOs1r1-MMZy61v5r-GzdsQ0BqMYOaoZnBa7_cyzS6-01Zri-_aXEaBnbdYbVHgBHgXrGUHZ_RGNAKAAo39KjVSfSTMe3kaFqGn8zVMxfs-"
+    },
+    "expected": {
+      "value": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+      "kind": "h",
+      "version": 1,
+      "sealedBytes": 156
+    }
+  }
+]

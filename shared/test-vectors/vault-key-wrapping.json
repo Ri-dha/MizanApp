@@ -1,0 +1,26 @@
+[
+  {
+    "name": "user key wrapped by the password's wrap secret (AES-KW, deterministic)",
+    "input": {
+      "userKey": "CxIZICcuNTxDSlFYX2ZtdHuCiZCXnqWss7rByM_W3eQ",
+      "wrapSecret": "wBaQ9Eh_vvDqgd8Rr4_Upk_pUBAB79NIj3rtSgxvflI"
+    },
+    "expected": "GOv-iUvXsRNupZ-ZLrhLPwK0lfReBlqspVP8cRk9u2Kk0T3mEomoyQ"
+  },
+  {
+    "name": "user key wrapped by the recovery code",
+    "input": {
+      "userKey": "CxIZICcuNTxDSlFYX2ZtdHuCiZCXnqWss7rByM_W3eQ",
+      "recoveryCode": "AWGB-GGTB-FAZV-NRLE-KPKF-U2DH-P34Z-3A6L"
+    },
+    "expected": "DyMzlbKxWKnfmybnqri3E1Na74ezh3mkKkeY2aUpgo_v2HpgTxooKQ"
+  },
+  {
+    "name": "the recovery code is read ignoring case, spaces and dashes",
+    "input": {
+      "userKey": "CxIZICcuNTxDSlFYX2ZtdHuCiZCXnqWss7rByM_W3eQ",
+      "recoveryCode": "awgb ggtb fazv nrle kpkf u2dh p34z 3a6l"
+    },
+    "expected": "DyMzlbKxWKnfmybnqri3E1Na74ezh3mkKkeY2aUpgo_v2HpgTxooKQ"
+  }
+]

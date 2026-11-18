@@ -1,0 +1,27 @@
+[
+  {
+    "name": "email is trimmed and lower-cased",
+    "input": "  Ali.Hassan@Example.IQ ",
+    "expected": "ali.hassan@example.iq"
+  },
+  {
+    "name": "local mobile number gains the country code",
+    "input": "0770 123 4567",
+    "expected": "+9647701234567"
+  },
+  {
+    "name": "mobile number with dashes and brackets",
+    "input": "(0780)-555-1234",
+    "expected": "+9647805551234"
+  },
+  {
+    "name": "number already in international form",
+    "input": "+9647701234567",
+    "expected": "+9647701234567"
+  },
+  {
+    "name": "short number is kept as digits",
+    "input": "123 456",
+    "expected": "123456"
+  }
+]

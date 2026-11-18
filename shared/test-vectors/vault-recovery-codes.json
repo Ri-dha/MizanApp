@@ -1,0 +1,17 @@
+[
+  {
+    "name": "all zero bytes",
+    "input": "0000000000000000000000000000000000000000",
+    "expected": "AAAA-AAAA-AAAA-AAAA-AAAA-AAAA-AAAA-AAAA"
+  },
+  {
+    "name": "all 0xff bytes",
+    "input": "ffffffffffffffffffffffffffffffffffffffff",
+    "expected": "9999-9999-9999-9999-9999-9999-9999-9999"
+  },
+  {
+    "name": "a counting pattern",
+    "input": "030a11181f262d343b424950575e656c737a8188",
+    "expected": "ANFB-CGA9-E2YV-JQ4C-KFJF-QZVF-PT3Z-XANJ"
+  }
+]

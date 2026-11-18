@@ -25,5 +25,7 @@
   live. On main.
 - Phase 2 complete (2026-11-18): also vault account state, PIN lock key, file encryption, backup
   format, export and import, metals and net worth views. Core 146 + web 39 tests; checked live.
-- Next: Phase 3, vault test vectors in `shared/test-vectors/` that both apps run. Blockers: none.
+- Phase 3 complete (uncommitted, `feat/vault-vectors`): 30 vault vector cases in
+  `shared/test-vectors/vault-*.json`, run by core (176 tests). Next: Phase 4, the Expo app in
+  `mobile/`. Blockers: none.
 - Validated: spike results in `spikes/rn-crypto/harness/out/` (gitignored), rerun steps in the learning.

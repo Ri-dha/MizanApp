@@ -75,10 +75,14 @@ export async function derivePasswordKeys(identifier: string, password: string): 
 
 const RECOVERY_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 const RECOVERY_GROUP = 4
+const RECOVERY_BYTES = 20
 
 /** 160 random bits as 32 unambiguous characters, grouped for writing down. */
 export function newRecoveryCode(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(20))
+  return recoveryCodeFrom(crypto.getRandomValues(new Uint8Array(RECOVERY_BYTES)))
+}
+
+export function recoveryCodeFrom(bytes: Uint8Array): string {
   let bits = 0
   let value = 0
   let out = ""

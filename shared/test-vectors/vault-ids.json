@@ -1,0 +1,38 @@
+[
+  {
+    "name": "member contribution",
+    "input": [
+      "member_contribution",
+      "household-1",
+      "user-1"
+    ],
+    "expected": "713b940f-5852-51bd-994f-c7d68b79af62"
+  },
+  {
+    "name": "month close",
+    "input": [
+      "month_close",
+      "household-1",
+      "2026-10"
+    ],
+    "expected": "473f79e5-702c-570d-b488-ee8d4654bb2f"
+  },
+  {
+    "name": "default bucket",
+    "input": [
+      "default_bucket",
+      "household-1",
+      "0"
+    ],
+    "expected": "7e3714cf-f823-5e47-954d-6a744726b910"
+  },
+  {
+    "name": "annual report with Arabic household id",
+    "input": [
+      "annual_report",
+      "أسرة",
+      "2026"
+    ],
+    "expected": "8fe63893-28de-5952-a8e5-9b7ec25d18a2"
+  }
+]
