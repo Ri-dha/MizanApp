@@ -18,6 +18,9 @@ export function More() {
       <Stack.Screen options={{ title: t("nav.more") }} />
       <Group>
         <LinkRow testID="more-goals" href="/goals"><ThemedText>{t("nav.goals")}</ThemedText></LinkRow>
+        <LinkRow testID="more-income" href="/income"><ThemedText>{t("nav.income")}</ThemedText></LinkRow>
+        <LinkRow testID="more-bills" href="/bills"><ThemedText>{t("nav.bills")}</ThemedText></LinkRow>
+        <LinkRow testID="more-debts" href="/debts"><ThemedText>{t("nav.debts")}</ThemedText></LinkRow>
         <LinkRow testID="more-sync" href="/sync"><ThemedText>{t("nav.sync")}</ThemedText></LinkRow>
         <LinkRow testID="more-diagnostics" href="/diagnostics" last><ThemedText>Diagnostics</ThemedText></LinkRow>
       </Group>
