@@ -111,7 +111,12 @@
      Step 3 started: app structure with `Stack.Protected` (signed-in and signed-out routes) and an
      `AccountGate` for the recovery-code, unlock, recover, set-PIN and lock states; native tabs
      Home, Ledger, More (one stack per tab, large titles); Home with net worth, today's dollar,
-     the month's buckets, metals, upcoming bills and cash. Remaining in step 3: the full ledger,
+     the month's buckets, metals, upcoming bills and cash. The full ledger is done
+     (feat/mobile-ledger): month navigation, days as sections, the native header search, a type
+     filter, recently deleted with restore, and one editor sheet for adding and editing (type,
+     amount and currency with rate, native date picker, bucket chips, transfer counterparty,
+     split, category suggestion, note, private, delete), on `@expo/ui` segmented controls and
+     date picker. Checked live: add with suggestion, edit, delete, restore. Remaining in step 3:
      plan and move money, income, bills and subscriptions, debts, goals.
   6. Push and release: `PushSubscription` channel and token, `ExpoPushSender` beside
      `WebPushSender`, a Flyway migration; mobile registers its token and uploads the reminder

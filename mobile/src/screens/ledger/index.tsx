@@ -1,67 +1,123 @@
-import { Link, Stack } from "expo-router"
+import { Link, Stack, router } from "expo-router"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { FlatList, Pressable, StyleSheet, View } from "react-native"
+import { Pressable, SectionList, StyleSheet, View } from "react-native"
+import { SegmentedControl } from "@expo/ui/community/segmented-control"
 
 import { formatDate } from "@mizan/core/domain/calendar/hijri"
+import { shiftKey } from "@mizan/core/domain/calendar/month"
 import { formatMoney } from "@mizan/core/domain/money/format"
-import type { LedgerTransaction } from "@mizan/core/schema"
-import { rows, sorted } from "@mizan/core/store/store"
+import { EMPTY_FILTER, filterTransactions, liveRecentlyDeleted, liveTransactionsFor, restoreTransaction } from "@mizan/core/db/transactions"
+import type { LedgerTransaction, TransactionType } from "@mizan/core/schema"
 import { Button } from "@/components/button"
+import { Notice } from "@/components/notice"
 import { Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
-import { Notice } from "@/components/notice"
 import { useLiveQuery, useSession, useSyncStatus } from "@/hooks/use-core"
+import { currentMonthKey, useMonthView } from "@/hooks/use-views"
 import { colors, radius, spacing, type } from "@/theme"
+import { formatMonthKey } from "@/utils/month"
 
 const NO_ROWS: LedgerTransaction[] = []
 const DAY: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" }
+const TYPE_FILTERS: (TransactionType | null)[] = [null, "EXPENSE", "TRANSFER", "INCOME"]
+
+interface Section {
+  key: string
+  title: string
+  data: LedgerTransaction[]
+  deleted?: boolean
+}
 
 export function Ledger() {
   const { t, i18n } = useTranslation()
-  const status = useSyncStatus()
   const session = useSession()
-  const transactions = useLiveQuery(() => sorted(rows("transactions", (row) => row.deletedAt === null), "occurredOn", "desc"), [], NO_ROWS)
+  const status = useSyncStatus()
+  const startDay = session?.monthStartDay ?? 1
+  const [monthKey, setMonthKey] = useState(() => currentMonthKey(startDay))
+  const [text, setText] = useState("")
+  const [typeFilter, setTypeFilter] = useState<TransactionType | null>(null)
+  const view = useMonthView(monthKey, startDay)
+  const month = useLiveQuery(() => liveTransactionsFor(monthKey), [monthKey], NO_ROWS)
+  const deleted = useLiveQuery(liveRecentlyDeleted, [], NO_ROWS)
+  const bucketName = (id: string | null) => view.buckets.find((b) => b.id === id)?.name
+  const money = (row: LedgerTransaction) => formatMoney(row.type === "INCOME" ? row.amount : -row.amount, row.currency, i18n.language)
   const statusText = status.pending > 0 ? t("sync.status.pending", { count: status.pending }) : t(`sync.status.${status.phase}`)
+
+  const sections = useMemo<Section[]>(() => {
+    const matching = filterTransactions(month, { ...EMPTY_FILTER, text, type: typeFilter })
+    const byDay = new Map<string, LedgerTransaction[]>()
+    for (const row of matching) byDay.set(row.occurredOn, [...(byDay.get(row.occurredOn) ?? []), row])
+    const days: Section[] = [...byDay.entries()].map(([day, data]) => ({ key: day, title: formatDate(day, i18n.language, false, DAY), data }))
+    return deleted.length > 0 && !text && !typeFilter ? [...days, { key: "deleted", title: t("transactions.recentlyDeleted"), data: deleted, deleted: true }] : days
+  }, [month, deleted, text, typeFilter, i18n.language, t])
 
   return (
     <>
       <Stack.Screen
         options={{
           title: t("transactions.title"),
-          headerRight: () => (
-            <Link href="/add-transaction" asChild>
-              <Button testID="open-add-transaction" variant="ghost" title={t("transactions.add")} />
-            </Link>
-          ),
+          headerRight: () => <Button testID="open-add-transaction" variant="ghost" title={t("transactions.add")} onPress={() => router.push("/transaction")} />,
+          headerSearchBarOptions: { placeholder: t("transactions.search"), onChangeText: (event) => setText(event.nativeEvent.text) },
         }}
       />
-      <FlatList
+      <SectionList
         style={styles.list}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.content}
-        data={transactions}
+        sections={sections}
         keyExtractor={(row) => row.id}
+        stickySectionHeadersEnabled={false}
         ListHeaderComponent={
           <View style={styles.header}>
             {session && !session.verified ? (
               <Link href="/verify" asChild>
-                <Pressable testID="open-verify" accessibilityRole="link">
-                  <Notice>{`${t("auth.verifyTitle")} · ${t("auth.verify")}`}</Notice>
-                </Pressable>
+                <Pressable testID="open-verify" accessibilityRole="link"><Notice>{`${t("auth.verifyTitle")} · ${t("auth.verify")}`}</Notice></Pressable>
               </Link>
             ) : null}
+            <View style={styles.monthRow}>
+              <Button testID="previous-month" variant="ghost" title="‹" onPress={() => setMonthKey(shiftKey(monthKey, -1))} />
+              <ThemedText testID="month-title" variant="headline" accessibilityLabel={formatMonthKey(monthKey, i18n.language)}>{formatMonthKey(monthKey, i18n.language)}</ThemedText>
+              <Button testID="next-month" variant="ghost" title="›" onPress={() => setMonthKey(shiftKey(monthKey, 1))} />
+            </View>
+            <SegmentedControl
+              testID="type-filter"
+              values={TYPE_FILTERS.map((value) => (value ? t(`transactions.types.${value}`) : t("transactions.allTypes")))}
+              selectedIndex={TYPE_FILTERS.indexOf(typeFilter)}
+              onChange={(event) => setTypeFilter(TYPE_FILTERS[event.nativeEvent.selectedSegmentIndex])}
+            />
             <Link href="/sync" testID="sync-status" style={type.subhead}>{statusText}</Link>
           </View>
         }
         ListEmptyComponent={<ThemedText variant="subhead">{t("transactions.none")}</ThemedText>}
-        renderItem={({ item, index }) => (
-          <View style={[styles.cell, index === 0 && styles.first, index === transactions.length - 1 && styles.last]}>
-            <Row testID={`transaction-${item.id}`} last={index === transactions.length - 1} trailing={<ThemedText style={type.amount}>{formatMoney(item.amount, item.currency, i18n.language)}</ThemedText>}>
-              <ThemedText variant="body">{item.payee ?? "—"}</ThemedText>
-              <ThemedText variant="caption">{formatDate(item.occurredOn, i18n.language, false, DAY)}</ThemedText>
-            </Row>
-          </View>
-        )}
+        renderSectionHeader={({ section }) => <ThemedText variant="subhead" style={styles.sectionTitle}>{section.title}</ThemedText>}
+        renderItem={({ item, index, section }) => {
+          const first = index === 0
+          const last = index === section.data.length - 1
+          return (
+            <Pressable
+              testID={`transaction-${item.id}`}
+              onPress={() => (section.deleted ? undefined : router.push({ pathname: "/transaction", params: { id: item.id } }))}
+              style={({ pressed }) => [styles.cell, first && styles.first, last && styles.last, pressed && !section.deleted ? styles.pressed : null]}
+            >
+              <Row
+                last={last}
+                trailing={
+                  section.deleted ? (
+                    <Button testID={`restore-${item.id}`} variant="ghost" title={t("accounts.restore")} onPress={() => void restoreTransaction(item.id)} />
+                  ) : (
+                    <ThemedText style={type.amount}>{money(item)}</ThemedText>
+                  )
+                }
+              >
+                <ThemedText>{item.payee ?? item.category ?? t(`transactions.types.${item.type}`)}</ThemedText>
+                <ThemedText variant="caption">
+                  {[bucketName(item.bucketId), item.category, item.splitGroupId ? t("transactions.splitBadge") : null].filter(Boolean).join(" · ") || " "}
+                </ThemedText>
+              </Row>
+            </Pressable>
+          )
+        }}
       />
     </>
   )
@@ -69,9 +125,12 @@ export function Ledger() {
 
 const styles = StyleSheet.create({
   list: { backgroundColor: colors.background },
-  content: { padding: spacing.md },
+  content: { padding: spacing.md, paddingBottom: spacing.xxl },
+  header: { gap: spacing.md, marginBottom: spacing.sm },
+  monthRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  sectionTitle: { marginTop: spacing.md, marginBottom: spacing.xs },
   cell: { backgroundColor: colors.surface, overflow: "hidden" },
-  first: { borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md, marginTop: spacing.sm },
+  first: { borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md },
   last: { borderBottomLeftRadius: radius.md, borderBottomRightRadius: radius.md },
-  header: { gap: spacing.md },
+  pressed: { backgroundColor: colors.fill },
 })

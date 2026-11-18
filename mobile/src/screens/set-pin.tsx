@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Pressable, StyleSheet, Switch } from "react-native"
 
 import { biometricUnlock, setPin } from "@mizan/core/lock/store"
 import { Button } from "@/components/button"
 import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
+import { ToggleRow } from "@/components/toggle-row"
 import { ThemedText } from "@/components/themed-text"
-import { spacing, useBrandColors } from "@/theme"
+import { useBrandColors } from "@/theme"
 
 const PIN_PATTERN = /^\d{4,8}$/
 
@@ -43,23 +43,10 @@ export function SetPin() {
       <TextField testID="repeat-pin" label={t("lock.confirmPin")} keyboardType="number-pad" secureTextEntry maxLength={8} value={repeat} onChangeText={setRepeat} />
       {mismatch ? <ThemedText style={{ color: brand.destructive }}>{t("lock.pinMismatch")}</ThemedText> : null}
       {canUseBiometrics ? (
-        <Pressable
-          testID="enrol-biometrics"
-          accessibilityRole="switch"
-          accessibilityState={{ checked: withBiometrics }}
-          onPress={() => setWithBiometrics((on) => !on)}
-          style={styles.toggle}
-        >
-          <ThemedText style={styles.toggleLabel}>{t("lock.enrollBiometric")}</ThemedText>
-          <Switch value={withBiometrics} onValueChange={setWithBiometrics} />
-        </Pressable>
+        <ToggleRow testID="enrol-biometrics" label={t("lock.enrollBiometric")} value={withBiometrics} onChange={setWithBiometrics} />
       ) : null}
       <Button testID="save-pin" size="lg" title={t("lock.save")} loading={busy} disabled={!PIN_PATTERN.test(pin) || pin !== repeat} onPress={() => void save()} />
     </Screen>
   )
 }
 
-const styles = StyleSheet.create({
-  toggle: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  toggleLabel: { flex: 1 },
-})
