@@ -54,6 +54,8 @@ function Routes() {
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="transaction" options={{ presentation: "formSheet", sheetAllowedDetents: [0.6, 1], sheetGrabberVisible: true }} />
+        <Stack.Screen name="move-money" options={{ presentation: "formSheet", sheetAllowedDetents: [0.7, 1], sheetGrabberVisible: true }} />
+        <Stack.Screen name="plan-buckets" />
         <Stack.Screen name="sync" />
         <Stack.Screen name="verify" />
         <Stack.Screen name="diagnostics" />

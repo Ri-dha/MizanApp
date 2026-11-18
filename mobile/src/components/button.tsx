@@ -11,9 +11,10 @@ const sizes = {
 } as const
 
 export function Button({
-  title, onPress, variant = "primary", size = "md", loading, disabled, style, testID,
+  title, onPress, variant = "primary", size = "md", loading, disabled, style, testID, accessibilityLabel,
 }: {
   title: string
+  accessibilityLabel?: string
   onPress?: () => void
   variant?: Variant
   size?: keyof typeof sizes
@@ -35,7 +36,7 @@ export function Button({
     <Pressable
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={title}
+      accessibilityLabel={accessibilityLabel ?? title}
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
       disabled={inactive}
       onPress={onPress}

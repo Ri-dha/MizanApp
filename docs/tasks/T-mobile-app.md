@@ -116,8 +116,13 @@
      filter, recently deleted with restore, and one editor sheet for adding and editing (type,
      amount and currency with rate, native date picker, bucket chips, transfer counterparty,
      split, category suggestion, note, private, delete), on `@expo/ui` segmented controls and
-     date picker. Checked live: add with suggestion, edit, delete, restore. Remaining in step 3:
-     plan and move money, income, bills and subscriptions, debts, goals.
+     date picker. Checked live: add with suggestion, edit, delete, restore. Plan done
+     (feat/mobile-plan): a Plan tab with each bucket's allocated, committed, spent and free, the
+     unallocated and fixed-exceeds notices, moves with undo; the bucket editor as its own screen
+     (colour from the web palette, name, share or fixed amount, carry-over, add, remove,
+     rebalance, balance notice); move money as a form sheet. The plan and ledger share the
+     selected month. Checked live: move and undo, edit a share, rebalance, save. Remaining in
+     step 3: income, bills and subscriptions, debts, goals.
   6. Push and release: `PushSubscription` channel and token, `ExpoPushSender` beside
      `WebPushSender`, a Flyway migration; mobile registers its token and uploads the reminder
      schedule; icons, store listings in English and Arabic, TestFlight and Play internal testing.

@@ -79,7 +79,7 @@ export function Home() {
         </Group>
       ) : null}
 
-      <Section testID="home-plan" title={t("home.planTitle")} detail={`${t("home.incomePlanned")}: ${money(month.income.planned)} · ${t("home.incomeReceived")}: ${money(month.income.received)}`}>
+      <Section testID="home-plan" title={t("home.planTitle")} href="/plan" detail={`${t("home.incomePlanned")}: ${money(month.income.planned)} · ${t("home.incomeReceived")}: ${money(month.income.received)}`}>
         {month.figures.buckets.map((figure, index) => {
           const bucket = month.buckets.find((b) => b.id === figure.id)
           return (

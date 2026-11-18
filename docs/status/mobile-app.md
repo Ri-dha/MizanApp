@@ -37,6 +37,7 @@
   the grace period, privacy cover; lock logic shared with the web in core. Phase 4 complete.
 - Phase 5 step 1 (uncommitted, `feat/mobile-auth-screens`): register, reset, verify, recovery and
   start over on the phone; checked live on the iPhone.
-- Phase 5 steps 1–2 and the start of step 3 are on main (cd53e6a). The full ledger is done on
-  `feat/mobile-ledger` (uncommitted); checked on the iPhone.
-- Next: plan and move money, income, bills, debts, goals. Blockers: none.
+- Phase 5 steps 1–2 and the start of step 3 are on main (cd53e6a). The ledger is on main
+  (d8add28); the plan and move money are done on `feat/mobile-plan` (uncommitted), checked on
+  the iPhone.
+- Next: income, bills, debts, goals. Blockers: none.

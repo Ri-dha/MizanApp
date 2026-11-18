@@ -5,7 +5,6 @@ import { Pressable, SectionList, StyleSheet, View } from "react-native"
 import { SegmentedControl } from "@expo/ui/community/segmented-control"
 
 import { formatDate } from "@mizan/core/domain/calendar/hijri"
-import { shiftKey } from "@mizan/core/domain/calendar/month"
 import { formatMoney } from "@mizan/core/domain/money/format"
 import { EMPTY_FILTER, filterTransactions, liveRecentlyDeleted, liveTransactionsFor, restoreTransaction } from "@mizan/core/db/transactions"
 import type { LedgerTransaction, TransactionType } from "@mizan/core/schema"
@@ -14,9 +13,10 @@ import { Notice } from "@/components/notice"
 import { Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession, useSyncStatus } from "@/hooks/use-core"
-import { currentMonthKey, useMonthView } from "@/hooks/use-views"
+import { useSelectedMonth } from "@/hooks/use-selected-month"
+import { useMonthView } from "@/hooks/use-views"
+import { MonthSwitcher } from "@/components/month-switcher"
 import { colors, radius, spacing, type } from "@/theme"
-import { formatMonthKey } from "@/utils/month"
 
 const NO_ROWS: LedgerTransaction[] = []
 const DAY: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" }
@@ -34,7 +34,7 @@ export function Ledger() {
   const session = useSession()
   const status = useSyncStatus()
   const startDay = session?.monthStartDay ?? 1
-  const [monthKey, setMonthKey] = useState(() => currentMonthKey(startDay))
+  const [monthKey, setMonthKey] = useSelectedMonth(startDay)
   const [text, setText] = useState("")
   const [typeFilter, setTypeFilter] = useState<TransactionType | null>(null)
   const view = useMonthView(monthKey, startDay)
@@ -75,11 +75,7 @@ export function Ledger() {
                 <Pressable testID="open-verify" accessibilityRole="link"><Notice>{`${t("auth.verifyTitle")} · ${t("auth.verify")}`}</Notice></Pressable>
               </Link>
             ) : null}
-            <View style={styles.monthRow}>
-              <Button testID="previous-month" variant="ghost" title="‹" onPress={() => setMonthKey(shiftKey(monthKey, -1))} />
-              <ThemedText testID="month-title" variant="headline" accessibilityLabel={formatMonthKey(monthKey, i18n.language)}>{formatMonthKey(monthKey, i18n.language)}</ThemedText>
-              <Button testID="next-month" variant="ghost" title="›" onPress={() => setMonthKey(shiftKey(monthKey, 1))} />
-            </View>
+            <MonthSwitcher monthKey={monthKey} onChange={setMonthKey} />
             <SegmentedControl
               testID="type-filter"
               values={TYPE_FILTERS.map((value) => (value ? t(`transactions.types.${value}`) : t("transactions.allTypes")))}
@@ -127,7 +123,6 @@ const styles = StyleSheet.create({
   list: { backgroundColor: colors.background },
   content: { padding: spacing.md, paddingBottom: spacing.xxl },
   header: { gap: spacing.md, marginBottom: spacing.sm },
-  monthRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   sectionTitle: { marginTop: spacing.md, marginBottom: spacing.xs },
   cell: { backgroundColor: colors.surface, overflow: "hidden" },
   first: { borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md },
