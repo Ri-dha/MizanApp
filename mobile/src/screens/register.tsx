@@ -1,4 +1,3 @@
-import { router } from "expo-router"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -25,7 +24,6 @@ export function Register() {
     setError(null)
     try {
       await register(identifier, password, displayName, i18n.language.startsWith("ar") ? "ar" : "en")
-      router.dismissAll()
     } catch (e) {
       setError(describeError(e))
     } finally {

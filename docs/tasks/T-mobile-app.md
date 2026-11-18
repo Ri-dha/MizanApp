@@ -106,6 +106,13 @@
      `describeError` and an inline `Notice` replace the web's toasts. Checked live on the iPhone:
      register, recovery code, PIN, verify, reset, sign in with the new password, wrong and right
      recovery code. The start-over confirm itself was not run.
+     Step 2 done 2026-11-19: Sync page (status, sync now, overridden edits) on shared
+     `db/conflicts.ts`, which the web page now uses too.
+     Step 3 started: app structure with `Stack.Protected` (signed-in and signed-out routes) and an
+     `AccountGate` for the recovery-code, unlock, recover, set-PIN and lock states; native tabs
+     Home, Ledger, More (one stack per tab, large titles); Home with net worth, today's dollar,
+     the month's buckets, metals, upcoming bills and cash. Remaining in step 3: the full ledger,
+     plan and move money, income, bills and subscriptions, debts, goals.
   6. Push and release: `PushSubscription` channel and token, `ExpoPushSender` beside
      `WebPushSender`, a Flyway migration; mobile registers its token and uploads the reminder
      schedule; icons, store listings in English and Arabic, TestFlight and Play internal testing.

@@ -2,15 +2,16 @@ import { useLiveQuery } from "dexie-react-hooks"
 import { RefreshCw } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { dismissConflict, liveConflicts } from "@mizan/core/db/conflicts"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { db } from "@/db/schema"
 import { syncNow, useSyncStatus } from "@/sync/engine"
 
 export function SyncPage() {
   const { t, i18n } = useTranslation()
   const status = useSyncStatus()
-  const conflicts = useLiveQuery(() => db.conflicts.filter((c) => !c.dismissed).reverse().sortBy("detectedAt"), [], [])
+  const conflicts = useLiveQuery(liveConflicts, [], [])
 
   const lastSync = status.lastSyncAt
     ? t("sync.lastSync", { when: new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(status.lastSyncAt) })
@@ -46,7 +47,7 @@ export function SyncPage() {
                 <p>{t("sync.yours")}: <code>{JSON.stringify(conflict.clientValue)}</code></p>
                 <p>{t("sync.kept")}: <code>{JSON.stringify(conflict.serverValue)}</code></p>
               </div>
-              <Button size="sm" variant="outline" onClick={() => void db.conflicts.update(conflict.id, { dismissed: true })}>
+              <Button size="sm" variant="outline" onClick={() => void dismissConflict(conflict.id)}>
                 {t("sync.dismiss")}
               </Button>
             </div>

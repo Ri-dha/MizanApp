@@ -3,7 +3,8 @@ import * as SplashScreen from "expo-splash-screen"
 import { useEffect, useState } from "react"
 import { StyleSheet, Text, useColorScheme, View } from "react-native"
 
-import { LockGate } from "@/components/lock-gate"
+import { AccountGate } from "@/components/account-gate"
+import { useSession } from "@/hooks/use-core"
 import { PrivacyCover } from "@/components/privacy-cover"
 import { PlatformContext, type PlatformInfo } from "@/platform/context"
 import "@/i18n"
@@ -35,14 +36,34 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <PlatformContext.Provider value={info}>
-        <LockGate>
-          <Stack>
-            <Stack.Screen name="add-transaction" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
-          </Stack>
-        </LockGate>
+        <AccountGate>
+          <Routes />
+        </AccountGate>
         <PrivacyCover />
       </PlatformContext.Provider>
     </ThemeProvider>
+  )
+}
+
+/** Protected groups: signed-out screens and signed-in screens never share a stack (Expo Router redirects on a change). */
+function Routes() {
+  const session = useSession()
+  const signedIn = !!session
+  return (
+    <Stack>
+      <Stack.Protected guard={signedIn}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="add-transaction" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
+        <Stack.Screen name="sync" />
+        <Stack.Screen name="verify" />
+        <Stack.Screen name="diagnostics" />
+      </Stack.Protected>
+      <Stack.Protected guard={!signedIn}>
+        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+        <Stack.Screen name="register" />
+        <Stack.Screen name="reset" />
+      </Stack.Protected>
+    </Stack>
   )
 }
 

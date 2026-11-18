@@ -2,12 +2,10 @@ import { Link, Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
 import { FlatList, Pressable, StyleSheet, View } from "react-native"
 
-import { logout } from "@mizan/core/auth/session"
 import { formatDate } from "@mizan/core/domain/calendar/hijri"
 import { formatMoney } from "@mizan/core/domain/money/format"
 import type { LedgerTransaction } from "@mizan/core/schema"
 import { rows, sorted } from "@mizan/core/store/store"
-import { syncNow } from "@mizan/core/sync/engine"
 import { Button } from "@/components/button"
 import { Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
@@ -52,7 +50,7 @@ export function Ledger() {
                 </Pressable>
               </Link>
             ) : null}
-            <ThemedText testID="sync-status" variant="subhead" onPress={() => void syncNow()}>{statusText}</ThemedText>
+            <Link href="/sync" testID="sync-status" style={type.subhead}>{statusText}</Link>
           </View>
         }
         ListEmptyComponent={<ThemedText variant="subhead">{t("transactions.none")}</ThemedText>}
@@ -64,12 +62,6 @@ export function Ledger() {
             </Row>
           </View>
         )}
-        ListFooterComponent={
-          <View style={styles.footer}>
-            <Link href="/diagnostics" testID="open-diagnostics" style={type.subhead}>Diagnostics</Link>
-            <Button testID="sign-out" variant="secondary" title={t("auth.logout")} onPress={() => void logout()} />
-          </View>
-        }
       />
     </>
   )
@@ -81,6 +73,5 @@ const styles = StyleSheet.create({
   cell: { backgroundColor: colors.surface, overflow: "hidden" },
   first: { borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md, marginTop: spacing.sm },
   last: { borderBottomLeftRadius: radius.md, borderBottomRightRadius: radius.md },
-  footer: { gap: spacing.md, marginTop: spacing.xl },
   header: { gap: spacing.md },
 })

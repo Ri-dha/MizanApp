@@ -37,4 +37,6 @@
   the grace period, privacy cover; lock logic shared with the web in core. Phase 4 complete.
 - Phase 5 step 1 (uncommitted, `feat/mobile-auth-screens`): register, reset, verify, recovery and
   start over on the phone; checked live on the iPhone.
-- Next: Phase 5 step 2, sync status and conflicts. Blockers: none.
+- Phase 5 steps 2 and 3 in progress (uncommitted, `feat/mobile-sync-screen`): Sync page, tabbed
+  app structure with protected routes, Home. Checked on the iPhone.
+- Next: the full ledger, plan, income, bills, debts, goals. Blockers: none.
