@@ -166,6 +166,15 @@ file; gzip passed in), `data/export.ts` (export and import), and the metals and 
 logic in `db/`. Web keeps the Dexie
 database class, the React hooks, the API calls, the Tesseract worker and the screens.
 
+## Phone app (`mobile/`, ADR mobile-1, mobile-4)
+
+Expo SDK 58 with Expo Router (`src/app` routes only, `src/screens` bodies). `index.ts` installs
+`react-native-quick-crypto` before anything else so core's vault finds WebCrypto. Platform
+adapters in `src/platform`: `Store` over SQLCipher (`expo-sqlite`, one JSON table per local table,
+keyed from `expo-secure-store`), `SecretStore` over a second Keychain/Keystore key, `Lifecycle`
+over AppState and NetInfo. The app refuses to start without SQLCipher. Native folders are
+generated (`ios/`, `android/` are ignored); development uses a development build.
+
 ## Web (`web/src`)
 
 `features/*` screens, `db/` the Dexie database and only writer to synced tables, `sync/` engine and device duties,

@@ -1,5 +1,5 @@
 # T-mobile-app — iPhone and Android apps with Expo
-- Status: in-progress (2026-11-18), Phase 1 done; Phases 1–3 done; Phase 3 on feat/vault-vectors (uncommitted)
+- Status: in-progress (2026-11-18), Phase 1 done; Phases 1–3 done and on main; Phase 4 in progress on feat/mobile-foundation
 - Context: ADR mobile-1 (accepted), ADR e2e-1, e2e-2, sync-1, ui-1. Supersedes T-flutter-app.
   Owner decisions 2026-11-18: after T-shadcn-ui and before T-price-history and T-admin-dashboard;
   full parity in the first release; iPhone and Android together; **OCR on hold until the end**
@@ -67,6 +67,14 @@
      with SQLCipher, quick-crypto, `expo-secure-store`, AppState and NetInfo; `openapi-fetch`
      with the refresh token in secure storage; NativeWind and react-native-reusables (shadcn
      look), light/dark, Arabic RTL; PIN plus `expo-local-authentication`.
+     Step 1 done 2026-11-19 (ADR mobile-4, on feat/mobile-foundation): Expo SDK 58 app in
+     `mobile/` (Expo Router, `src/app`), `@mizan/core` through Metro and TypeScript paths,
+     quick-crypto installed before anything else (`index.ts`), `Store` over SQLCipher
+     (`src/platform/sqlite-store.ts`), `SecretStore` and the database key in the Keychain or
+     Keystore, `Lifecycle` over AppState and NetInfo. A diagnostics screen runs core's
+     `vaultVectorChecks`: 30 of 30 pass on the iPhone 17 simulator and the Android API 37
+     emulator. Next: the API client (refresh token in the body, kept in secure storage), the
+     sync host, NativeWind and the shadcn-style components, i18n with RTL, PIN and biometrics.
   5. Parity, in the web app's order: auth and vault screens, sync, home, ledger and quick add,
      plan, income, bills, debts, goals, cash, gold and silver, assets, net worth and month close,
      reports, household and join links, advisor, settings (theme, language, privacy, backup,

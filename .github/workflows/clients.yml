@@ -3,9 +3,9 @@ name: Clients
 on:
   push:
     branches: [main, develop]
-    paths: ["web/**", "packages/core/**", "shared/**", "docs/manual/**", "infra/caddy/**", ".github/workflows/web.yml"]
+    paths: ["web/**", "mobile/**", "packages/core/**", "shared/**", "docs/manual/**", "infra/caddy/**", ".github/workflows/web.yml"]
   pull_request:
-    paths: ["web/**", "packages/core/**", "shared/**", "docs/manual/**", "infra/caddy/**", ".github/workflows/web.yml"]
+    paths: ["web/**", "mobile/**", "packages/core/**", "shared/**", "docs/manual/**", "infra/caddy/**", ".github/workflows/web.yml"]
 
 jobs:
   web:
@@ -45,3 +45,18 @@ jobs:
         working-directory: packages/core
       - run: npm test
         working-directory: packages/core
+
+  mobile:
+    name: Mobile (typecheck)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+        working-directory: mobile
+      - run: npx tsc --noEmit
+        working-directory: mobile

@@ -130,3 +130,14 @@ export function rowsBy<K extends TableName, F extends keyof Tables[K] & string>(
 export function sorted<T>(list: Promise<T[]>, field: keyof T, direction: "asc" | "desc" = "asc"): Promise<T[]> {
   return list.then((found) => sortBy(found, (row) => row[field] as string | number | null | undefined, direction))
 }
+
+const EVERY_TABLE: Record<TableName, true> = {
+  cashAccounts: true, incomeSources: true, incomeSourceAmounts: true, incomeReceipts: true, plans: true, buckets: true, recurringExpenses: true,
+  expenseOccurrences: true, transactions: true, attachments: true, blobs: true, debts: true, debtPayments: true, goals: true, goalDeposits: true,
+  metalLots: true, metalDisposals: true, metalDisposalLots: true, marketOverrides: true, marketSettings: true, cashAdjustments: true,
+  netWorthSnapshots: true, monthCloses: true, assets: true, assetValuations: true, bucketMoves: true, privacySettings: true,
+  notificationSettings: true, memberContributions: true, annualReports: true, sealedInbox: true, outbox: true, conflicts: true, meta: true,
+}
+
+/** Every local table; an adapter that creates tables up front (SQLite) uses this, so none is forgotten. */
+export const TABLE_NAMES = Object.keys(EVERY_TABLE) as TableName[]

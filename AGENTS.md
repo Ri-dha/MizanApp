@@ -27,6 +27,7 @@ the newest file in `docs/handovers/`, and the ADRs in `docs/adr/` for the area y
 
 ```bash
 cd packages/core && npm run typecheck && npm test
+cd mobile && npx tsc --noEmit                  # the phone app; run it on a simulator with npx @expo/agent-cli dev --ios
 cd web && npm run typecheck && npm test && npm run build
 cd web && npm audit --audit-level=high       # CI runs this too
 ```

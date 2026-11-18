@@ -277,6 +277,7 @@ cd web && npm test && npm run typecheck
 - `web/src/features/<feature>` — screens. `db/` is the local store and the only place that writes to
   syncable tables. `sync/` is the change-log engine and the work devices do after a sync. `vault/` derives keys
   and seals every field. `lock/` is the PIN and biometric lock.
+- `mobile/` — the Expo app for iPhone and Android (see `mobile/README.md`).
 - `packages/core/src` — logic every client shares (domain maths, record types, vault, clock and merge,
   receipt parsing, translations, API types), imported as `@mizan/core/...` (ADR mobile-2).
 - `shared/test-vectors/` — one JSON file per business rule, the contract every client's tests load.
