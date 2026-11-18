@@ -3,6 +3,14 @@ import { store, table as localTable, type Table, type TableName } from "../store
 import { META_KEYS, readMeta, writeMeta } from "./meta"
 import { formatHlc, newNodeId, tick, type HlcState } from "../sync/hlc"
 
+const localWriteListeners = new Set<() => void>()
+
+/** Called after every committed local write, so a sync can be scheduled; returns the unsubscribe. */
+export function onLocalWrite(listener: () => void): () => void {
+  localWriteListeners.add(listener)
+  return () => localWriteListeners.delete(listener)
+}
+
 export const ENVELOPE_FIELDS: ReadonlySet<string> = new Set(["id", "ownerId", "clocks", "vaulted"])
 
 async function loadClock(): Promise<HlcState> {
@@ -50,6 +58,7 @@ export async function writeFields<T extends Syncable>(
       createdAt: Date.now(),
     })
   })
+  localWriteListeners.forEach((listener) => listener())
 }
 
 /**

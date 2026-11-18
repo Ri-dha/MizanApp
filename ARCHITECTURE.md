@@ -157,7 +157,10 @@ Dexie on the web in `web/src/platform/dexieStore.ts`, an in-memory store for tes
 chain on the adapter's promises so Dexie live queries keep tracking reads. `api/client.ts` holds
 the slot for each app's typed client, `platform/secretStore.ts` the device secret that seals the
 keyring (web: a non-extractable key in IndexedDB), and `vault/keyring.ts` and `records.ts` the
-keys and field sealing. `web/src/platform/install.ts` installs the web's adapters at start-up. Web keeps the Dexie
+keys and field sealing. `web/src/platform/install.ts` installs the web's adapters at start-up. `sync/engine.ts` and
+`duties.ts` are the sync loop and device duties (ADR mobile-3); each app starts the engine with a
+`SyncHost` (its `Lifecycle`, session, vault state and own steps), the web's in
+`web/src/sync/engine.ts`. Web keeps the Dexie
 database class, the React hooks, the API calls, the Tesseract worker and the screens.
 
 ## Web (`web/src`)

@@ -1,5 +1,5 @@
 # T-mobile-app — iPhone and Android apps with Expo
-- Status: in-progress (2026-11-18), Phase 1 done; Phase 2 steps 1–3 on feat/mobile-core
+- Status: in-progress (2026-11-18), Phase 1 done; Phase 2 steps 1–4 on feat/mobile-core
 - Context: ADR mobile-1 (accepted), ADR e2e-1, e2e-2, sync-1, ui-1. Supersedes T-flutter-app.
   Owner decisions 2026-11-18: after T-shadcn-ui and before T-price-history and T-admin-dashboard;
   full parity in the first release; iPhone and Android together; **OCR on hold until the end**
@@ -41,10 +41,13 @@
      existing devices open without a password, checked live), keyring and records in core.
      `web/src/platform/install.ts` installs the store, secret store and API client. Core 142,
      web 39 tests.
-     Next: `Lifecycle` and a hooks interface for the sync engine (session, profile, keys
-     replaced, attachments, backup, prices) so `sync/engine.ts`, `sync/duties.ts` and
-     `vault/account.ts` can move; then lock, attachments and backup crypto, `useMetals` and
-     `useNetWorth` logic. Needs ADR mobile-3 for the engine hooks.
+     Step 4 done 2026-11-18 (ADR mobile-3): sync engine and device duties in core with a
+     `SyncHost` and `Lifecycle` (web: `browserLifecycle`, host in `web/src/sync/engine.ts`);
+     roles in core; `onLocalWrite` replaces the Dexie outbox hook; `required()` for fields the
+     server always sends. Core integration test of a first sync against a fake server. Core 143,
+     web 39 tests; checked live (sync, push after a write, live ledger).
+     Next: `vault/account.ts` (vault state without React), lock, attachments and backup crypto,
+     `useMetals` and `useNetWorth` logic, then ADR mobile-2's interface list is complete.
   3. Vectors: `shared/test-vectors/vault-*.json` (identifier normalisation, auth key and wrap
      secret, account key wrap/open, grant wrap/open, field seal/open, deterministic ids, blob
      keys), generated from the web with fixed randomness; core and mobile run them.

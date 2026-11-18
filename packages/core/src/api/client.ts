@@ -47,3 +47,9 @@ export async function unwrap<T>(call: Promise<{ data?: T; error?: unknown; respo
   }
   return result.data as T
 }
+
+/** The server always sends this field; springdoc marks every response field optional, so say so here. */
+export function required<T>(value: T | null | undefined, field: string): T {
+  if (value === undefined || value === null) throw new ApiError(500, "MALFORMED_RESPONSE", `The server left out ${field}`)
+  return value
+}

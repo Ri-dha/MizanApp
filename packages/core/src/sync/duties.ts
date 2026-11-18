@@ -1,17 +1,22 @@
-import type { LocalSession } from "@/api/auth"
-import { api, unwrap } from "@/api/client"
-import { mayWriteRecords, mayWriteShared } from "@/app/roles"
-import { billsDue, liveOccurrencesFor, liveRecurringExpenses } from "@mizan/core/db/expenses"
-import { closeMonth, publishMyContribution } from "@mizan/core/db/householdFigure"
-import { readMeta, writeMeta } from "@mizan/core/db/meta"
-import { liveMonthCloses, liveSnapshots, isMonthClosed, snapshotFor } from "@mizan/core/db/networth"
-import { NOTIFICATION_DEFAULTS, liveNotificationSetting } from "@/db/notifications"
-import { db, localTableFor, SYNC_TABLES, type AnnualReport, type AnnualReportMonth, type Bucket, type Plan, type Syncable, type SyncTableName } from "@/db/schema"
-import { payloadOf, writeFields } from "@mizan/core/db/write"
-import { addDays, monthKeyFor, monthWindow, shiftKey, todayIso } from "@mizan/core/domain/calendar/month"
-import { monthViewFor } from "@/features/plan/useMonthFigures"
-import { deterministicId } from "@mizan/core/vault/crypto"
-import { holdsKey } from "@mizan/core/vault/keyring"
+import { api, unwrap } from "../api/client"
+import { billsDue, liveOccurrencesFor, liveRecurringExpenses } from "../db/expenses"
+import { closeMonth, publishMyContribution } from "../db/householdFigure"
+import { readMeta, writeMeta } from "../db/meta"
+import { monthViewFor } from "../db/monthView"
+import { liveMonthCloses, liveSnapshots, isMonthClosed, snapshotFor } from "../db/networth"
+import { NOTIFICATION_DEFAULTS, liveNotificationSetting } from "../db/notifications"
+import { payloadOf, writeFields } from "../db/write"
+import { addDays, monthKeyFor, monthWindow, shiftKey, todayIso } from "../domain/calendar/month"
+import { mayWriteRecords, mayWriteShared } from "../roles"
+import { SYNC_TABLES, type AnnualReport, type AnnualReportMonth, type Bucket, type Plan, type Syncable, type SyncTableName } from "../schema"
+import type { LocalSession } from "../session"
+import { rows, rowsBy, sorted, table, type Table } from "../store/store"
+import { deterministicId } from "../vault/crypto"
+import { holdsKey } from "../vault/keyring"
+
+function localTableFor(name: SyncTableName): Table<Syncable> {
+  return table(SYNC_TABLES[name]) as unknown as Table<Syncable>
+}
 
 const APPEND_ONLY: ReadonlySet<string> = new Set(["net_worth_snapshot"])
 
@@ -45,7 +50,7 @@ const migratedKey = (session: LocalSession) => `vault.migrated.${session.househo
  */
 async function migrateLegacyRows(session: LocalSession) {
   if (await readMeta<boolean>(migratedKey(session))) return
-  const status = await unwrap(api.GET("/api/v1/vault/status"))
+  const status = await unwrap(api().GET("/api/v1/vault/status"))
   if (status.migrated || status.legacyRows === 0) {
     await writeMeta(migratedKey(session), true)
     return
@@ -53,13 +58,13 @@ async function migrateLegacyRows(session: LocalSession) {
   const isOwner = session.role === "OWNER"
   if (isOwner && !holdsKey("HOUSEHOLD")) return
   for (const table of Object.keys(SYNC_TABLES) as SyncTableName[]) {
-    const rows = (await localTableFor(table).toArray()) as (Syncable & { visibility?: string })[]
+    const rows = (await localTableFor(table).all()) as (Syncable & { visibility?: string })[]
     for (const row of rows) {
       if (row.vaulted) continue
       const answerable = row.ownerId === session.userId || (isOwner && row.visibility !== "PRIVATE")
       if (!answerable) continue
       if (row.visibility !== "PRIVATE" && !holdsKey("HOUSEHOLD")) continue
-      if (APPEND_ONLY.has(table) && (await db.outbox.where("rowId").equals(row.id).count()) > 0) continue
+      if (APPEND_ONLY.has(table) && (await rowsBy("outbox", "rowId", row.id)).length > 0) continue
       await writeFields(table, row.id, payloadOf(row) as never)
     }
   }
@@ -69,8 +74,8 @@ async function migrateLegacyRows(session: LocalSession) {
 /** Called once the outbox has drained, so the server only drops plain rows it already holds sealed. */
 export async function completeMigrationIfDrained(session: LocalSession) {
   if (!(await readMeta<boolean>(`${migratedKey(session)}.pending`))) return
-  if ((await db.outbox.count()) > 0) return
-  await unwrap(api.POST("/api/v1/vault/migration/complete"))
+  if ((await table("outbox").count()) > 0) return
+  await unwrap(api().POST("/api/v1/vault/migration/complete"))
   await writeMeta(migratedKey(session), true)
   await writeMeta(`${migratedKey(session)}.pending`, false)
 }
@@ -85,7 +90,7 @@ const DEFAULT_BUCKETS = [
 
 /** FR-PLN-02: a new household starts with the default split; fixed ids keep two devices from seeding twice. */
 async function seedDefaultPlan(session: LocalSession) {
-  if ((await db.plans.count()) > 0) return
+  if ((await table("plans").count()) > 0) return
   const planId = await deterministicId("default_plan", session.householdId)
   await writeFields<Plan>("plan", planId, { visibility: "SHARED", effectiveFrom: monthKeyFor(todayIso(), session.monthStartDay), effectiveTo: null })
   for (const [order, bucket] of DEFAULT_BUCKETS.entries()) {
@@ -99,10 +104,10 @@ async function seedDefaultPlan(session: LocalSession) {
 /** FR-NET-03: the month that just ended is closed by the first device to sync after it. */
 async function closeEndedMonth(session: LocalSession) {
   const ended = shiftKey(monthKeyFor(todayIso(), session.monthStartDay), -1)
-  const firstPlan = (await db.plans.orderBy("effectiveFrom").first())?.effectiveFrom
+  const firstPlan = (await sorted(rows("plans"), "effectiveFrom"))[0]?.effectiveFrom
   if (!firstPlan || ended < firstPlan) return
   if (isMonthClosed(ended, await liveMonthCloses())) return
-  if ((await db.monthCloses.filter((c) => c.monthKey === ended).count()) > 0) return
+  if ((await rows("monthCloses", (c) => c.monthKey === ended)).length > 0) return
   await closeMonth(session, ended)
 }
 
@@ -120,8 +125,8 @@ const YEARS_PUBLISHED = 2
 async function publishAnnualReports(session: LocalSession) {
   const thisYear = new Date().getFullYear()
   const [receipts, transactions, closes, snapshots] = await Promise.all([
-    db.incomeReceipts.filter((r) => r.deletedAt === null && r.visibility === "SHARED").toArray(),
-    db.transactions.filter((t) => t.deletedAt === null && t.visibility === "SHARED" && t.type === "EXPENSE").toArray(),
+    rows("incomeReceipts", (r) => r.deletedAt === null && r.visibility === "SHARED"),
+    rows("transactions", (t) => t.deletedAt === null && t.visibility === "SHARED" && t.type === "EXPENSE"),
     liveMonthCloses(), liveSnapshots(),
   ])
   for (let year = thisYear - YEARS_PUBLISHED + 1; year <= thisYear; year++) {
@@ -139,7 +144,7 @@ async function publishAnnualReports(session: LocalSession) {
       .flatMap(({ monthKey, snapshot }) => (snapshot ? [{ monthKey, netWorth: snapshot.netWorth }] : []))
     const report: AnnualReport["report"] = { baseCurrency: session.baseCurrency, months, received, spent, savingRate: savingRate(received, spent), snapshots: yearSnapshots }
     const id = await deterministicId("annual_report", session.householdId, String(year))
-    const existing = await db.annualReports.get(id)
+    const existing = await table("annualReports").get(id)
     if (existing && JSON.stringify(existing.report) === JSON.stringify(report)) continue
     await writeFields<AnnualReport>("annual_report", id, { ...(existing ? {} : { visibility: "SHARED" as const }), year, report, computedAt: new Date().toISOString() })
   }
@@ -167,7 +172,7 @@ const at = (date: string, hour: number) => new Date(`${date}T${String(hour).padS
  */
 async function reminders(session: LocalSession): Promise<{ items: Reminder[]; metalPriceAlerts: boolean; metalMoveBasisPoints: number }> {
   const setting = (await liveNotificationSetting()) ?? NOTIFICATION_DEFAULTS
-  const holdsMetal = (await db.metalLots.filter((lot) => lot.deletedAt === null).count()) > 0
+  const holdsMetal = (await rows("metalLots", (lot) => lot.deletedAt === null)).length > 0
   const base = { metalPriceAlerts: setting.metalPrice && !setting.quietMode && holdsMetal, metalMoveBasisPoints: setting.metalMoveBp }
   if (setting.quietMode) return { items: [], ...base }
   const today = todayIso()
@@ -213,7 +218,7 @@ async function uploadReminderSchedule(session: LocalSession) {
   const hash = JSON.stringify(schedule)
   const lastAt = (await readMeta<number>(SCHEDULE_AT)) ?? 0
   if (hash === (await readMeta<string>(SCHEDULE_HASH)) && Date.now() - lastAt < SCHEDULE_REFRESH_MS) return
-  await unwrap(api.PUT("/api/v1/notifications/schedule", { body: schedule }))
+  await unwrap(api().PUT("/api/v1/notifications/schedule", { body: schedule }))
   await writeMeta(SCHEDULE_HASH, hash)
   await writeMeta(SCHEDULE_AT, Date.now())
 }
