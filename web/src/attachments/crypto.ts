@@ -1,16 +1,10 @@
 import { META_KEYS, readMeta, writeMeta } from "@mizan/core/db/meta"
+import { decryptWithKey, fileKey } from "@mizan/core/attachments/crypto"
 import { currentDataKey } from "@/lock/store"
 
+export { encryptBytes, fromBase64 } from "@mizan/core/attachments/crypto"
+
 const RAW_KEY = "attachments.rawKey"
-const IV_BYTES = 12
-
-function toBase64(bytes: Uint8Array): string {
-  return btoa(String.fromCharCode(...bytes))
-}
-
-export function fromBase64(text: string): Uint8Array {
-  return Uint8Array.from(atob(text), (c) => c.charCodeAt(0))
-}
 
 /**
  * The key receipts are encrypted with. Behind a PIN it is the wrapped data key; without one
@@ -26,20 +20,9 @@ export async function ensureDataKey(): Promise<CryptoKey> {
   return key
 }
 
-/** ADR e2e-1: each file has its own key, carried sealed in its attachment row. */
-export async function encryptBytes(plain: ArrayBuffer): Promise<{ iv: string; cipher: ArrayBuffer; blobKey: string }> {
-  const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"])
-  const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES))
-  const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plain)
-  return { iv: toBase64(iv), cipher, blobKey: toBase64(new Uint8Array(await crypto.subtle.exportKey("raw", key))) }
-}
-
 /** Files from before ADR e2e-1 have no key of their own and were sealed with this device's. */
 export async function decryptBytes(cipher: ArrayBuffer, iv: string, blobKey?: string | null): Promise<ArrayBuffer> {
-  const key = blobKey
-    ? await crypto.subtle.importKey("raw", fromBase64(blobKey) as BufferSource, { name: "AES-GCM" }, false, ["decrypt"])
-    : await ensureDataKey()
-  return crypto.subtle.decrypt({ name: "AES-GCM", iv: fromBase64(iv) as BufferSource }, key, cipher)
+  return decryptWithKey(cipher, iv, blobKey ? await fileKey(blobKey) : await ensureDataKey())
 }
 
 export { META_KEYS }

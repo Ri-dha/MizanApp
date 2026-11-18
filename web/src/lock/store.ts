@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react"
 
 import { META_KEYS, deleteMeta, readMeta, writeMeta } from "@mizan/core/db/meta"
-import { generateDataKey, secretFromPin, unwrapDataKey, wrapDataKey, type WrappedKey } from "./crypto"
+import { generateDataKey, secretFromPin, unwrapDataKey, wrapDataKey, type WrappedKey } from "@mizan/core/lock/crypto"
 import { removeWebAuthn, unlockWithWebAuthn } from "./webauthn"
 
 export const DEFAULT_LOCK_AFTER_SECONDS = 30

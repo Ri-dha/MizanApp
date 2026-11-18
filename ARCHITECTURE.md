@@ -160,7 +160,10 @@ keyring (web: a non-extractable key in IndexedDB), and `vault/keyring.ts` and `r
 keys and field sealing. `web/src/platform/install.ts` installs the web's adapters at start-up. `sync/engine.ts` and
 `duties.ts` are the sync loop and device duties (ADR mobile-3); each app starts the engine with a
 `SyncHost` (its `Lifecycle`, session, vault state and own steps), the web's in
-`web/src/sync/engine.ts`. Web keeps the Dexie
+`web/src/sync/engine.ts`. Also in core: `vault/account.ts` (vault state), `lock/crypto.ts` (PIN
+wrap of the data key), `attachments/crypto.ts` (per-file keys), `backup/format.ts` (the `MZB1`
+file; gzip passed in), `data/export.ts` (export and import), and the metals and net worth view
+logic in `db/`. Web keeps the Dexie
 database class, the React hooks, the API calls, the Tesseract worker and the screens.
 
 ## Web (`web/src`)

@@ -23,6 +23,7 @@
 - Phase 2 steps 3–4 done: API client slot, `SecretStore`, keyring, records, the sync engine and
   device duties in core (ADR mobile-3); old keyrings still open. Core 143 + web 39 tests; checked
   live. On main.
-- Next: account (vault state), lock, attachments and backup crypto, metals and net worth view
-  logic. Blockers: none.
+- Phase 2 complete (2026-11-18): also vault account state, PIN lock key, file encryption, backup
+  format, export and import, metals and net worth views. Core 146 + web 39 tests; checked live.
+- Next: Phase 3, vault test vectors in `shared/test-vectors/` that both apps run. Blockers: none.
 - Validated: spike results in `spikes/rn-crypto/harness/out/` (gitignored), rerun steps in the learning.

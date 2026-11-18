@@ -1,5 +1,5 @@
 # T-mobile-app — iPhone and Android apps with Expo
-- Status: in-progress (2026-11-18), Phase 1 done; Phase 2 steps 1–4 on feat/mobile-core
+- Status: in-progress (2026-11-18), Phase 1 done; Phase 2 done on feat/mobile-core, merged to main
 - Context: ADR mobile-1 (accepted), ADR e2e-1, e2e-2, sync-1, ui-1. Supersedes T-flutter-app.
   Owner decisions 2026-11-18: after T-shadcn-ui and before T-price-history and T-admin-dashboard;
   full parity in the first release; iPhone and Android together; **OCR on hold until the end**
@@ -46,8 +46,14 @@
      roles in core; `onLocalWrite` replaces the Dexie outbox hook; `required()` for fields the
      server always sends. Core integration test of a first sync against a fake server. Core 143,
      web 39 tests; checked live (sync, push after a write, live ledger).
-     Next: `vault/account.ts` (vault state without React), lock, attachments and backup crypto,
-     `useMetals` and `useNetWorth` logic, then ADR mobile-2's interface list is complete.
+     Step 5 done 2026-11-18: vault account state (`vault/account.ts`, hooks stay in web), PIN lock
+     key (`lock/crypto.ts`), per-file encryption (`attachments/crypto.ts`; the legacy device-key
+     path stays in web), the backup format (`backup/format.ts`, gzip passed in so core keeps no
+     dependency; same `MZB1` bytes), export and import (`data/export.ts`), and the metals and net
+     worth view logic (`db/metalsView.ts`, `db/netWorthView.ts`). Core 146, web 39 tests; checked
+     live. Phase 2 is complete: what stays in web is React hooks, the Dexie class, the browser
+     adapters, WebAuthn, Tesseract, blob upload and download, and the lock and backup state that
+     each app drives its own way.
   3. Vectors: `shared/test-vectors/vault-*.json` (identifier normalisation, auth key and wrap
      secret, account key wrap/open, grant wrap/open, field seal/open, deterministic ids, blob
      keys), generated from the web with fixed randomness; core and mobile run them.

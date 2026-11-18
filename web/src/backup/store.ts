@@ -1,4 +1,5 @@
-import { gunzipSync, gzipSync, strFromU8, strToU8 } from "fflate"
+import { gunzipSync, gzipSync } from "fflate"
+import { decryptBackup as decryptWith, deriveBackupKey, encryptBackup as encryptWith, SALT_BYTES, type Compression } from "@mizan/core/backup/format"
 import { useLiveQuery } from "dexie-react-hooks"
 
 import { api, unwrap } from "@/api/client"
@@ -10,8 +11,6 @@ import { softDelete, writeFields } from "@mizan/core/db/write"
 
 import { BACKUP_OWNER_TYPE } from "@/attachments/store"
 export { BACKUP_OWNER_TYPE }
-const MAGIC = strToU8("MZB1")
-const SALT_BYTES = 16
 const IV_BYTES = 12
 const ITERATIONS = 310_000
 const KEEP_LAST = 7
@@ -33,18 +32,9 @@ export interface BackupState {
 const toBase64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes))
 const fromBase64 = (text: string) => Uint8Array.from(atob(text), (c) => c.charCodeAt(0))
 
-/** FR-DAT-05: the passphrase is separate from the PIN because the PIN's key never leaves this device. */
-async function deriveKey(passphrase: string, salt: Uint8Array, iterations: number): Promise<CryptoKey> {
-  const material = await crypto.subtle.importKey("raw", strToU8(passphrase.normalize("NFKC")), "PBKDF2", false, ["deriveKey"])
-  return crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt: salt as BufferSource, iterations, hash: "SHA-256" },
-    material, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"],
-  )
-}
-
 export async function setBackupPassphrase(passphrase: string) {
   const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES))
-  const key = await deriveKey(passphrase, salt, ITERATIONS)
+  const key = await deriveBackupKey(passphrase, salt, ITERATIONS)
   const stored: StoredBackupKey = { salt: [...salt], iterations: ITERATIONS, key: await crypto.subtle.exportKey("jwk", key) }
   await writeMeta(META_KEYS.backupKey, stored)
 }
@@ -63,33 +53,13 @@ export async function backupState(): Promise<BackupState> {
   return { configured: !!key, automatic: auto ?? false, lastBackupAt: last ?? null }
 }
 
+const fflate: Compression = { gzip: (bytes) => gzipSync(bytes), gunzip: (bytes) => gunzipSync(bytes) }
+
+export const encryptBackup = (json: string, key: CryptoKey, salt: Uint8Array, iterations: number, iv: Uint8Array) => encryptWith(json, key, salt, iterations, iv, fflate)
+export const decryptBackup = (bytes: Uint8Array, passphrase: string, iv: Uint8Array) => decryptWith(bytes, passphrase, iv, fflate)
+
 export function useBackupState(): BackupState {
   return useLiveQuery(backupState, [], { configured: false, automatic: false, lastBackupAt: null })
-}
-
-/** magic | salt | iterations (uint32 BE) | ciphertext of gzip(export JSON); the IV rides on the attachment row. */
-export async function encryptBackup(json: string, key: CryptoKey, salt: Uint8Array, iterations: number, iv: Uint8Array): Promise<Uint8Array> {
-  const cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv as BufferSource }, key, gzipSync(strToU8(json)) as BufferSource))
-  const out = new Uint8Array(MAGIC.length + SALT_BYTES + 4 + cipher.length)
-  out.set(MAGIC, 0)
-  out.set(salt, MAGIC.length)
-  new DataView(out.buffer).setUint32(MAGIC.length + SALT_BYTES, iterations)
-  out.set(cipher, MAGIC.length + SALT_BYTES + 4)
-  return out
-}
-
-export async function decryptBackup(bytes: Uint8Array, passphrase: string, iv: Uint8Array): Promise<string> {
-  if (bytes.length < MAGIC.length + SALT_BYTES + 4 || !MAGIC.every((b, i) => bytes[i] === b)) throw new Error("NOT_A_BACKUP")
-  const salt = bytes.slice(MAGIC.length, MAGIC.length + SALT_BYTES)
-  const iterations = new DataView(bytes.buffer, bytes.byteOffset).getUint32(MAGIC.length + SALT_BYTES)
-  const key = await deriveKey(passphrase, salt, iterations)
-  let plain: ArrayBuffer
-  try {
-    plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv as BufferSource }, key, bytes.slice(MAGIC.length + SALT_BYTES + 4) as BufferSource)
-  } catch {
-    throw new Error("WRONG_PASSPHRASE")
-  }
-  return strFromU8(gunzipSync(new Uint8Array(plain)))
 }
 
 /** Builds, encrypts and queues one backup; the sync engine uploads the bytes after the row. */

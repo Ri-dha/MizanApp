@@ -5,4 +5,5 @@ declare global {
   type CryptoKey = webcrypto.CryptoKey
   type CryptoKeyPair = webcrypto.CryptoKeyPair
   type JsonWebKey = webcrypto.JsonWebKey
+  type BufferSource = webcrypto.BufferSource
 }
