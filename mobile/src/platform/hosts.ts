@@ -1,20 +1,20 @@
 import * as Device from "expo-device"
 
 import { clearLocalData, installAuth, loadSession, refreshProfile, rememberFromServer } from "@mizan/core/auth/session"
-import { deleteMeta, META_KEYS } from "@mizan/core/db/meta"
+import { META_KEYS } from "@mizan/core/db/meta"
+import { resetLock } from "@mizan/core/lock/store"
 import { refreshQuotes } from "@mizan/core/market/prices"
 import { startSyncEngine } from "@mizan/core/sync/engine"
 import { onVaultReady, vaultReady } from "@mizan/core/vault/account"
 import { forgetTokens, keepTokens } from "./api-client"
 import { appLifecycle } from "./app-lifecycle"
 
-/** The phone's lock arrives with the lock step of Phase 4; until then a cleared device only drops its PIN entry. */
 export function installAuthHost() {
   installAuth({
     acceptTokens: ({ accessToken, refreshToken }) => keepTokens(accessToken, refreshToken),
     forgetTokens,
-    resetLock: () => deleteMeta(META_KEYS.pin),
-    lockMetaKeys: () => [META_KEYS.pin, META_KEYS.lockAfterSeconds],
+    resetLock,
+    lockMetaKeys: () => [META_KEYS.pin, META_KEYS.biometric, META_KEYS.lockAfterSeconds],
   })
 }
 

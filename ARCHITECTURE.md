@@ -168,7 +168,8 @@ keys and field sealing. `web/src/platform/install.ts` installs the web's adapter
 `duties.ts` are the sync loop and device duties (ADR mobile-3); each app starts the engine with a
 `SyncHost` (its `Lifecycle`, session, vault state and own steps), the web's in
 `web/src/sync/engine.ts`. Also in core: `vault/account.ts` (vault state), `lock/crypto.ts` (PIN
-wrap of the data key), `attachments/crypto.ts` (per-file keys), `backup/format.ts` (the `MZB1`
+wrap of the data key), `lock/store.ts` (the lock and its grace period; each app gives it a
+`BiometricUnlock`: WebAuthn on the web, a biometric-guarded Keychain/Keystore secret on phones), `attachments/crypto.ts` (per-file keys), `backup/format.ts` (the `MZB1`
 file; gzip passed in), `data/export.ts` (export and import), and the metals and net worth view
 logic in `db/`. Web keeps the Dexie
 database class, the React hooks, the API calls, the Tesseract worker and the screens.
@@ -184,7 +185,8 @@ in secure storage and sends it in the body (the web uses the httpOnly cookie); `
 core its `AuthHost` and `SyncHost`; `hooks/use-core.ts` turns core's subscriptions and
 `onStoreChange` into hooks. UI (ADR mobile-5): one theme in `src/theme` (platform semantic
 colours plus the web's brand tokens), primitives in `src/components`, native headers and form
-sheets, RTL from `expo-localization`. Native folders are
+sheets, RTL from `expo-localization`. `LockGate` at the root renders only the lock screen while locked,
+and a privacy cover hides the app in the task switcher. Native folders are
 generated (`ios/`, `android/` are ignored); development uses a development build.
 
 ## Web (`web/src`)

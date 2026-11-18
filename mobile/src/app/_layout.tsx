@@ -3,6 +3,8 @@ import * as SplashScreen from "expo-splash-screen"
 import { useEffect, useState } from "react"
 import { StyleSheet, Text, useColorScheme, View } from "react-native"
 
+import { LockGate } from "@/components/lock-gate"
+import { PrivacyCover } from "@/components/privacy-cover"
 import { PlatformContext, type PlatformInfo } from "@/platform/context"
 import "@/i18n"
 import { installPlatform } from "@/platform/install"
@@ -33,9 +35,12 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <PlatformContext.Provider value={info}>
-        <Stack>
-          <Stack.Screen name="add-transaction" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
-        </Stack>
+        <LockGate>
+          <Stack>
+            <Stack.Screen name="add-transaction" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
+          </Stack>
+        </LockGate>
+        <PrivacyCover />
       </PlatformContext.Provider>
     </ThemeProvider>
   )

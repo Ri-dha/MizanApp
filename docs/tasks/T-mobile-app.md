@@ -1,5 +1,5 @@
 # T-mobile-app — iPhone and Android apps with Expo
-- Status: in-progress (2026-11-18), Phase 1 done; Phases 1–3 done and on main; Phase 4 in progress on feat/mobile-foundation
+- Status: in-progress (2026-11-18), Phase 1 done; Phases 1–3 done and on main; Phase 4 done
 - Context: ADR mobile-1 (accepted), ADR e2e-1, e2e-2, sync-1, ui-1. Supersedes T-flutter-app.
   Owner decisions 2026-11-18: after T-shadcn-ui and before T-price-history and T-admin-dashboard;
   full parity in the first release; iPhone and Android together; **OCR on hold until the end**
@@ -88,7 +88,14 @@
      primitives `Button`, `TextField`, `ThemedText`, `Screen`, `Row`, `Group`; screens restyled; adding
      an expense is a native form sheet with its action in the header; dates formatted; Arabic and
      RTL through `expo-localization`. `formatMoney` now forces Western digits on Hermes. Checked
-     on the iPhone simulator in light, dark and Arabic. Next: PIN and Face ID or fingerprint.
+     on the iPhone simulator in light, dark and Arabic.
+     Step 4 done 2026-11-19 (feat/mobile-lock): the lock state machine moved to core
+     (`lock/store.ts`: PIN, grace period, `BiometricUnlock` supplied by each app; the web passes
+     WebAuthn). Phone: Face ID or fingerprint through a Keychain/Keystore secret that only
+     biometrics release and that wraps the data key like the PIN does; `LockGate` at the root so
+     nothing under it renders while locked; a privacy cover for the task switcher. Checked: iPhone
+     (PIN, wrong PIN, re-lock after the grace period, Face ID unlock) and Android (PIN, re-lock).
+     Phase 4 is complete. Next: Phase 5, the parity screens.
   5. Parity, in the web app's order: auth and vault screens, sync, home, ledger and quick add,
      plan, income, bills, debts, goals, cash, gold and silver, assets, net worth and month close,
      reports, household and join links, advisor, settings (theme, language, privacy, backup,

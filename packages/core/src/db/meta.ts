@@ -9,6 +9,7 @@ export const META_KEYS = {
   hlc: "sync.hlc",
   pin: "lock.pin",
   webauthn: "lock.webauthn",
+  biometric: "lock.biometric",
   lockAfterSeconds: "lock.afterSeconds",
   backupKey: "backup.key",
   backupAuto: "backup.auto",

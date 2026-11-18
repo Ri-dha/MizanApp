@@ -33,4 +33,6 @@
   iPhone and Android open each other's sealed records (checked live).
 - Phase 4 step 3 (uncommitted, `feat/mobile-ui`): native look in Mizan's colours (ADR mobile-5),
   light, dark and Arabic RTL checked on the iPhone simulator.
-- Next: PIN and biometrics, then Phase 5 screens. Blockers: none.
+- Phase 4 step 4 (uncommitted, `feat/mobile-lock`): PIN, Face ID or fingerprint, re-lock after
+  the grace period, privacy cover; lock logic shared with the web in core. Phase 4 complete.
+- Next: Phase 5, the parity screens. Blockers: none.

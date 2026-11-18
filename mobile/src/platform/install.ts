@@ -4,7 +4,10 @@ import { installSecretStore } from "@mizan/core/platform/secretStore"
 import { installStore, TABLE_NAMES } from "@mizan/core/store/store"
 import { initialiseVault } from "@mizan/core/vault/account"
 import { loadSession } from "@mizan/core/auth/session"
+import { initialiseLock, installBiometrics } from "@mizan/core/lock/store"
 import { installApiClient } from "./api-client"
+import { biometricUnlock } from "./biometric-unlock"
+import { startLockWatcher } from "./lock-watcher"
 import { installAuthHost, startSync } from "./hosts"
 import { secureSecretStore, deviceSecret } from "./secure-secret-store"
 import { createTables, sqliteStore } from "./sqlite-store"
@@ -33,6 +36,9 @@ export async function installPlatform(): Promise<{ cipherVersion: string }> {
   installAuthHost()
   await loadSession()
   await initialiseVault()
+  installBiometrics(biometricUnlock)
+  await initialiseLock()
+  startLockWatcher()
   startSync()
   return { cipherVersion: cipher.cipher_version }
 }
