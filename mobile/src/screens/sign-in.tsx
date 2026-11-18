@@ -1,12 +1,18 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Button, StyleSheet, Text, TextInput, View } from "react-native"
+import { StyleSheet, View } from "react-native"
 
 import { ApiError } from "@mizan/core/api/client"
 import { login } from "@mizan/core/auth/session"
+import { Button } from "@/components/button"
+import { Screen } from "@/components/screen"
+import { TextField } from "@/components/text-field"
+import { ThemedText } from "@/components/themed-text"
+import { spacing, useBrandColors } from "@/theme"
 
 export function SignIn() {
   const { t } = useTranslation()
+  const brand = useBrandColors()
   const [identifier, setIdentifier] = useState("")
   const [password, setPassword] = useState("")
   const [busy, setBusy] = useState(false)
@@ -18,27 +24,27 @@ export function SignIn() {
     try {
       await login(identifier, password)
     } catch (e) {
-      setError(e instanceof ApiError ? [e.detail, e.properties.cause].filter(Boolean).join(": ") : t("common.error"))
+      setError(e instanceof ApiError && e.status !== 0 ? e.detail : t("common.error"))
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <View style={styles.page}>
-      <Text style={styles.title}>{t("app.name")}</Text>
-      <Text>{t("app.tagline")}</Text>
-      <TextInput testID="identifier" style={styles.input} placeholder={t("auth.identifier")} autoCapitalize="none" keyboardType="email-address" value={identifier} onChangeText={setIdentifier} />
-      <TextInput testID="password" style={styles.input} placeholder={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} />
-      {error ? <Text testID="sign-in-error" style={styles.error}>{error}</Text> : null}
-      <Button testID="sign-in" title={busy ? t("common.loading") : t("auth.login")} onPress={submit} disabled={busy || !identifier || !password} />
-    </View>
+    <Screen centered>
+      <View style={styles.intro}>
+        <ThemedText variant="largeTitle">{t("app.name")}</ThemedText>
+        <ThemedText variant="subhead">{t("app.tagline")}</ThemedText>
+      </View>
+      <TextField testID="identifier" label={t("auth.identifier")} autoCapitalize="none" autoComplete="username" keyboardType="email-address" value={identifier} onChangeText={setIdentifier} />
+      <ThemedText variant="caption">{t("auth.identifierHint")}</ThemedText>
+      <TextField testID="password" label={t("auth.password")} secureTextEntry autoComplete="current-password" value={password} onChangeText={setPassword} onSubmitEditing={submit} />
+      {error ? <ThemedText testID="sign-in-error" style={{ color: brand.destructive }}>{error}</ThemedText> : null}
+      <Button testID="sign-in" title={t("auth.login")} size="lg" loading={busy} disabled={!identifier || !password} onPress={submit} />
+    </Screen>
   )
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, justifyContent: "center", padding: 24, gap: 12 },
-  title: { fontSize: 28, fontWeight: "700" },
-  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, padding: 12, fontSize: 16 },
-  error: { color: "#c0392b" },
+  intro: { gap: spacing.xs, marginBottom: spacing.md },
 })

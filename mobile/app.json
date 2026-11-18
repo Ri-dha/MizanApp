@@ -43,7 +43,17 @@
         }
       ],
       "expo-secure-store",
-      "expo-localization"
+      [
+        "expo-localization",
+        {
+          "supportsRTL": true,
+          "forcesRTL": false,
+          "supportedLocales": [
+            "en",
+            "ar"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -6,6 +6,7 @@ import { StyleSheet, Text, useColorScheme, View } from "react-native"
 import { PlatformContext, type PlatformInfo } from "@/platform/context"
 import "@/i18n"
 import { installPlatform } from "@/platform/install"
+import { spacing } from "@/theme"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -32,12 +33,14 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <PlatformContext.Provider value={info}>
-        <Stack />
+        <Stack>
+          <Stack.Screen name="add-transaction" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
+        </Stack>
       </PlatformContext.Provider>
     </ThemeProvider>
   )
 }
 
 const styles = StyleSheet.create({
-  failure: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  failure: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.lg },
 })

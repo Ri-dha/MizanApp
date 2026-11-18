@@ -31,4 +31,6 @@
   simulator and the Android emulator.
 - Phase 4 step 2 (uncommitted, `feat/mobile-app-shell`): sign-in and sync on the phone; web,
   iPhone and Android open each other's sealed records (checked live).
-- Next: UI system, light and dark, RTL, PIN and biometrics. Blockers: none.
+- Phase 4 step 3 (uncommitted, `feat/mobile-ui`): native look in Mizan's colours (ADR mobile-5),
+  light, dark and Arabic RTL checked on the iPhone simulator.
+- Next: PIN and biometrics, then Phase 5 screens. Blockers: none.

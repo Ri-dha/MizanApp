@@ -82,8 +82,13 @@
      `onStoreChange`, i18next with core's translations and the device language, and plain sign-in,
      unlock, recovery-code and ledger screens. Checked live: a household made on the web opens on
      the iPhone and Android, a transaction added on the iPhone shows decrypted on the web and on
-     Android. Next: NativeWind and the shadcn-style components, light and dark, RTL, PIN and
-     biometrics.
+     Android.
+     Step 3 done 2026-11-19 (ADR mobile-5, owner chose a native look in Mizan's colours over a
+     shadcn clone): theme in `mobile/src/theme` (semantic colours plus the web's brand tokens),
+     primitives `Button`, `TextField`, `ThemedText`, `Screen`, `Row`, `Group`; screens restyled; adding
+     an expense is a native form sheet with its action in the header; dates formatted; Arabic and
+     RTL through `expo-localization`. `formatMoney` now forces Western digits on Hermes. Checked
+     on the iPhone simulator in light, dark and Arabic. Next: PIN and Face ID or fingerprint.
   5. Parity, in the web app's order: auth and vault screens, sync, home, ledger and quick add,
      plan, income, bills, debts, goals, cash, gold and silver, assets, net worth and month close,
      reports, household and join links, advisor, settings (theme, language, privacy, backup,

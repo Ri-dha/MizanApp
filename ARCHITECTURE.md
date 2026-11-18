@@ -176,7 +176,9 @@ keyed from `expo-secure-store`), `SecretStore` over a second Keychain/Keystore k
 over AppState and NetInfo. The app refuses to start without SQLCipher. `api-client.ts` keeps the rotating refresh token
 in secure storage and sends it in the body (the web uses the httpOnly cookie); `hosts.ts` gives
 core its `AuthHost` and `SyncHost`; `hooks/use-core.ts` turns core's subscriptions and
-`onStoreChange` into hooks. Native folders are
+`onStoreChange` into hooks. UI (ADR mobile-5): one theme in `src/theme` (platform semantic
+colours plus the web's brand tokens), primitives in `src/components`, native headers and form
+sheets, RTL from `expo-localization`. Native folders are
 generated (`ios/`, `android/` are ignored); development uses a development build.
 
 ## Web (`web/src`)
