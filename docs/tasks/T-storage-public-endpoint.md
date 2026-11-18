@@ -1,6 +1,5 @@
 # T-storage-public-endpoint — Presign storage URLs a browser can reach
-- Status: in-review (2026-11-19); server half b48b895 in MizanApi, this half on branch
-  feat/storage-same-origin (MizanApp) with a one-line compose change in MizanApi, uncommitted
+- Status: done (2026-11-19): MizanApi b48b895 and 1e973a6, MizanApp f53b409, on develop and main
 - Context: ADR storage-4 (a copy is here; the original is in MizanApi). Owner chose the site's
   own address over a storage subdomain.
 - Notes: Caddy `handle /{$MIZAN_STORAGE_BUCKET:mizan-attachments}/*` → `seaweedfs:8333` before the
