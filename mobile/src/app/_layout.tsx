@@ -56,6 +56,8 @@ function Routes() {
         <Stack.Screen name="transaction" options={{ presentation: "formSheet", sheetAllowedDetents: [0.6, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="move-money" options={{ presentation: "formSheet", sheetAllowedDetents: [0.7, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="plan-buckets" />
+        <Stack.Screen name="goal" options={{ presentation: "formSheet", sheetAllowedDetents: [0.7, 1], sheetGrabberVisible: true }} />
+        <Stack.Screen name="goal-entry" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
         <Stack.Screen name="sync" />
         <Stack.Screen name="verify" />
         <Stack.Screen name="diagnostics" />

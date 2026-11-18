@@ -28,6 +28,7 @@ import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing, useBrandColors } from "@/theme"
+import { dateOf, isoOf } from "@/utils/dates"
 
 const TYPES: TransactionType[] = ["EXPENSE", "TRANSFER", "INCOME"]
 const CURRENCIES = ["IQD", "USD"]
@@ -36,11 +37,6 @@ const HISTORY_LIMIT = 2000
 const NO_BUCKETS: Bucket[] = []
 const NO_ROWS: LedgerTransaction[] = []
 
-const isoOf = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
-const dateOf = (iso: string) => {
-  const [year, month, day] = iso.split("-").map(Number)
-  return new Date(year, month - 1, day)
-}
 
 /**
  * FR-TRX-01: amount, a bucket and Save are the only required taps; the date defaults to today.

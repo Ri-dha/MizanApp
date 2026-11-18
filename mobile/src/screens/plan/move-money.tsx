@@ -15,12 +15,8 @@ import { ThemedText } from "@/components/themed-text"
 import { useSession } from "@/hooks/use-core"
 import { useMonthView } from "@/hooks/use-views"
 import { spacing, useBrandColors } from "@/theme"
+import { dateOf, isoOf } from "@/utils/dates"
 
-const isoOf = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
-const dateOf = (iso: string) => {
-  const [year, month, day] = iso.split("-").map(Number)
-  return new Date(year, month - 1, day)
-}
 
 /** A move is a transfer between two buckets, not spending, and stays in the month's audit trail. */
 export function MoveMoney({ monthKey }: { monthKey: string }) {
