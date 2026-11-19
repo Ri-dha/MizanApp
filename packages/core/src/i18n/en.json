@@ -432,7 +432,6 @@
     "showHijri": "Show Hijri dates alongside",
     "languageSystem": "Phone's language",
     "restartForDirection": "Close and reopen Mizan to switch the screen direction.",
-    "phonePushLater": "These choices are saved for your account. Notifications on this phone arrive with a later update; today they reach the browsers you turned them on in.",
     "valuationReminder": "Remind me to revalue assets after (months)"
   },
   "common": {
@@ -1277,7 +1276,9 @@
     "iosHint": "On iPhone and iPad, notifications only work once Mizan is installed to the home screen.",
     "leadDays": "Days before a bill is due",
     "thresholdPercent": "Percent of a bucket spent",
-    "movePercent": "Price move percent"
+    "movePercent": "Price move percent",
+    "phoneDenied": "Notifications are turned off for Mizan in this phone's settings.",
+    "phoneNeedsSetup": "This build of Mizan cannot receive notifications yet; they arrive with the store release."
   },
   "exports": {
     "body": "Spreadsheets for your own analysis; column names follow the app language.",

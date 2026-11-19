@@ -147,6 +147,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/notifications/phones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register this phone's Expo push token (ADR push-1) */
+        post: operations["registerPhone"];
+        /** Stop reminders to this phone */
+        delete: operations["unregisterPhone"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/deletion-request": {
         parameters: {
             query?: never;
@@ -1239,6 +1257,9 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
+        RegisterPhoneRequest: {
+            token: string;
+        };
         CurrentUserResponse: {
             /** Format: uuid */
             id: string;
@@ -1966,6 +1987,54 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UnsubscribeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    registerPhone: {
+        parameters: {
+            query?: never;
+            header?: {
+                "User-Agent"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterPhoneRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SubscriptionResponse"];
+                };
+            };
+        };
+    };
+    unregisterPhone: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterPhoneRequest"];
             };
         };
         responses: {

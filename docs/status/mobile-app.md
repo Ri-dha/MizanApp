@@ -62,15 +62,17 @@
   encrypted attachment and preview); the photo library no longer asks for permission first.
   Uploads stay pending locally while the dev object storage is not running.
 - Step 7 is on main (b6c212e): charts with react-native-svg (ADR mobile-6) and the Prices screen.
-- Parity review on `feat/mobile-parity` (uncommitted): every web screen has a phone counterpart
-  except the operator Admin page, which stays on the web. Added: reports saved as PDF through the
-  share sheet (expo-print), operator announcements and the revaluation prompt on Home, and no
-  add button for viewers and advisors. A translation parity test now checks English and Arabic
-  carry the same strings; a scan of both apps found three keys used but missing
-  (`assets.stalePrompt`, `transactions.note`, `settings.cancel`), now fixed, so the web's Home
-  revaluation prompt shows text instead of its key. Phase 5 is complete.
-- Still unverified on a device: viewer and advisor views with real accounts, JSON/CSV import,
-  the camera, uploads to object storage.
-- Next: Phase 6 (push notifications, then store release).
+- Phase 5 is complete and on main (a08eee9). Unverified on a device: viewer and advisor views,
+  JSON/CSV import, the camera, uploads to object storage.
+- Phase 6 step 1 (push), uncommitted: server on MizanApi `feat/expo-push` (worktree
+  `../.wt-expo-push`): channel on push subscriptions (V027), `POST/DELETE
+  /api/v1/notifications/phones`, `ExpoPushSender` (ADR push-1); 115 server tests green. App on
+  `feat/mobile-push`: regenerated API types, expo-notifications, a phone switch and test in
+  Settings, tapped reminders open their screen. Without an EAS project the phone says it cannot
+  receive notifications yet (checked on the iPhone).
+- Blocked on the owner: an EAS project (`eas init`, which writes `extra.eas.projectId`), an Apple
+  Developer account with an APNs key, and an FCM project for Android, all registered with EAS.
+- Next: once EAS exists, a real push to a device; then step 2, the store release (icons, splash,
+  listings in English and Arabic, privacy labels, TestFlight and Play internal testing).
   A full reload locks the app (the data key is in memory); fast refresh does not. Reopened months
   still count as the last close in the attribution (core, same on the web). Blockers: none.

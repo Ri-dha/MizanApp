@@ -9,6 +9,7 @@ import { PrivacyCover } from "@/components/privacy-cover"
 import { PlatformContext, type PlatformInfo } from "@/platform/context"
 import "@/i18n"
 import { installPlatform } from "@/platform/install"
+import { openRemindersOnTap } from "@/platform/push"
 import { spacing } from "@/theme"
 
 SplashScreen.preventAutoHideAsync()
@@ -49,6 +50,7 @@ export default function RootLayout() {
 function Routes() {
   const session = useSession()
   const signedIn = !!session
+  useEffect(() => (signedIn ? openRemindersOnTap() : undefined), [signedIn])
   return (
     <Stack>
       <Stack.Protected guard={signedIn}>

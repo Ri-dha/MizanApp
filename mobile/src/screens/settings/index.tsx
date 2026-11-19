@@ -22,6 +22,7 @@ import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useLockState, useSession } from "@/hooks/use-core"
 import { SUPPORTED_LOCALES, applyTheme, directionNeedsRestart, localeFor } from "@/platform/appearance"
+import { disablePhonePush, enablePhonePush, phonePushState, sendTestPush, type PhonePushState } from "@/platform/push"
 import { setPreferences, usePreferences, type LanguageChoice, type ThemeChoice } from "@/preferences"
 import { spacing } from "@/theme"
 import { describeError } from "@/utils/errors"
@@ -69,17 +70,27 @@ export function Settings() {
   const [lockAfter, setLockAfter] = useState(DEFAULT_LOCK_AFTER_SECONDS)
   const [biometrics, setBiometrics] = useState<{ available: boolean; enrolled: boolean }>({ available: false, enrolled: false })
   const [message, setMessage] = useState<string | null>(null)
+  const [push, setPush] = useState<PhonePushState>("unsupported")
   const date = (ms: number) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { dateStyle: "medium" }).format(new Date(ms))
 
   useEffect(() => {
     void readMeta<number>(META_KEYS.lockAfterSeconds).then((value) => value !== undefined && setLockAfter(value))
     void Promise.all([biometricUnlock().available(), biometricUnlock().enrolled()]).then(([available, enrolled]) => setBiometrics({ available, enrolled }))
+    void phonePushState().then(setPush)
   }, [])
 
   async function run(action: () => Promise<unknown>, done?: string) {
     try {
       await action()
       if (done) setMessage(done)
+    } catch (e) {
+      setMessage(describeError(e))
+    }
+  }
+
+  async function togglePush(on: boolean) {
+    try {
+      setPush(on ? await enablePhonePush() : await disablePhonePush())
     } catch (e) {
       setMessage(describeError(e))
     }
@@ -209,7 +220,17 @@ export function Settings() {
         </Group>
       </Section>
 
-      <Section title={t("settings.notifications")} body={t("settings.phonePushLater")}>
+      <Section title={t("settings.notifications")} body={t("settings.notificationsBody")}>
+        {push === "needs-setup" ? <ThemedText variant="caption">{t("notifications.phoneNeedsSetup")}</ThemedText> : null}
+        {push === "denied" ? <ThemedText variant="caption">{t("notifications.phoneDenied")}</ThemedText> : null}
+        {push === "on" || push === "off" ? (
+          <Group>
+            <Row last={push === "off"}><ToggleRow testID="notify-phone" label={t("notifications.onThisDevice")} value={push === "on"} onChange={(on) => void togglePush(on)} /></Row>
+            {push === "on" ? (
+              <Row last><Button testID="notify-test" variant="ghost" title={t("notifications.sendTest")} style={styles.start} onPress={() => void run(async () => setMessage(t("notifications.testSent", { count: await sendTestPush() })))} /></Row>
+            ) : null}
+          </Group>
+        ) : null}
         <Group>
           <Row><ToggleRow testID="notify-quiet" label={t("settings.quietMode")} value={notify.quietMode} onChange={(on) => void saveNotificationSettings({ quietMode: on })} /></Row>
           {NOTIFICATION_SWITCHES.map((cls, index) => (
@@ -258,4 +279,5 @@ const styles = StyleSheet.create({
   section: { gap: spacing.sm },
   field: { gap: spacing.xs },
   buttons: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  start: { alignSelf: "flex-start" },
 })
