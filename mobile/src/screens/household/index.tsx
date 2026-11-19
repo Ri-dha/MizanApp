@@ -20,6 +20,7 @@ import { WEB_ORIGIN } from "@/platform/api-client"
 import { spacing } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { invitationToken } from "./token"
+import { useScreenTour } from "@/tours"
 
 type Member = Awaited<ReturnType<typeof listMembers>>[number]
 type Invitation = Awaited<ReturnType<typeof listInvitations>>[number]
@@ -110,6 +111,7 @@ export function Household() {
   }
 
   const token = invitationToken(joinLink)
+  useScreenTour("household", members.length > 0)
   return (
     <Screen>
       <Stack.Screen options={{ title: t("household.title") }} />

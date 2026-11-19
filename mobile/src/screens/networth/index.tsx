@@ -20,6 +20,7 @@ import { usePreferences } from "@/preferences"
 import { spacing, useBrandColors } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { formatMonthKey } from "@/utils/month"
+import { useScreenTour } from "@/tours"
 
 const MONTHS_LISTED = 12
 const ALWAYS_SHOWN = ["CASH", "METALS", "RECEIVABLES"]
@@ -28,6 +29,7 @@ const MICROS = 1e6
 
 export function NetWorth() {
   const { t, i18n } = useTranslation()
+  useScreenTour("networth")
   const brand = useBrandColors()
   const session = useSession()
   const sync = useSyncStatus()

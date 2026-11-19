@@ -18,11 +18,13 @@ import { useSelectedMonth } from "@/hooks/use-selected-month"
 import { useMetals, useMonthView } from "@/hooks/use-views"
 import { spacing } from "@/theme"
 import { formatDay } from "@/utils/dates"
+import { useScreenTour } from "@/tours"
 
 const DAY_MONTH: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }
 
 export function Bills() {
   const { t, i18n } = useTranslation()
+  useScreenTour("bills")
   const session = useSession()
   const startDay = session?.monthStartDay ?? 1
   const base = session?.baseCurrency ?? "IQD"

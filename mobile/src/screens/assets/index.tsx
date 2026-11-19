@@ -16,6 +16,7 @@ import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { usePreferences } from "@/preferences"
 import { spacing, useBrandColors } from "@/theme"
 import { SHORT_DATE, formatDay } from "@/utils/dates"
+import { useScreenTour } from "@/tours"
 
 export const ASSET_TYPES: AssetType[] = ["VEHICLE", "PROPERTY", "ELECTRONICS", "EQUIPMENT", "FURNITURE", "LIVESTOCK", "OTHER"]
 const RECENT_VALUATIONS = 3
@@ -29,6 +30,7 @@ async function runningCosts(): Promise<Record<string, number>> {
 
 export function Assets() {
   const { t, i18n } = useTranslation()
+  useScreenTour("assets")
   const brand = useBrandColors()
   const session = useSession()
   const base = session?.baseCurrency ?? "IQD"

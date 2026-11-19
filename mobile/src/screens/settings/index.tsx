@@ -25,6 +25,7 @@ import { SUPPORTED_LOCALES, applyTheme, directionNeedsRestart, localeFor } from 
 import { setPreferences, usePreferences, type LanguageChoice, type ThemeChoice } from "@/preferences"
 import { spacing } from "@/theme"
 import { describeError } from "@/utils/errors"
+import { forgetAllTours, useScreenTour } from "@/tours"
 
 const LOCK_CHOICES = [0, 30, 60, 300]
 const THEMES: ThemeChoice[] = ["system", "light", "dark"]
@@ -59,6 +60,7 @@ function ChoiceRow({ label, children, last }: { label: string; children: React.R
 
 export function Settings() {
   const { t, i18n } = useTranslation()
+  useScreenTour("settings")
   const session = useSession()
   const lockState = useLockState()
   const prefs = usePreferences()
@@ -237,6 +239,7 @@ export function Settings() {
       <Section title={t("settings.account")}>
         {pendingDeletion !== null ? <Notice tone="error">{t("account.deletionPending", { date: date(pendingDeletion) })}</Notice> : null}
         <View style={styles.buttons}>
+          <Button testID="settings-replay-tours" variant="secondary" title={t("tours.replay")} onPress={() => { forgetAllTours(); setMessage(t("tours.replayed")) }} />
           <Button testID="settings-sign-out" variant="secondary" title={t("auth.logout")} onPress={() => void signOut()} />
           {pendingDeletion !== null
             ? <Button testID="settings-cancel-deletion" variant="secondary" title={t("account.cancelDeletion")} onPress={() => void run(cancelAccountDeletion, t("account.deletionCancelled"))} />

@@ -15,10 +15,12 @@ export interface Preferences {
   showHijri: boolean
   /** FR-AST-04: months after which an asset without a fresh valuation is flagged. */
   valuationReminderMonths: number
+  /** Tour ids already shown on this device; deliberately not synced. */
+  toursSeen: string[]
 }
 
 const KEY = "mizan.preferences"
-const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6 }
+const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [] }
 
 function load(): Preferences {
   try {

@@ -1120,7 +1120,8 @@
         "title": "Your households",
         "body": "You keep your own household when you join another. Switch here; the app reloads with the other household's data."
       }
-    }
+    },
+    "progress": "Step {{step}} of {{steps}}"
   },
   "assets": {
     "title": "Other assets",

@@ -76,6 +76,7 @@ function Routes() {
         <Stack.Screen name="goal-entry" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
         <Stack.Screen name="sync" />
         <Stack.Screen name="home-layout" />
+        <Stack.Screen name="tour" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
         <Stack.Screen name="verify" />
         <Stack.Screen name="diagnostics" />
       </Stack.Protected>

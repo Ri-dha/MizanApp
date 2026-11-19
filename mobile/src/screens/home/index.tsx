@@ -10,9 +10,11 @@ import { ThemedText } from "@/components/themed-text"
 import { useSession } from "@/hooks/use-core"
 import { useHomeLayout } from "@/hooks/use-home-layout"
 import { HomeCards } from "./widgets"
+import { useScreenTour } from "@/tours"
 
 export function Home() {
   const { t } = useTranslation()
+  useScreenTour("welcome")
   const session = useSession()
   const layout = useHomeLayout()
   return (

@@ -19,12 +19,14 @@ import { spacing, useBrandColors } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { DealerProducts } from "./dealer-products"
 import { grams, wholeFromMicros } from "./format"
+import { useScreenTour } from "@/tours"
 
 const METALS: Metal[] = ["GOLD", "SILVER"]
 const USD_MINOR_PER_MICROS = 1e4
 
 export function Metals() {
   const { t, i18n } = useTranslation()
+  useScreenTour("metals")
   const brand = useBrandColors()
   const session = useSession()
   const base = session?.baseCurrency ?? "IQD"

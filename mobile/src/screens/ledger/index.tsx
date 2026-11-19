@@ -17,6 +17,7 @@ import { useMonthView } from "@/hooks/use-views"
 import { MonthSwitcher } from "@/components/month-switcher"
 import { colors, radius, spacing, type } from "@/theme"
 import { formatDay } from "@/utils/dates"
+import { useScreenTour } from "@/tours"
 
 const NO_ROWS: LedgerTransaction[] = []
 const DAY: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" }
@@ -31,6 +32,7 @@ interface Section {
 
 export function Ledger() {
   const { t, i18n } = useTranslation()
+  useScreenTour("ledger")
   const session = useSession()
   const status = useSyncStatus()
   const startDay = session?.monthStartDay ?? 1

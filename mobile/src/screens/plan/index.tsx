@@ -16,6 +16,7 @@ import { useSelectedMonth } from "@/hooks/use-selected-month"
 import { useMonthView } from "@/hooks/use-views"
 import { colors, radius, spacing, type, useBrandColors } from "@/theme"
 import { formatDay } from "@/utils/dates"
+import { useScreenTour } from "@/tours"
 
 const DAY: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }
 
@@ -30,6 +31,7 @@ export function Plan() {
   const money = (amount: number) => formatMoney(amount, currency, i18n.language)
   const nameOf = (id: string) => view.buckets.find((b) => b.id === id)?.name ?? "?"
 
+  useScreenTour("plan", view.buckets.length > 0)
   return (
     <Screen>
       <Stack.Screen
