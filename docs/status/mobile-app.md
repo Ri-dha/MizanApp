@@ -77,7 +77,7 @@
   from `EXPO_PUBLIC_API_ORIGIN` / `EXPO_PUBLIC_WEB_ORIGIN` (a release build without the API origin
   refuses to start), and `docs/store/`: listings in English and Arabic, privacy label and data
   safety answers, the owner's release checklist. `expo config` resolves; icon and splash checked on the
-  iPhone simulator after a rebuild.
+  iPhone simulator and the Android emulator (adaptive icon) after a rebuild.
 - Step 2 is on main (5bea363). On `feat/privacy-page` (uncommitted): a public bilingual privacy
   policy at `/privacy.html` (static, outside the service worker's app fallback), linked from Help on
   the web and the phone (in-app browser); checked in a browser in Arabic and dark mode. Also fixed: the More tab lost its menu when a
