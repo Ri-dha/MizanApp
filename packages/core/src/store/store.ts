@@ -1,7 +1,7 @@
 import type {
   AnnualReport, Asset, AssetValuation, Attachment, Bucket, BucketMove, CashAccount, CashAdjustment, Debt, DebtPayment, ExpenseOccurrence, Goal,
   GoalDeposit, IncomeReceipt, IncomeSource, IncomeSourceAmount, LedgerTransaction, LocalBlob, LocalConflict, MarketOverride, MarketSetting,
-  MemberContribution, MetaEntry, MetalDisposal, MetalDisposalLot, MetalLot, MonthClose, NetWorthSnapshot, NotificationSetting, OutboxOp, Plan,
+  HomeLayout, MemberContribution, MetaEntry, MetalDisposal, MetalDisposalLot, MetalLot, MonthClose, NetWorthSnapshot, NotificationSetting, OutboxOp, Plan,
   PrivacySetting, RecurringExpense, SealedRecord,
 } from "../schema"
 
@@ -35,6 +35,7 @@ export interface Tables {
   bucketMoves: BucketMove
   privacySettings: PrivacySetting
   notificationSettings: NotificationSetting
+  homeLayouts: HomeLayout
   memberContributions: MemberContribution
   annualReports: AnnualReport
   sealedInbox: SealedRecord
@@ -136,7 +137,7 @@ const EVERY_TABLE: Record<TableName, true> = {
   expenseOccurrences: true, transactions: true, attachments: true, blobs: true, debts: true, debtPayments: true, goals: true, goalDeposits: true,
   metalLots: true, metalDisposals: true, metalDisposalLots: true, marketOverrides: true, marketSettings: true, cashAdjustments: true,
   netWorthSnapshots: true, monthCloses: true, assets: true, assetValuations: true, bucketMoves: true, privacySettings: true,
-  notificationSettings: true, memberContributions: true, annualReports: true, sealedInbox: true, outbox: true, conflicts: true, meta: true,
+  notificationSettings: true, homeLayouts: true, memberContributions: true, annualReports: true, sealedInbox: true, outbox: true, conflicts: true, meta: true,
 }
 
 /** Every local table; an adapter that creates tables up front (SQLite) uses this, so none is forgotten. */

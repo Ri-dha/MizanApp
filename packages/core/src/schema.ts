@@ -309,6 +309,22 @@ export interface PrivacySetting extends Syncable {
   assets: Visibility
 }
 
+/** ADR home-1: one per member, private, the same on every device they sign in on. */
+export interface HomeLayout extends Syncable {
+  visibility: Visibility
+  widgets: HomeWidget[]
+}
+
+export type WidgetKind = "netWorth" | "dollar" | "plan" | "metals" | "bills" | "cash" | "goals" | "debts"
+export type WidgetSize = "compact" | "full"
+
+export interface HomeWidget {
+  kind: WidgetKind
+  visible: boolean
+  size: WidgetSize
+  options: Record<string, string>
+}
+
 export interface NotificationSetting extends Syncable {
   visibility: Visibility
   billDue: boolean
@@ -484,6 +500,7 @@ export const SYNC_TABLES = {
   bucket_move: "bucketMoves",
   privacy_setting: "privacySettings",
   notification_setting: "notificationSettings",
+  home_layout: "homeLayouts",
   member_contribution: "memberContributions",
   annual_report: "annualReports",
 } as const

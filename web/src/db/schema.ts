@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from "dexie"
 import type {
-  AnnualReport, Asset, AssetValuation, Attachment, Bucket, BucketMove, CashAccount, CashAdjustment, Debt, DebtPayment, ExpenseOccurrence, Goal, GoalDeposit, IncomeReceipt, IncomeSource, IncomeSourceAmount, LedgerTransaction, LocalBlob, LocalConflict, MarketOverride, MarketSetting, MemberContribution, MetaEntry, MetalDisposal, MetalDisposalLot, MetalLot, MonthClose, NetWorthSnapshot, NotificationSetting, OutboxOp, Plan, PrivacySetting, RecurringExpense, SealedRecord,
+  AnnualReport, Asset, AssetValuation, HomeLayout, Attachment, Bucket, BucketMove, CashAccount, CashAdjustment, Debt, DebtPayment, ExpenseOccurrence, Goal, GoalDeposit, IncomeReceipt, IncomeSource, IncomeSourceAmount, LedgerTransaction, LocalBlob, LocalConflict, MarketOverride, MarketSetting, MemberContribution, MetaEntry, MetalDisposal, MetalDisposalLot, MetalLot, MonthClose, NetWorthSnapshot, NotificationSetting, OutboxOp, Plan, PrivacySetting, RecurringExpense, SealedRecord,
 } from "@mizan/core/schema"
 
 export * from "@mizan/core/schema"
@@ -33,6 +33,7 @@ export class MizanDatabase extends Dexie {
   assetValuations!: EntityTable<AssetValuation, "id">
   bucketMoves!: EntityTable<BucketMove, "id">
   privacySettings!: EntityTable<PrivacySetting, "id">
+  homeLayouts!: EntityTable<HomeLayout, "id">
   notificationSettings!: EntityTable<NotificationSetting, "id">
   memberContributions!: EntityTable<MemberContribution, "id">
   annualReports!: EntityTable<AnnualReport, "id">
@@ -101,6 +102,9 @@ export class MizanDatabase extends Dexie {
       memberContributions: "id, deletedAt, memberId",
       annualReports: "id, deletedAt, year",
       sealedInbox: "key",
+    })
+    this.version(13).stores({
+      homeLayouts: "id, deletedAt",
     })
   }
 }

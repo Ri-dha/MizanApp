@@ -13,10 +13,12 @@ export function TourProvider() {
   if (!tour) return null
 
   const rtl = directionFor(i18n.language) === "rtl"
-  const steps = tour.steps.map((s, i) => ({
+  // A card the person hid from Home has no element to point at, so its step is left out.
+  const present = tour.steps.filter((s) => typeof s.target !== "string" || s.target === "body" || document.querySelector(s.target) !== null)
+  const steps = present.map((s, i) => ({
     target: s.target,
     title: t(s.titleKey),
-    content: i === tour.steps.length - 1 ? `${t(s.bodyKey)}\n\n${t("tours.readMore")}` : t(s.bodyKey),
+    content: i === present.length - 1 ? `${t(s.bodyKey)}\n\n${t("tours.readMore")}` : t(s.bodyKey),
     placement: s.placement ?? "bottom",
     disableBeacon: true,
   }))

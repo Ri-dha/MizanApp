@@ -24,6 +24,7 @@ import { setTheme, useTheme, type Theme } from "@/app/theme"
 import { Field } from "@/components/Field"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { HomeLayoutCard } from "./HomeLayoutCard"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { META_KEYS, readMeta, writeMeta } from "@mizan/core/db/meta"
 import { SUPPORTED_LOCALES } from "@/i18n"
@@ -256,6 +257,8 @@ export function SettingsPage() {
           ))}
         </CardContent>
       </Card>
+
+      <HomeLayoutCard />
 
       <Card>
         <CardHeader><CardTitle>{t("settings.display")}</CardTitle></CardHeader>

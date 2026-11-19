@@ -3,7 +3,7 @@ import { useSyncExternalStore } from "react"
 import { currentSession, installAuth, sessionLost, subscribeSession, type LocalSession } from "@mizan/core/auth/session"
 import { META_KEYS } from "@mizan/core/db/meta"
 import { resetLock } from "@/lock/store"
-import { setAccessToken, setSessionLostHandler } from "./client"
+import { refreshAccessToken, setAccessToken, setSessionLostHandler } from "./client"
 
 export * from "@mizan/core/auth/session"
 
@@ -11,6 +11,7 @@ export * from "@mizan/core/auth/session"
 installAuth({
   acceptTokens: async ({ accessToken }) => setAccessToken(accessToken),
   forgetTokens: async () => setAccessToken(null),
+  refreshTokens: refreshAccessToken,
   resetLock,
   lockMetaKeys: () => [META_KEYS.pin, META_KEYS.webauthn, META_KEYS.lockAfterSeconds],
 })

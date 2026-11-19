@@ -6,13 +6,14 @@ import { resetLock } from "@mizan/core/lock/store"
 import { refreshQuotes } from "@mizan/core/market/prices"
 import { startSyncEngine } from "@mizan/core/sync/engine"
 import { onVaultReady, vaultReady } from "@mizan/core/vault/account"
-import { forgetTokens, keepTokens } from "./api-client"
+import { forgetTokens, keepTokens, refreshAccessToken } from "./api-client"
 import { appLifecycle } from "./app-lifecycle"
 
 export function installAuthHost() {
   installAuth({
     acceptTokens: ({ accessToken, refreshToken }) => keepTokens(accessToken, refreshToken),
     forgetTokens,
+    refreshTokens: refreshAccessToken,
     resetLock,
     lockMetaKeys: () => [META_KEYS.pin, META_KEYS.biometric, META_KEYS.lockAfterSeconds],
   })

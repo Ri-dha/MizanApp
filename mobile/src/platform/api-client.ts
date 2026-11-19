@@ -7,6 +7,8 @@ import { sessionLost } from "@mizan/core/auth/session"
 
 /** The Mac's API in development: the iOS simulator shares localhost, Android gets it through adb reverse. */
 export const API_ORIGIN = process.env.EXPO_PUBLIC_API_ORIGIN ?? "http://localhost:8080"
+/** Invitation links open the web app, which production serves from the API's own origin. */
+export const WEB_ORIGIN = process.env.EXPO_PUBLIC_WEB_ORIGIN ?? API_ORIGIN
 
 const REFRESH_PATH = "/api/v1/auth/refresh"
 const REFRESH_TOKEN = "mizan.refreshToken"
@@ -34,7 +36,7 @@ export async function forgetTokens() {
  * Keychain or Keystore and goes in the body. One refresh at a time: a second would present a
  * token the first already rotated away and lose the session.
  */
-async function refreshAccessToken(): Promise<boolean> {
+export async function refreshAccessToken(): Promise<boolean> {
   refreshInFlight ??= (async () => {
     try {
       const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN, ACCESS)

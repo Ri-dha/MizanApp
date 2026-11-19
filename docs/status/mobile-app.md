@@ -39,11 +39,17 @@
   start over on the phone; checked live on the iPhone.
 - Phase 5 steps 1–2 and the start of step 3 are on main (cd53e6a). The ledger is on main
   (d8add28), the plan and move money (df0605e), goals (4b12dcd), debts, bills and income
-  (7a3e1fd), cash accounts and gold and silver (fc2525c). Step 4 is complete on
-  `feat/mobile-networth` (uncommitted): other assets (valuations, sale, undo), net worth with
-  month close and the "what moved it" breakdown (now `attributionSinceLastClose` in core, used by
-  both apps), month and year reports, dealer products; checked on the iPhone. Charts (net worth
-  trend, year by bucket, sell-or-hold) and printing a report wait for step 7.
-- Next: step 5 (household, advisor view, settings, help, tours). A full reload locks the app
-  (the data key is in memory); fast refresh does not. Reopened months still count as the last
-  close in the attribution (core behaviour, same on the web). Blockers: none.
+  (7a3e1fd), cash accounts and gold and silver (fc2525c), other assets, net worth and reports
+  (484c16a); step 4 is complete. Step 5 on `feat/mobile-household` (uncommitted): household
+  (members, roles, invitations shared by the share sheet, join by link and `mizan://join/<token>`,
+  switch, leave, delete), the advisor view, help (the bundled manual), and per-role tabs and More
+  (advisor: report, household, help, sync; dependent: no plan). Household calls and manual parsing
+  moved to core for both apps; `AuthHost` gained `refreshTokens`. Checked on the iPhone as owner;
+  advisor and dependent views not yet seen with real accounts. Customisable Home (ADR home-1):
+  cards shown, order, size and per-card options, synced as a private `home_layout` record, edited
+  in Settings on both apps (the phone's Settings starts here); the server side is on MizanApi.
+  Checked on the iPhone; the web editor passes its checks but was not opened in a browser.
+- Next: settings (theme, language, privacy, backup, notifications, CSV), guided tours; then step 6
+  (receipts) and step 7 (charts: net worth trend, year by bucket, sell-or-hold; printing a report).
+  A full reload locks the app (the data key is in memory); fast refresh does not. Reopened months
+  still count as the last close in the attribution (core, same on the web). Blockers: none.

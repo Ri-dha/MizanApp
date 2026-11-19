@@ -1253,7 +1253,9 @@
     "deletionCancelled": "Deletion cancelled",
     "accessDays": "Access for (days)",
     "accessDaysHint": "Leave empty for no end date; advisors get 30 days by default.",
-    "until": "until {{date}}"
+    "until": "until {{date}}",
+    "shareLink": "Share link",
+    "memberActions": "Member actions"
   },
   "notifications": {
     "onThisDevice": "Push notifications on this device",
@@ -1408,5 +1410,79 @@
     "perMonthBase": "{{amount}} a month",
     "switch": "This is a subscription",
     "categoryHint": "Subscriptions are grouped on the Bills screen with their monthly and yearly cost."
+  },
+  "homeLayout": {
+    "title": "Home screen",
+    "body": "Choose which cards Home shows, their order, their size and what each one shows. Saved for you on every device you sign in on.",
+    "customise": "Customise Home",
+    "show": "Show on Home",
+    "size": "Size",
+    "sizes": {
+      "full": "Full",
+      "compact": "Compact"
+    },
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "reset": "Back to the default",
+    "hidden": "Hidden",
+    "kinds": {
+      "netWorth": "Net worth",
+      "dollar": "Dollar today",
+      "plan": "This month's plan",
+      "metals": "Gold & silver",
+      "bills": "Upcoming bills",
+      "cash": "Cash on hand",
+      "goals": "Goals",
+      "debts": "Debts"
+    },
+    "options": {
+      "breakdown": {
+        "label": "Detail",
+        "values": {
+          "totals": "Assets and what you owe",
+          "classes": "By kind of asset"
+        }
+      },
+      "figure": {
+        "label": "Figure per bucket",
+        "values": {
+          "free": "Free",
+          "spent": "Spent",
+          "allocated": "Allocated"
+        }
+      },
+      "show": {
+        "label": "Figure",
+        "values": {
+          "gain": "Gain or loss",
+          "value": "Value now"
+        }
+      },
+      "count": {
+        "label": "How many",
+        "values": {
+          "3": "3",
+          "5": "5",
+          "10": "10"
+        }
+      },
+      "currency": {
+        "label": "Currency",
+        "values": {
+          "all": "All",
+          "IQD": "IQD",
+          "USD": "USD"
+        }
+      },
+      "direction": {
+        "label": "Which",
+        "values": {
+          "OWING": "What I owe",
+          "OWED": "Owed to me"
+        }
+      }
+    },
+    "noGoals": "No goals yet.",
+    "noDebts": "Nothing here."
   }
 }

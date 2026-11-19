@@ -18,6 +18,8 @@ export interface Tokens {
 export interface AuthHost {
   acceptTokens(tokens: Tokens): Promise<void>
   forgetTokens(): Promise<void>
+  /** A fresh access token now, because the household it names has just changed. */
+  refreshTokens(): Promise<boolean>
   /** A cleared device also forgets its PIN (and on the web, its passkey). */
   resetLock(): Promise<void>
   /** Meta entries the lock keeps, which a change of household must not drop. */
@@ -28,6 +30,10 @@ let host: AuthHost | null = null
 
 export function installAuth(next: AuthHost) {
   host = next
+}
+
+export function authHost(): AuthHost {
+  return auth()
 }
 
 function auth(): AuthHost {
