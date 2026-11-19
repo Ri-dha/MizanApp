@@ -3,7 +3,7 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import { rowsBy } from "@mizan/core/store/store"
 import { Button } from "@/components/button"
 import { Group, Row } from "@/components/row"

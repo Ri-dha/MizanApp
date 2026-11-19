@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
 import { perGramFor } from "@mizan/core/db/metals"
-import { formatDate, formatHijri } from "@mizan/core/domain/calendar/hijri"
+import { formatHijri } from "@mizan/core/domain/calendar/hijri"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { valueOf } from "@mizan/core/domain/metal/valuation"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import type { Metal } from "@mizan/core/schema"
 import { DateField } from "@/components/date-field"
 import { Notice } from "@/components/notice"
@@ -18,7 +18,7 @@ import { ThemedText } from "@/components/themed-text"
 import { useSession } from "@/hooks/use-core"
 import { useMetals } from "@/hooks/use-views"
 import { spacing } from "@/theme"
-import { SHORT_DATE } from "@/utils/dates"
+import { SHORT_DATE, formatDay } from "@/utils/dates"
 import { grams, wholeFromMicros } from "./format"
 
 /** Classical nisab: 20 mithqal of gold (85 g) or 200 dirhams of silver (595 g); both editable. */
@@ -74,7 +74,7 @@ export function Zakat() {
               <Row last>
                 <ThemedText variant="headline">{name}</ThemedText>
                 <ThemedText>{t("zakat.pureWeight", { weight: grams(row.pureMg, i18n.language) })}</ThemedText>
-                <ThemedText>{t("zakat.value", { value: money(row.value), date: formatDate(asOf, i18n.language, false, SHORT_DATE) })}</ThemedText>
+                <ThemedText>{t("zakat.value", { value: money(row.value), date: formatDay(asOf, i18n.language, SHORT_DATE) })}</ThemedText>
                 <ThemedText testID={`zakat-${metal}`}>{row.reaches ? t("zakat.reaches") : t("zakat.below")}</ThemedText>
                 {row.reaches ? <ThemedText variant="headline">{t("zakat.base", { amount: money(row.base) })}</ThemedText> : null}
               </Row>

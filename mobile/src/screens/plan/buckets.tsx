@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { Pressable, StyleSheet, View } from "react-native"
 
 import { saveBuckets, type BucketInput } from "@mizan/core/db/plan"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@mizan/core/domain/money/format"
+import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
 import { BASIS_POINTS } from "@mizan/core/domain/money/split"
 import { basisPointsToPercent, percentToBasisPoints, rebalance } from "@mizan/core/domain/plan/figures"
 import { Button } from "@/components/button"

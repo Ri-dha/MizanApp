@@ -4,8 +4,7 @@ import { useTranslation } from "react-i18next"
 import { Pressable, SectionList, StyleSheet, View } from "react-native"
 import { SegmentedControl } from "@expo/ui/community/segmented-control"
 
-import { formatDate } from "@mizan/core/domain/calendar/hijri"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import { EMPTY_FILTER, filterTransactions, liveRecentlyDeleted, liveTransactionsFor, restoreTransaction } from "@mizan/core/db/transactions"
 import type { LedgerTransaction, TransactionType } from "@mizan/core/schema"
 import { Button } from "@/components/button"
@@ -17,6 +16,7 @@ import { useSelectedMonth } from "@/hooks/use-selected-month"
 import { useMonthView } from "@/hooks/use-views"
 import { MonthSwitcher } from "@/components/month-switcher"
 import { colors, radius, spacing, type } from "@/theme"
+import { formatDay } from "@/utils/dates"
 
 const NO_ROWS: LedgerTransaction[] = []
 const DAY: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" }
@@ -48,7 +48,7 @@ export function Ledger() {
     const matching = filterTransactions(month, { ...EMPTY_FILTER, text, type: typeFilter })
     const byDay = new Map<string, LedgerTransaction[]>()
     for (const row of matching) byDay.set(row.occurredOn, [...(byDay.get(row.occurredOn) ?? []), row])
-    const days: Section[] = [...byDay.entries()].map(([day, data]) => ({ key: day, title: formatDate(day, i18n.language, false, DAY), data }))
+    const days: Section[] = [...byDay.entries()].map(([day, data]) => ({ key: day, title: formatDay(day, i18n.language, DAY), data }))
     return deleted.length > 0 && !text && !typeFilter ? [...days, { key: "deleted", title: t("transactions.recentlyDeleted"), data: deleted, deleted: true }] : days
   }, [month, deleted, text, typeFilter, i18n.language, t])
 

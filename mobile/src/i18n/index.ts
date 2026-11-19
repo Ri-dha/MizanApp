@@ -1,17 +1,18 @@
-import { getLocales } from "expo-localization"
 import i18n from "i18next"
 import { initReactI18next } from "react-i18next"
 
 import ar from "@mizan/core/i18n/ar.json"
 import en from "@mizan/core/i18n/en.json"
+import { applyTheme, localeFor } from "@/platform/appearance"
+import { preferences } from "@/preferences"
 
-export const SUPPORTED_LOCALES = ["en", "ar"] as const
+export { SUPPORTED_LOCALES } from "@/platform/appearance"
 
-const deviceLanguage = getLocales()[0]?.languageCode ?? "en"
+applyTheme(preferences().theme)
 
 void i18n.use(initReactI18next).init({
   resources: { en: { translation: en }, ar: { translation: ar } },
-  lng: (SUPPORTED_LOCALES as readonly string[]).includes(deviceLanguage) ? deviceLanguage : "en",
+  lng: localeFor(preferences().language),
   fallbackLng: "en",
   interpolation: { escapeValue: false },
 })

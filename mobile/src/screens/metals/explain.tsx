@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { premiumFor } from "@mizan/core/db/metals"
 import { MICROGRAMS_PER_TROY_OUNCE, PURITIES, metalValuation } from "@mizan/core/domain/metal/valuation"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import { Group, Row } from "@/components/row"
 import { Screen } from "@/components/screen"
 import { ThemedText } from "@/components/themed-text"

@@ -323,7 +323,8 @@
     "biometricsSwitch": "Unlock with fingerprint or face on this device",
     "biometricsEnabled": "Biometrics enabled. The PIN still works.",
     "biometricsRemoved": "Biometrics removed from this device.",
-    "biometricsUnsupported": "This device's authenticator cannot protect the key; the PIN stays the only unlock."
+    "biometricsUnsupported": "This device's authenticator cannot protect the key; the PIN stays the only unlock.",
+    "lockNow": "Lock now"
   },
   "home": {
     "greeting": "Hello, {{name}}",
@@ -428,7 +429,11 @@
       "monthClose": "Month-end close reminder"
     },
     "householdBody": "{{name}} · you are {{role}}",
-    "showHijri": "Show Hijri dates alongside"
+    "showHijri": "Show Hijri dates alongside",
+    "languageSystem": "Phone's language",
+    "restartForDirection": "Close and reopen Mizan to switch the screen direction.",
+    "phonePushLater": "These choices are saved for your account. Notifications on this phone arrive with a later update; today they reach the browsers you turned them on in.",
+    "valuationReminder": "Remind me to revalue assets after (months)"
   },
   "common": {
     "cancel": "Cancel",

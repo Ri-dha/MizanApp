@@ -4,10 +4,9 @@ import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
 import { balanceOf, livePayments, recordPayment, undoPayment } from "@mizan/core/db/debts"
-import { formatDate } from "@mizan/core/domain/calendar/hijri"
 import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
 import { debtPayoff } from "@mizan/core/domain/debt/payoff"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@mizan/core/domain/money/format"
+import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
 import { table } from "@mizan/core/store/store"
 import { Button } from "@/components/button"
 import { DateField } from "@/components/date-field"
@@ -17,7 +16,7 @@ import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing } from "@/theme"
-import { SHORT_DATE } from "@/utils/dates"
+import { SHORT_DATE, formatDay } from "@/utils/dates"
 
 export function DebtDetail({ id }: { id: string }) {
   const { t, i18n } = useTranslation()
@@ -31,7 +30,7 @@ export function DebtDetail({ id }: { id: string }) {
   if (!debt) return <Screen><Stack.Screen options={{ title: t("debts.title") }} /></Screen>
 
   const money = (value: number) => formatMoney(value, debt.currency, i18n.language)
-  const date = (iso: string) => formatDate(iso, i18n.language, false, SHORT_DATE)
+  const date = (iso: string) => formatDay(iso, i18n.language, SHORT_DATE)
   const balance = balanceOf(debt, payments)
   const ledger = payments.filter((p) => p.debtId === debt.id).reverse()
   const payoff = debtPayoff(balance, debt.annualRateBasisPoints, debt.monthlyPayment)

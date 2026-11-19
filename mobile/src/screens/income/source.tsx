@@ -6,9 +6,8 @@ import { StyleSheet, View } from "react-native"
 
 import { createIncomeSource, historyOf, liveAmountHistory, microsToRate, RATE_SCALE, rateToMicros, recordAmountChange, removeAmountChange, updateIncomeSource } from "@mizan/core/db/income"
 import { defaultsOf, livePrivacySetting } from "@mizan/core/db/privacy"
-import { formatDate } from "@mizan/core/domain/calendar/hijri"
 import { todayIso } from "@mizan/core/domain/calendar/month"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@mizan/core/domain/money/format"
+import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
 import type { Frequency } from "@mizan/core/schema"
 import { table } from "@mizan/core/store/store"
 import { Button } from "@/components/button"
@@ -21,7 +20,7 @@ import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing } from "@/theme"
-import { SHORT_DATE } from "@/utils/dates"
+import { SHORT_DATE, formatDay } from "@/utils/dates"
 
 const FREQUENCIES: Frequency[] = ["MONTHLY", "BIWEEKLY", "WEEKLY", "ONE_OFF"]
 const CURRENCIES = ["IQD", "USD"]
@@ -52,7 +51,7 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
   const usesPayDay = frequency === "MONTHLY"
   const oneOff = frequency === "ONE_OFF"
   const money = (value: number, code: string) => formatMoney(value, code, i18n.language)
-  const date = (iso: string) => formatDate(iso, i18n.language, false, SHORT_DATE)
+  const date = (iso: string) => formatDay(iso, i18n.language, SHORT_DATE)
   const timeline = source ? historyOf(source, history) : []
 
   useEffect(() => {

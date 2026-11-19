@@ -4,10 +4,9 @@ import { StyleSheet, View } from "react-native"
 
 import { currentValue, liveAssets, liveValuations } from "@mizan/core/db/assets"
 import { liveDeposits, liveGoals, savedOf, undoDeposit } from "@mizan/core/db/goals"
-import { formatDate } from "@mizan/core/domain/calendar/hijri"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { goalProjection } from "@mizan/core/domain/goal/projection"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import type { Goal } from "@mizan/core/schema"
 import { Button } from "@/components/button"
 import { ProgressBar } from "@/components/progress-bar"
@@ -16,7 +15,7 @@ import { Screen } from "@/components/screen"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery } from "@/hooks/use-core"
 import { spacing } from "@/theme"
-import { SHORT_DATE } from "@/utils/dates"
+import { SHORT_DATE, formatDay } from "@/utils/dates"
 
 const RECENT_ENTRIES = 3
 
@@ -29,7 +28,7 @@ export function Goals() {
   const today = todayIso()
   const assetValues = Object.fromEntries(assets.map((a) => [a.id, currentValue(a, valuations, today).value]))
   const money = (value: number, currency: string) => formatMoney(value, currency, i18n.language)
-  const date = (iso: string) => formatDate(iso, i18n.language, false, SHORT_DATE)
+  const date = (iso: string) => formatDay(iso, i18n.language, SHORT_DATE)
   const active = goals.filter((g) => g.status !== "ARCHIVED")
 
   function outlook(goal: Goal, saved: number) {

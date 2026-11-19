@@ -9,7 +9,7 @@ import { createLot, perGramFor, removeLot, updateLot } from "@mizan/core/db/meta
 import { defaultsOf, livePrivacySetting } from "@mizan/core/db/privacy"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { PURITIES, toMilligrams, valueOf } from "@mizan/core/domain/metal/valuation"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@mizan/core/domain/money/format"
+import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
 import type { Metal, MetalForm, WeightUnit } from "@mizan/core/schema"
 import { table } from "@mizan/core/store/store"
 import { Button } from "@/components/button"

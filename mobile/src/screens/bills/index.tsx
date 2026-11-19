@@ -3,10 +3,9 @@ import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
 import { liveRecurringExpenses, undoBillPaid, type BillDue } from "@mizan/core/db/expenses"
-import { formatDate } from "@mizan/core/domain/calendar/hijri"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { subscriptionSummary } from "@mizan/core/domain/expense/subscriptions"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import type { RecurringExpense } from "@mizan/core/schema"
 import { Button } from "@/components/button"
 import { LinkRow } from "@/components/link-row"
@@ -18,6 +17,7 @@ import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { useSelectedMonth } from "@/hooks/use-selected-month"
 import { useMetals, useMonthView } from "@/hooks/use-views"
 import { spacing } from "@/theme"
+import { formatDay } from "@/utils/dates"
 
 const DAY_MONTH: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }
 
@@ -32,7 +32,7 @@ export function Bills() {
   const { prices } = useMetals()
   const today = todayIso()
   const money = (amount: number, currency = base) => formatMoney(amount, currency, i18n.language)
-  const date = (iso: string) => formatDate(iso, i18n.language, false, DAY_MONTH)
+  const date = (iso: string) => formatDay(iso, i18n.language, DAY_MONTH)
   const bucketName = (id: string | null) => view.buckets.find((b) => b.id === id)?.name
   const withBucket = (text: string, id: string | null) => (bucketName(id) ? `${text} · ${bucketName(id)}` : text)
   const stillDue = view.bills.filter((b) => !b.occurrence).reduce((sum, b) => sum + b.expectedAmount, 0)

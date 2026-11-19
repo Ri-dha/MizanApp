@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { markBillPaid } from "@mizan/core/db/expenses"
 import { todayIso } from "@mizan/core/domain/calendar/month"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@mizan/core/domain/money/format"
+import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
 import { Button } from "@/components/button"
 import { DateField } from "@/components/date-field"
 import { Screen } from "@/components/screen"

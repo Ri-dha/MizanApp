@@ -3,9 +3,8 @@ import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
 import { currentAmount, updateIncomeSource } from "@mizan/core/db/income"
-import { formatDate } from "@mizan/core/domain/calendar/hijri"
 import { todayIso } from "@mizan/core/domain/calendar/month"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import type { IncomeSource } from "@mizan/core/schema"
 import { Button } from "@/components/button"
 import { LinkRow } from "@/components/link-row"
@@ -17,6 +16,7 @@ import { useSession } from "@/hooks/use-core"
 import { useSelectedMonth } from "@/hooks/use-selected-month"
 import { useMonthView } from "@/hooks/use-views"
 import { spacing } from "@/theme"
+import { formatDay } from "@/utils/dates"
 
 const DAY_MONTH: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }
 
@@ -29,7 +29,7 @@ export function Income() {
   const view = useMonthView(monthKey, startDay)
   const today = todayIso()
   const money = (amount: number, currency = base) => formatMoney(amount, currency, i18n.language)
-  const date = (iso: string) => formatDate(iso, i18n.language, false, DAY_MONTH)
+  const date = (iso: string) => formatDay(iso, i18n.language, DAY_MONTH)
   const irregular = view.receipts.filter((r) => !view.occurrences.some((o) => o.receipt?.id === r.id))
   const openReceipt = (params: Record<string, string>) => router.push({ pathname: "/income-receipt", params: { monthKey, ...params } })
 

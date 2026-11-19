@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
 import { trailingSavingRate, yearSummary, type YearSummary } from "@mizan/core/db/report"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import { Button } from "@/components/button"
 import { Group, Row } from "@/components/row"
 import { Screen } from "@/components/screen"

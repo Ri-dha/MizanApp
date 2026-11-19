@@ -6,7 +6,7 @@ import { StyleSheet, View } from "react-native"
 
 import { moveMoney } from "@mizan/core/db/plan"
 import { monthKeyFor, monthWindow, todayIso } from "@mizan/core/domain/calendar/month"
-import { formatMoney, toMinorUnits } from "@mizan/core/domain/money/format"
+import { formatMoney, toMinorUnits } from "@/utils/money"
 import { Button } from "@/components/button"
 import { Chips } from "@/components/chips"
 import { Screen } from "@/components/screen"

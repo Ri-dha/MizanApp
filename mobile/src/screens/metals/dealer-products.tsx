@@ -4,7 +4,7 @@ import { StyleSheet, View } from "react-native"
 
 import { api, unwrap } from "@mizan/core/api/client"
 import { readMeta, writeMeta } from "@mizan/core/db/meta"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import { Button } from "@/components/button"
 import { Group, Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"

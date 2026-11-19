@@ -4,7 +4,7 @@ import { StyleSheet, View } from "react-native"
 
 import { savingRate, spentByCategory } from "@mizan/core/db/report"
 import { shiftKey } from "@mizan/core/domain/calendar/month"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import type { MonthView } from "@mizan/core/db/monthView"
 import { LinkRow } from "@/components/link-row"
 import { MonthSwitcher } from "@/components/month-switcher"

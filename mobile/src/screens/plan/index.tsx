@@ -4,8 +4,7 @@ import { StyleSheet, View } from "react-native"
 
 import { undoMove } from "@mizan/core/db/plan"
 import { basisPointsToPercent } from "@mizan/core/domain/plan/figures"
-import { formatDate } from "@mizan/core/domain/calendar/hijri"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import { Button } from "@/components/button"
 import { MonthSwitcher } from "@/components/month-switcher"
 import { Notice } from "@/components/notice"
@@ -16,6 +15,7 @@ import { useSession } from "@/hooks/use-core"
 import { useSelectedMonth } from "@/hooks/use-selected-month"
 import { useMonthView } from "@/hooks/use-views"
 import { colors, radius, spacing, type, useBrandColors } from "@/theme"
+import { formatDay } from "@/utils/dates"
 
 const DAY: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }
 
@@ -96,7 +96,7 @@ export function Plan() {
               trailing={<Button testID={`undo-move-${index}`} variant="ghost" title={t("bills.undo")} onPress={() => void undoMove(move)} />}
             >
               <ThemedText>{`${nameOf(move.fromBucketId)} → ${nameOf(move.toBucketId)}`}</ThemedText>
-              <ThemedText variant="caption">{[formatDate(move.movedOn, i18n.language, false, DAY), money(move.amount), move.reason].filter(Boolean).join(" · ")}</ThemedText>
+              <ThemedText variant="caption">{[formatDay(move.movedOn, i18n.language, DAY), money(move.amount), move.reason].filter(Boolean).join(" · ")}</ThemedText>
             </Row>
           ))}
         </Group>

@@ -2,7 +2,7 @@ import { router, Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
 
 import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import { Button } from "@/components/button"
 import { LinkRow } from "@/components/link-row"
 import { Group, Row } from "@/components/row"

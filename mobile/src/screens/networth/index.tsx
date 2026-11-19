@@ -7,7 +7,7 @@ import { closeMonth, householdFigure, reopenMonth } from "@mizan/core/db/househo
 import { attributionSinceLastClose } from "@mizan/core/db/netWorthView"
 import { isMonthClosed, snapshotFor, trendPoints } from "@mizan/core/db/networth"
 import { shiftKey } from "@mizan/core/domain/calendar/month"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import { syncNow } from "@mizan/core/sync/engine"
 import { Button } from "@/components/button"
 import { Notice } from "@/components/notice"
@@ -16,6 +16,7 @@ import { Screen } from "@/components/screen"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession, useSyncStatus } from "@/hooks/use-core"
 import { currentMonthKey, useNetWorth } from "@/hooks/use-views"
+import { usePreferences } from "@/preferences"
 import { spacing, useBrandColors } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { formatMonthKey } from "@/utils/month"
@@ -43,6 +44,8 @@ export function NetWorth() {
   const negative = (v: number) => (v < 0 ? { color: brand.destructive } : null)
   const rate = money(Math.round(Number(view.rateSet.usdIqdMicros) / MICROS))
   const rateKind = t(`metals.rateKinds.${String(view.rateSet.rateKind)}`)
+  const prefs = usePreferences()
+  const usdIqd = Number(view.rateSet.usdIqdMicros) / MICROS
   const thisMonth = currentMonthKey(startDay)
   const months = Array.from({ length: MONTHS_LISTED }, (_, i) => shiftKey(thisMonth, -i))
   const closedTrend = trendPoints(view.closes, view.snapshots)
@@ -71,6 +74,7 @@ export function NetWorth() {
       <View style={styles.section}>
         <ThemedText variant="subhead">{t("networth.headline")}</ThemedText>
         <ThemedText testID="networth-value" variant="largeTitle" style={negative(view.current.netWorth)}>{money(view.current.netWorth)}</ThemedText>
+        {prefs.showUsd && usdIqd > 0 ? <ThemedText variant="title">{`≈ ${formatMoney(Math.round((view.current.netWorth / usdIqd) * 100), "USD", i18n.language)} (${rateKind})`}</ThemedText> : null}
         <ThemedText variant="caption">{t("networth.formula")}</ThemedText>
         {household !== null && household !== view.current.netWorth ? <ThemedText variant="subhead">{t("networth.householdFigure", { value: money(household) })}</ThemedText> : null}
       </View>

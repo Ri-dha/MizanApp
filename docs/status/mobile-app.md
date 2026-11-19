@@ -49,7 +49,14 @@
   cards shown, order, size and per-card options, synced as a private `home_layout` record, edited
   in Settings on both apps (the phone's Settings starts here); the server side is on MizanApi.
   Checked on the iPhone; the web editor passes its checks but was not opened in a browser.
-- Next: settings (theme, language, privacy, backup, notifications, CSV), guided tours; then step 6
+- Household, advisor, help and the customisable Home are on main (edfecfe; server cc9de7f). On
+  `feat/mobile-settings` (uncommitted): Settings on the phone (language with a restart for the
+  layout direction, theme, lock timing, biometrics, lock now, remove PIN, new recovery code,
+  privacy defaults, digits, Hijri dates, dollar figure, valuation reminder, the synced notification
+  switches, sign out, account deletion). Phone preferences live in `expo-sqlite/kv-store`, per
+  device like the web's; money and dates on the phone go through them (`@/utils/money`,
+  `formatDay`). Phone push is Phase 6.
+- Next: backup, data export and import, CSV import and spreadsheet export; guided tours; then step 6
   (receipts) and step 7 (charts: net worth trend, year by bucket, sell-or-hold; printing a report).
   A full reload locks the app (the data key is in memory); fast refresh does not. Reopened months
   still count as the last close in the attribution (core, same on the web). Blockers: none.

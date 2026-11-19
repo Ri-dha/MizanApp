@@ -4,9 +4,8 @@ import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
 import { currentValue, liveAssets, liveValuations, realisedGain, removeValuation, unsellAsset, valuationsOf } from "@mizan/core/db/assets"
-import { formatDate } from "@mizan/core/domain/calendar/hijri"
 import { todayIso } from "@mizan/core/domain/calendar/month"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import type { Asset, AssetType } from "@mizan/core/schema"
 import { rows } from "@mizan/core/store/store"
 import { Button } from "@/components/button"
@@ -14,12 +13,11 @@ import { Group, Row } from "@/components/row"
 import { Screen } from "@/components/screen"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
+import { usePreferences } from "@/preferences"
 import { spacing, useBrandColors } from "@/theme"
-import { SHORT_DATE } from "@/utils/dates"
+import { SHORT_DATE, formatDay } from "@/utils/dates"
 
 export const ASSET_TYPES: AssetType[] = ["VEHICLE", "PROPERTY", "ELECTRONICS", "EQUIPMENT", "FURNITURE", "LIVESTOCK", "OTHER"]
-/** The web's default reminder; the phone gains the preference with Settings (step 5). */
-const VALUATION_REMINDER_MONTHS = 6
 const RECENT_VALUATIONS = 3
 
 async function runningCosts(): Promise<Record<string, number>> {
@@ -38,10 +36,11 @@ export function Assets() {
   const valuations = useLiveQuery(liveValuations, [], [])
   const costs = useLiveQuery(runningCosts, [], {})
   const [showSold, setShowSold] = useState(false)
+  const prefs = usePreferences()
   const today = todayIso()
   const money = (v: number, currency = base) => formatMoney(v, currency, i18n.language)
   const signed = (v: number, currency = base) => (v > 0 ? "+" : "") + money(v, currency)
-  const date = (iso: string) => formatDate(iso, i18n.language, false, SHORT_DATE)
+  const date = (iso: string) => formatDay(iso, i18n.language, SHORT_DATE)
   const held = assets.filter((a) => a.status === "HELD")
   const sold = assets.filter((a) => a.status === "SOLD")
   const totalBase = held.reduce((sum, a) => sum + currentValue(a, valuations, today).baseValue, 0)
@@ -51,7 +50,7 @@ export function Assets() {
   function card(asset: Asset) {
     const value = currentValue(asset, valuations, today)
     const history = valuationsOf(asset.id, valuations).slice(0, RECENT_VALUATIONS)
-    const stale = value.monthsSinceBaseline >= VALUATION_REMINDER_MONTHS
+    const stale = value.monthsSinceBaseline >= prefs.valuationReminderMonths
     const change = value.value - asset.purchasePrice
     const cost = costs[asset.id] ?? 0
     const badges = [asset.liquidity === "ILLIQUID" ? t("assets.illiquidBadge") : null, asset.visibility === "PRIVATE" ? t("accounts.private") : null, stale ? t("assets.staleBadge") : null].filter(Boolean)

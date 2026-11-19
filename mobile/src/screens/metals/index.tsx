@@ -5,7 +5,7 @@ import { StyleSheet, View } from "react-native"
 
 import { priceTable, realisedGain, undoSale } from "@mizan/core/db/metals"
 import { fetchLiveQuotes } from "@mizan/core/market/prices"
-import { formatMoney } from "@mizan/core/domain/money/format"
+import { formatMoney } from "@/utils/money"
 import type { Metal } from "@mizan/core/schema"
 import { Button } from "@/components/button"
 import { LinkRow } from "@/components/link-row"
