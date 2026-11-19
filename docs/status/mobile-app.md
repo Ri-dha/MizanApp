@@ -70,9 +70,17 @@
   `feat/mobile-push`: regenerated API types, expo-notifications, a phone switch and test in
   Settings, tapped reminders open their screen. Without an EAS project the phone says it cannot
   receive notifications yet (checked on the iPhone).
-- Blocked on the owner: an EAS project (`eas init`, which writes `extra.eas.projectId`), an Apple
-  Developer account with an APNs key, and an FCM project for Android, all registered with EAS.
-- Next: once EAS exists, a real push to a device; then step 2, the store release (icons, splash,
-  listings in English and Arabic, privacy labels, TestFlight and Play internal testing).
-  A full reload locks the app (the data key is in memory); fast refresh does not. Reopened months
-  still count as the last close in the attribution (core, same on the web). Blockers: none.
+- Phase 6 step 1 is on main (app bbd9a42, server 2c6a8d4).
+- Phase 6 step 2 (uncommitted, `feat/mobile-release`): interim icon and splash (balance-scale
+  glyph on `#2e62c9`, sources in `mobile/assets/brand/`), `mobile/eas.json` (development,
+  simulator, preview, production; remote versions; Play internal track), the API and web origins
+  from `EXPO_PUBLIC_API_ORIGIN` / `EXPO_PUBLIC_WEB_ORIGIN` (a release build without the API origin
+  refuses to start), and `docs/store/`: listings in English and Arabic, privacy label and data
+  safety answers, the owner's release checklist. `expo config` resolves; icon and splash checked on the
+  iPhone simulator after a rebuild.
+- Blocked on the owner (all in `docs/store/release-checklist.md`): `eas init`, EAS environment
+  variables, Apple Developer with an APNs key, FCM, Play Console, a privacy policy URL. Open owner
+  decisions: export compliance (`ITSAppUsesNonExemptEncryption`), the final brand icon.
+- Next: once EAS exists, a real push to a device, TestFlight and Play internal testing. Phase 7
+  (OCR) stays on hold. A full reload locks the app (the data key is in memory); fast refresh does
+  not. Reopened months still count as the last close in the attribution (core, same on the web).

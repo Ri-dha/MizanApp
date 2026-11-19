@@ -6,7 +6,17 @@ import type { paths } from "@mizan/core/api/generated"
 import { sessionLost } from "@mizan/core/auth/session"
 
 /** The Mac's API in development: the iOS simulator shares localhost, Android gets it through adb reverse. */
-export const API_ORIGIN = process.env.EXPO_PUBLIC_API_ORIGIN ?? "http://localhost:8080"
+const DEV_API_ORIGIN = "http://localhost:8080"
+
+/** A release build without its server address must not quietly talk to a laptop (set it per EAS environment). */
+function apiOrigin(): string {
+  const configured = process.env.EXPO_PUBLIC_API_ORIGIN
+  if (configured) return configured
+  if (__DEV__) return DEV_API_ORIGIN
+  throw new Error("EXPO_PUBLIC_API_ORIGIN is not set for this build")
+}
+
+export const API_ORIGIN = apiOrigin()
 /** Invitation links open the web app, which production serves from the API's own origin. */
 export const WEB_ORIGIN = process.env.EXPO_PUBLIC_WEB_ORIGIN ?? API_ORIGIN
 
