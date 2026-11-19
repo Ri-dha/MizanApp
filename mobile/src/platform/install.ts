@@ -8,7 +8,7 @@ import { initialiseLock, installBiometrics } from "@mizan/core/lock/store"
 import { installApiClient } from "./api-client"
 import { biometricUnlock } from "./biometric-unlock"
 import { startLockWatcher } from "./lock-watcher"
-import { installAuthHost, startSync } from "./hosts"
+import { installAuthHost, installCompressionHost, startSync } from "./hosts"
 import { secureSecretStore, deviceSecret } from "./secure-secret-store"
 import { createTables, sqliteStore } from "./sqlite-store"
 
@@ -34,6 +34,7 @@ export async function installPlatform(): Promise<{ cipherVersion: string }> {
   installSecretStore(secureSecretStore)
   installApiClient()
   installAuthHost()
+  installCompressionHost()
   await loadSession()
   await initialiseVault()
   installBiometrics(biometricUnlock)

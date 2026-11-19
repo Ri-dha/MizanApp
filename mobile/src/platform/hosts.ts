@@ -1,8 +1,11 @@
+import { gunzipSync, gzipSync } from "fflate"
 import * as Device from "expo-device"
 
 import { clearLocalData, installAuth, loadSession, refreshProfile, rememberFromServer } from "@mizan/core/auth/session"
 import { META_KEYS } from "@mizan/core/db/meta"
 import { resetLock } from "@mizan/core/lock/store"
+import { dropExpiredPhotos, uploadPendingBlobs } from "@mizan/core/attachments/store"
+import { installCompression, runBackupIfDue } from "@mizan/core/backup/store"
 import { refreshQuotes } from "@mizan/core/market/prices"
 import { startSyncEngine } from "@mizan/core/sync/engine"
 import { onVaultReady, vaultReady } from "@mizan/core/vault/account"
@@ -19,7 +22,11 @@ export function installAuthHost() {
   })
 }
 
-/** ADR mobile-3: the phone's host around core's sync loop. Receipt photos and backups come in Phase 5. */
+/** ADR mobile-3: the phone's host around core's sync loop. */
+export function installCompressionHost() {
+  installCompression({ gzip: (bytes) => gzipSync(bytes), gunzip: (bytes) => gunzipSync(bytes) })
+}
+
 export function startSync() {
   startSyncEngine({
     lifecycle: appLifecycle,
@@ -32,9 +39,13 @@ export function startSync() {
       await rememberFromServer(null)
     },
     deviceName: () => `${Device.modelName ?? "Phone"} app`,
-    afterDuties: async () => {},
-    afterSync: async () => {
+    afterDuties: async () => {
+      await uploadPendingBlobs()
+      await dropExpiredPhotos()
+    },
+    afterSync: async (session) => {
       await refreshQuotes()
+      await runBackupIfDue(session)
     },
   })
 }

@@ -584,7 +584,10 @@
     "partOfSplit": "Part of a split purchase; edit each part on its own.",
     "relatedAsset": "Running cost of",
     "relatedAssetHint": "Fuel, repairs or insurance for an asset count towards its total cost of ownership.",
-    "suggested": "Suggested from your history; change it if it is wrong."
+    "suggested": "Suggested from your history; change it if it is wrong.",
+    "takePhoto": "Take photo",
+    "choosePhoto": "Choose photo",
+    "removeReceipt": "Remove photo"
   },
   "bills": {
     "title": "Bills",

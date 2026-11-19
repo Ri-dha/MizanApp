@@ -56,12 +56,16 @@
   switches, sign out, account deletion). Phone preferences live in `expo-sqlite/kv-store`, per
   device like the web's; money and dates on the phone go through them (`@/utils/money`,
   `formatDay`). Phone push is Phase 6.
-- Settings (6eff853) and Your data (ca6dbda) are on main; backup waits for step 6, which brings
-  the encrypted file upload it shares with receipts. On `feat/mobile-tours` (uncommitted): the
-  guided tours. Their definitions moved to core (`tours/tours.ts`); the web maps targets to
-  `data-tour` selectors, the phone pages the same steps in a sheet the first time each screen
-  comes into view, and Done opens the screen's help page. Replay is in Settings. Step 5 is done.
-- Next: step 6
-  (receipts) and step 7 (charts: net worth trend, year by bucket, sell-or-hold; printing a report).
+- Settings (6eff853), Your data (ca6dbda) and the tours (a5f96bc) are on main; step 5 is done.
+- Step 6 on `feat/mobile-receipts`: the attachment pipeline (encrypt per file, keep locally,
+  upload after the row syncs, fetch and decrypt, drop expired photos) and the backup store moved
+  to core with compression installed by each app; the phone runs uploads, photo expiry and the
+  daily backup in its sync loop. Phone: receipt photo on the transaction editor (camera or
+  library, 1200 px JPEG, colour) and a Backup screen (passphrase, automatic, back up now,
+  restore with preview). Backup checked on the iPhone (wrong passphrase refused, restore
+  preview correct); uploads stay pending locally because the dev object storage is not running.
+  The receipt photo crashed the first build (no photo permission text, see the learning on
+  prebuild); being rebuilt and not yet seen working.
+- Next: check the receipt photo on the rebuilt app; then step 7 (charts: net worth trend, year by bucket, sell-or-hold; printing a report).
   A full reload locks the app (the data key is in memory); fast refresh does not. Reopened months
   still count as the last close in the attribution (core, same on the web). Blockers: none.

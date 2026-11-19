@@ -60,7 +60,14 @@
           ]
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Mizan attaches the receipt photos you choose to your transactions. Photos are encrypted on this phone before they are uploaded.",
+          "cameraPermission": "Mizan uses the camera to photograph receipts for your transactions. Photos are encrypted on this phone before they are uploaded."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

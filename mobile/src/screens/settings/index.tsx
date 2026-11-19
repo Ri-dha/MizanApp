@@ -232,6 +232,10 @@ export function Settings() {
         </Group>
       </Section>
 
+      <Section title={t("backup.title")}>
+        <Group><LinkRow testID="settings-backup" href="/backup" last><ThemedText>{t("backup.title")}</ThemedText><ThemedText variant="caption" numberOfLines={2}>{t("backup.body")}</ThemedText></LinkRow></Group>
+      </Section>
+
       <Section title={t("data.title")}>
         <Group><LinkRow testID="settings-data" href="/data" last><ThemedText>{t("data.title")}</ThemedText><ThemedText variant="caption" numberOfLines={2}>{t("data.body")}</ThemedText></LinkRow></Group>
       </Section>

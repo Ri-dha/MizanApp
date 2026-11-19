@@ -29,6 +29,7 @@ import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing, useBrandColors } from "@/theme"
 import { dateOf, isoOf } from "@/utils/dates"
+import { ReceiptField } from "@/components/receipt-field"
 
 const TYPES: TransactionType[] = ["EXPENSE", "TRANSFER", "INCOME"]
 const CURRENCIES = ["IQD", "USD"]
@@ -40,7 +41,7 @@ const NO_ROWS: LedgerTransaction[] = []
 
 /**
  * FR-TRX-01: amount, a bucket and Save are the only required taps; the date defaults to today.
- * The same sheet edits an existing row when given its id. Receipts come with Phase 5 step 6.
+ * The same sheet edits an existing row when given its id.
  */
 export function TransactionEditor({ id }: { id?: string }) {
   const { t, i18n } = useTranslation()
@@ -67,6 +68,8 @@ export function TransactionEditor({ id }: { id?: string }) {
   const [suggested, setSuggested] = useState<string | null>(null)
   const [problem, setProblem] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(!id)
+  const [attachmentId, setAttachmentId] = useState<string | null>(null)
+  const [draftId] = useState(() => id ?? crypto.randomUUID())
 
   const monthKey = monthKeyFor(occurredOn, startDay)
   const buckets = useLiveQuery(async () => liveBucketsOf(planFor(await livePlans(), monthKey)?.id), [monthKey], NO_BUCKETS)
@@ -91,6 +94,7 @@ export function TransactionEditor({ id }: { id?: string }) {
     setCategory(existing.category ?? "")
     setNote(existing.note ?? "")
     setIsPrivate(existing.visibility === "PRIVATE")
+    setAttachmentId(existing.attachmentId ?? null)
     setLoaded(true)
   }, [existing, loaded])
 
@@ -137,7 +141,7 @@ export function TransactionEditor({ id }: { id?: string }) {
       category: category.trim() || null, payee: payee.trim() || null, note: note.trim() || null,
       counterpartyType: type === "TRANSFER" ? counterpartyType : null,
       counterpartyId: type === "TRANSFER" ? counterpartyId : null,
-      attachmentId: existing?.attachmentId ?? null,
+      attachmentId,
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
       assetId: type === "EXPENSE" ? (existing?.assetId ?? null) : null,
     }
@@ -226,6 +230,7 @@ export function TransactionEditor({ id }: { id?: string }) {
       <TextField testID="new-category" label={t("transactions.category")} value={category} onChangeText={(value) => { setCategory(value); setSuggested(null) }} />
       {suggested && suggested === category ? <ThemedText variant="caption">{t("transactions.suggested")}</ThemedText> : null}
       <TextField testID="new-note" label={t("income.note")} value={note} onChangeText={setNote} multiline />
+      <ReceiptField attachmentId={attachmentId} ownerType="TRANSACTION" ownerRecordId={draftId} onChange={setAttachmentId} />
       <ToggleRow testID="private" label={t("accounts.private")} value={isPrivate} onChange={setIsPrivate} />
       {problem ? <Notice tone="error" testID="editor-problem">{problem}</Notice> : null}
       {id ? <Button testID="delete-transaction" variant="destructive" title={t("accounts.delete")} onPress={() => void remove()} /> : null}
