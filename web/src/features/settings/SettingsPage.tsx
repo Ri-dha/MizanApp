@@ -11,11 +11,11 @@ import { NOTIFICATION_SWITCHES, saveNotificationSettings, useNotificationSetting
 import { disablePush, enablePush, isIosBrowser, pushState, sendTestPush, type PushState } from "@/notifications/push"
 import { Input } from "@/components/ui/input"
 import { applyImport, buildExport, downloadJson, ImportError, validateImport, type ImportPreview } from "@/data/export"
-import { assetsTable, downloadBlob, lotsTable, toCsv, toXlsx, transactionsTable, type Table } from "@/data/tabular"
-import { db, type Attachment } from "@/db/schema"
+import { downloadBlob, toCsv, toXlsx } from "@/data/tabular"
+import { EXPORT_COLUMNS, exportTableFor } from "@mizan/core/data/exportTables"
+import type { Attachment } from "@/db/schema"
 import { CsvImportDialog } from "./CsvImportDialog"
 import { clearBackupPassphrase, createBackup, openBackup, setAutomaticBackup, setBackupPassphrase, useBackupState, useBackups } from "@/backup/store"
-import { todayIso } from "@mizan/core/domain/calendar/month"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -79,20 +79,8 @@ export function SettingsPage() {
     }
   }
   const labels = (keys: string[]) => keys.map((k) => t(`exports.columns.${k}`))
-  async function tableOf(kind: "transactions" | "metals" | "assets"): Promise<Table> {
-    if (kind === "transactions") {
-      const [rows, buckets] = await Promise.all([db.transactions.filter((x) => x.deletedAt === null).toArray(), db.buckets.toArray()])
-      return transactionsTable(rows.sort((a, b) => (a.occurredOn < b.occurredOn ? -1 : 1)), buckets, labels(["date", "type", "amount", "currency", "baseAmount", "bucket", "category", "payee", "note"]))
-    }
-    if (kind === "metals") {
-      const [lots, disposalLots] = await Promise.all([db.metalLots.filter((x) => x.deletedAt === null).toArray(), db.metalDisposalLots.filter((x) => x.deletedAt === null).toArray()])
-      return lotsTable(lots, disposalLots, labels(["date", "metal", "purity", "form", "weightGrams", "remainingGrams", "metalCost", "makingCharge", "fees", "currency", "dealer", "note"]))
-    }
-    const [assets, valuations] = await Promise.all([db.assets.filter((x) => x.deletedAt === null).toArray(), db.assetValuations.filter((x) => x.deletedAt === null).toArray()])
-    return assetsTable(assets, valuations, todayIso(), labels(["name", "type", "status", "purchaseDate", "purchasePrice", "currency", "value", "valuedOn", "liquidity", "soldOn", "salePrice"]))
-  }
   async function exportTable(kind: "transactions" | "metals" | "assets", format: "csv" | "xlsx") {
-    const table = await tableOf(kind)
+    const table = await exportTableFor(kind, labels(EXPORT_COLUMNS[kind]))
     const stamp = new Date().toISOString().slice(0, 10)
     if (format === "csv") downloadBlob(`mizan-${kind}-${stamp}.csv`, new Blob([toCsv(table)], { type: "text/csv;charset=utf-8" }))
     else downloadBlob(`mizan-${kind}-${stamp}.xlsx`, new Blob([toXlsx(table, t(`exports.${kind}`), i18n.language === "ar")], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }))

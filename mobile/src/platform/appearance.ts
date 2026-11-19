@@ -16,11 +16,13 @@ export function applyTheme(choice: ThemeChoice) {
   Appearance.setColorScheme(choice === "system" ? "unspecified" : choice)
 }
 
-/** React Native fixes the layout direction at launch, so a change of direction waits for the next start. */
+/**
+ * React Native fixes the layout direction at launch and remembers the forced value across launches,
+ * so the wanted direction is always recorded and a change shows on the next start.
+ */
 export function directionNeedsRestart(locale: Locale): boolean {
   const rtl = locale === "ar"
-  if (I18nManager.isRTL === rtl) return false
   I18nManager.allowRTL(rtl)
   I18nManager.forceRTL(rtl)
-  return true
+  return I18nManager.isRTL !== rtl
 }

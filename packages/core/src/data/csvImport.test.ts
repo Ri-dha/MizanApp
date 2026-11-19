@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import type { LedgerTransaction } from "@/db/schema"
+import type { LedgerTransaction } from "../schema"
 import { guessMapping, guessPositiveIs, mapRows, parseCsv, parseDate } from "./csvImport"
 
 const FILE = '﻿Date,Description,Amount,Category\r\n2026-09-05,"Zain, top-up",-10000,Phone\r\n13/09/2026,Salary,1500000,\r\nbad,Nothing,x,\r\n'

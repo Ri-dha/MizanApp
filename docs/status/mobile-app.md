@@ -56,7 +56,14 @@
   switches, sign out, account deletion). Phone preferences live in `expo-sqlite/kv-store`, per
   device like the web's; money and dates on the phone go through them (`@/utils/money`,
   `formatDay`). Phone push is Phase 6.
-- Next: backup, data export and import, CSV import and spreadsheet export; guided tours; then step 6
+- Settings are on main (6eff853). On `feat/mobile-data` (uncommitted): Your data on the phone
+  (JSON export and import, transactions CSV import with remembered column mappings, CSV and
+  Excel exports per record kind) through the share sheet and the document picker (new native
+  modules expo-sharing and expo-document-picker; the dev build was rebuilt). Spreadsheet tables,
+  CSV parsing and writing imported rows moved to core. Exports checked on the iPhone; importing
+  was not, because the simulator's share sheet does not take taps to save a file to pick.
+  Backup waits for step 6, which brings the encrypted file upload it shares with receipts.
+- Next: guided tours; then step 6
   (receipts) and step 7 (charts: net worth trend, year by bucket, sell-or-hold; printing a report).
   A full reload locks the app (the data key is in memory); fast refresh does not. Reopened months
   still count as the last close in the attribution (core, same on the web). Blockers: none.

@@ -230,6 +230,10 @@ export function Settings() {
         </Group>
       </Section>
 
+      <Section title={t("data.title")}>
+        <Group><LinkRow testID="settings-data" href="/data" last><ThemedText>{t("data.title")}</ThemedText><ThemedText variant="caption" numberOfLines={2}>{t("data.body")}</ThemedText></LinkRow></Group>
+      </Section>
+
       <Section title={t("settings.account")}>
         {pendingDeletion !== null ? <Notice tone="error">{t("account.deletionPending", { date: date(pendingDeletion) })}</Notice> : null}
         <View style={styles.buttons}>

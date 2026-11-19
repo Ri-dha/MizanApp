@@ -9,14 +9,11 @@ import { Field } from "@/components/Field"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { guessMapping, guessPositiveIs, headerSignature, mapRows, parseCsv, type CsvField, type CsvProfile, type CsvTable, type ImportedRow } from "@/data/csvImport"
-import { META_KEYS, readMeta, writeMeta } from "@mizan/core/db/meta"
-import { suggestCategory } from "@mizan/core/domain/categorise"
+import { guessMapping, guessPositiveIs, mapRows, parseCsv, type CsvField, type CsvTable, type ImportedRow } from "@/data/csvImport"
+import { recallProfile, rememberProfile, writeImportedRows } from "@mizan/core/data/csvWrite"
 import { Input } from "@/components/ui/input"
 import { liveBucketsOf, livePlans, planFor } from "@mizan/core/db/plan"
 import { db, type TransactionType } from "@/db/schema"
-import { createTransaction } from "@mizan/core/db/transactions"
-import { monthKeyFor } from "@mizan/core/domain/calendar/month"
 import { toMinorUnits } from "@/app/money"
 
 const FIELDS: CsvField[] = ["ignore", "date", "amount", "type", "payee", "category", "note"]
@@ -43,8 +40,7 @@ export function CsvImportDialog({ file, onClose }: { file: File | null; onClose:
   if (file && !table) {
     void file.text().then(async (text) => {
       const parsed = parseCsv(text)
-      const profiles = (await readMeta<CsvProfile[]>(META_KEYS.csvProfiles)) ?? []
-      const known = profiles.find((p) => p.signature === headerSignature(parsed.headers))
+      const known = await recallProfile(parsed.headers)
       setTable(parsed)
       if (known) {
         setMapping(known.mapping)
@@ -66,21 +62,9 @@ export function CsvImportDialog({ file, onClose }: { file: File | null; onClose:
   async function commit() {
     setBusy(true)
     try {
-      if (table && profileName.trim()) {
-        const profiles = ((await readMeta<CsvProfile[]>(META_KEYS.csvProfiles)) ?? []).filter((p) => p.signature !== headerSignature(table.headers))
-        await writeMeta(META_KEYS.csvProfiles, [...profiles, { name: profileName.trim(), signature: headerSignature(table.headers), mapping, positiveIs, bucketId: bucketId === NONE ? null : bucketId }])
-      }
-      await db.transaction("rw", db.tables, async () => {
-        for (const row of importable) {
-          const suggestion = row.type === "EXPENSE" && !row.category ? suggestCategory(row.payee ?? "", row.note ?? "", existing) : null
-          await createTransaction({
-            type: row.type, occurredOn: row.occurredOn, monthKey: monthKeyFor(row.occurredOn, startDay), amount: row.amount, currency: base, fxRateMicros: 1_000_000,
-            bucketId: row.type === "INCOME" ? null : bucketId !== NONE ? bucketId : suggestion?.bucketId ?? null, category: row.category ?? suggestion?.category ?? null, payee: row.payee, note: row.note,
-            counterpartyType: null, counterpartyId: null, attachmentId: null, visibility: "SHARED",
-          })
-        }
-      })
-      toast(t("csv.imported", { count: importable.length }))
+      if (table && profileName.trim()) await rememberProfile(profileName.trim(), table.headers, mapping, positiveIs, bucketId === NONE ? null : bucketId)
+      const written = await writeImportedRows(importable, existing, base, startDay, bucketId === NONE ? null : bucketId)
+      toast(t("csv.imported", { count: written }))
       close()
     } finally {
       setBusy(false)
