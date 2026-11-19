@@ -17,6 +17,7 @@ import { useSession } from "@/hooks/use-core"
 import { useMetals } from "@/hooks/use-views"
 import { spacing, useBrandColors } from "@/theme"
 import { describeError } from "@/utils/errors"
+import { DealerProducts } from "./dealer-products"
 import { grams, wholeFromMicros } from "./format"
 
 const METALS: Metal[] = ["GOLD", "SILVER"]
@@ -118,6 +119,8 @@ export function Metals() {
         </Group>
         <Button testID="refresh-prices" variant="secondary" title={t("metals.refresh")} loading={refreshing} onPress={() => void refresh()} />
       </View>
+
+      <DealerProducts currency={base} />
 
       <View style={styles.section}>
         <ThemedText variant="headline">{t("metals.prices")}</ThemedText>

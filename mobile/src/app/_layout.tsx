@@ -63,6 +63,8 @@ function Routes() {
         <Stack.Screen name="metal-zakat" options={{ presentation: "formSheet", sheetAllowedDetents: [0.8, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="metal-settings" options={{ presentation: "formSheet", sheetAllowedDetents: [0.8, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="metal-explain" options={{ presentation: "formSheet", sheetAllowedDetents: [0.6, 1], sheetGrabberVisible: true }} />
+        <Stack.Screen name="asset-edit" options={{ presentation: "formSheet", sheetAllowedDetents: [0.8, 1], sheetGrabberVisible: true }} />
+        <Stack.Screen name="asset-action" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
         <Stack.Screen name="account-edit" options={{ presentation: "formSheet", sheetAllowedDetents: [0.7, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="income-source" options={{ presentation: "formSheet", sheetAllowedDetents: [0.8, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="income-receipt" options={{ presentation: "formSheet", sheetAllowedDetents: [0.6, 1], sheetGrabberVisible: true }} />

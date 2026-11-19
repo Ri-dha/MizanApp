@@ -39,9 +39,11 @@
   start over on the phone; checked live on the iPhone.
 - Phase 5 steps 1–2 and the start of step 3 are on main (cd53e6a). The ledger is on main
   (d8add28), the plan and move money (df0605e), goals (4b12dcd), debts, bills and income
-  (7a3e1fd); step 3 is complete. Step 4 on `feat/mobile-wealth` (uncommitted): cash accounts
-  and gold and silver (lots, sell with undo, price table, refresh, override, zakat, market
-  settings, explainer), checked on the iPhone.
-- Next: other assets, net worth with month close, reports; dealer products. Sell-or-hold has a
-  chart and waits for step 7. A full reload locks the app (the data key is in memory); fast
-  refresh does not. Blockers: none.
+  (7a3e1fd), cash accounts and gold and silver (fc2525c). Step 4 is complete on
+  `feat/mobile-networth` (uncommitted): other assets (valuations, sale, undo), net worth with
+  month close and the "what moved it" breakdown (now `attributionSinceLastClose` in core, used by
+  both apps), month and year reports, dealer products; checked on the iPhone. Charts (net worth
+  trend, year by bucket, sell-or-hold) and printing a report wait for step 7.
+- Next: step 5 (household, advisor view, settings, help, tours). A full reload locks the app
+  (the data key is in memory); fast refresh does not. Reopened months still count as the last
+  close in the attribution (core behaviour, same on the web). Blockers: none.

@@ -17,8 +17,7 @@ import { syncNow } from "@/sync/engine"
 import { usePreferences } from "@/app/preferences"
 import { useNetWorth } from "./useNetWorth"
 import { useMetals } from "@/features/metals/useMetals"
-import { attributeChange, type Reading } from "@mizan/core/domain/networth/attribution"
-import { toBaseAmount } from "@mizan/core/db/income"
+import { attributionSinceLastClose } from "@mizan/core/db/netWorthView"
 import { HelpButton } from "@/components/HelpButton"
 import { SourceCredit } from "@/components/SourceCredit"
 import { useScreenTour } from "@/tours/useTour"
@@ -36,23 +35,7 @@ export function NetWorthPage() {
   const prefs = usePreferences()
   useScreenTour("networth")
   const metals = useMetals()
-  const lastClosed = trendPoints(view.closes, view.snapshots).at(-1)
-  const attribution = (() => {
-    if (!lastClosed) return null
-    const from = lastClosed.takenAt.slice(0, 10)
-    const amount = (cls: string) => lastClosed.composition.find((c) => c.assetClass === cls)?.amount ?? 0
-    const before: Reading = { cash: amount("CASH"), metals: amount("METALS"), receivables: amount("RECEIVABLES"), otherAssets: amount("VEHICLES") + amount("PROPERTY") + amount("OTHER_ASSETS"), liabilities: lastClosed.totalLiabilities }
-    const now = view.current
-    const nowAmount = (cls: string) => now.composition.find((c) => c.assetClass === cls)?.amount ?? 0
-    const after: Reading = { cash: nowAmount("CASH"), metals: nowAmount("METALS"), receivables: nowAmount("RECEIVABLES"), otherAssets: nowAmount("VEHICLES") + nowAmount("PROPERTY") + nowAmount("OTHER_ASSETS"), liabilities: now.totalLiabilities }
-    const lotCost = (lot: typeof metals.lots[number]) => toBaseAmount(lot.metalCost + lot.makingCharge + lot.fees, lot.fxRateMicros)
-    const purchases = metals.lots.filter((l) => l.purchaseDate > from).reduce((s, l) => s + lotCost(l), 0)
-      + view.assets.filter((a) => a.purchaseDate !== null && a.purchaseDate > from).reduce((s, a) => s + toBaseAmount(a.purchasePrice, a.fxRateMicros), 0)
-    const soldLots = new Set(metals.disposals.filter((d) => d.soldOn > from).map((d) => d.id))
-    const disposals = metals.disposalLots.filter((dl) => soldLots.has(dl.disposalId)).reduce((s, dl) => s + dl.metalCost + dl.makingCharge + dl.fees, 0)
-      + view.assets.filter((a) => a.status === "SOLD" && a.soldOn !== null && a.soldOn > from).reduce((s, a) => s + toBaseAmount(a.purchasePrice, a.fxRateMicros), 0)
-    return { since: lastClosed.monthKey, ...attributeChange(before, after, { purchases, disposals }) }
-  })()
+  const attribution = attributionSinceLastClose(view, metals)
   const usdIqd = Number(view.rateSet.usdIqdMicros) / 1e6
   const inUsd = (v: number) => formatMoney(Math.round((v / usdIqd) * 100), "USD", i18n.language)
   const money = (v: number) => formatMoney(v, base, i18n.language)
