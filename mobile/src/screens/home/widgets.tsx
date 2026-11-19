@@ -108,7 +108,7 @@ function DollarCard({ widget }: WidgetProps) {
   const micros = worth.metals.prices.usdIqdMicros
   if (micros <= 0) return null
   return (
-    <Card testID="home-dollar" compact={widget.size === "compact"} title={t("prices.dollarToday")} href="/metals"
+    <Card testID="home-dollar" compact={widget.size === "compact"} title={t("prices.dollarToday")} href="/prices"
       figure={money(Math.round(micros / MICROS), "IQD")} detail={worth.metals.prices.rateSource.label} />
   )
 }

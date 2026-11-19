@@ -1,21 +1,8 @@
 import { useEffect, useState } from "react"
 
-import { api, unwrap } from "@/api/client"
-import { readMeta, writeMeta } from "@mizan/core/db/meta"
-import type { Quote } from "./store"
+import { cachedHistory, refreshHistory, type History, type HistoryInstrument } from "@mizan/core/market/series"
 
-export type HistoryInstrument = Quote["instrument"]
-export type History = Partial<Record<HistoryInstrument, Record<string, number>>>
-
-const KEY = "market.history"
-const DAYS = 365
-
-async function fetchHistory(instrument: HistoryInstrument): Promise<Record<string, number>> {
-  const to = new Date().toISOString().slice(0, 10)
-  const from = new Date(Date.now() - DAYS * 86_400_000).toISOString().slice(0, 10)
-  const points = await unwrap(api.GET("/api/v1/market/history", { params: { query: { instrument, from, to } } }))
-  return Object.fromEntries(points.map((p) => [p.day ?? "", p.priceMicros ?? 0]))
-}
+export type { History, HistoryInstrument } from "@mizan/core/market/series"
 
 /** Daily closes for charts (FR-MTL-08): served from the local copy, refreshed when online. */
 export function useHistory(instruments: HistoryInstrument[]): History {
@@ -24,18 +11,10 @@ export function useHistory(instruments: HistoryInstrument[]): History {
   useEffect(() => {
     let cancelled = false
     void (async () => {
-      const cached = (await readMeta<History>(KEY)) ?? {}
+      const cached = await cachedHistory()
       if (!cancelled) setHistory(cached)
       if (!navigator.onLine) return
-      const fresh: History = { ...cached }
-      for (const instrument of key.split(",") as HistoryInstrument[]) {
-        try {
-          fresh[instrument] = await fetchHistory(instrument)
-        } catch {
-          // keep the cached series for this instrument
-        }
-      }
-      await writeMeta(KEY, fresh)
+      const fresh = await refreshHistory(key.split(",") as HistoryInstrument[])
       if (!cancelled) setHistory(fresh)
     })()
     return () => { cancelled = true }

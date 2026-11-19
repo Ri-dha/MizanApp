@@ -18,6 +18,7 @@ import { useMetals } from "@/hooks/use-views"
 import { spacing, useBrandColors } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { DealerProducts } from "./dealer-products"
+import { SellOrHold } from "./sell-or-hold"
 import { grams, wholeFromMicros } from "./format"
 import { useScreenTour } from "@/tours"
 
@@ -121,6 +122,8 @@ export function Metals() {
         </Group>
         <Button testID="refresh-prices" variant="secondary" title={t("metals.refresh")} loading={refreshing} onPress={() => void refresh()} />
       </View>
+
+      <SellOrHold view={view} currency={base} />
 
       <DealerProducts currency={base} />
 

@@ -11,7 +11,7 @@ export const manualPages = (language: string): ManualPage[] => pagesIn(PAGES, la
 const PHONE_SCREENS: Record<string, Href> = {
   "/": "/", "/transactions": "/ledger", "/plan": "/plan", "/goals": "/goals", "/debts": "/debts", "/bills": "/bills",
   "/income": "/income", "/metals": "/metals", "/networth": "/networth", "/accounts": "/accounts", "/assets": "/assets",
-  "/report": "/report", "/household": "/household", "/sync": "/sync",
+  "/report": "/report", "/household": "/household", "/sync": "/sync", "/prices": "/prices", "/settings": "/settings",
 }
 
 export const phoneScreenFor = (webPath: string | null): Href | null => (webPath ? PHONE_SCREENS[webPath] ?? null : null)

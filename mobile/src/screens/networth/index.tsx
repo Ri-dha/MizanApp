@@ -10,6 +10,7 @@ import { shiftKey } from "@mizan/core/domain/calendar/month"
 import { formatMoney } from "@/utils/money"
 import { syncNow } from "@mizan/core/sync/engine"
 import { Button } from "@/components/button"
+import { LineChart } from "@/components/charts/line-chart"
 import { Notice } from "@/components/notice"
 import { Group, Row } from "@/components/row"
 import { Screen } from "@/components/screen"
@@ -113,18 +114,15 @@ export function NetWorth() {
         </View>
       ) : null}
 
-      {closedTrend.length > 0 ? (
-        <View style={styles.section}>
-          <ThemedText variant="headline">{t("networth.trend")}</ThemedText>
-          <Group>
-            {[...closedTrend].reverse().map((point, index) => (
-              <Row key={point.monthKey} last={index === closedTrend.length - 1} trailing={<ThemedText style={negative(point.netWorth)}>{money(point.netWorth)}</ThemedText>}>
-                <ThemedText>{formatMonthKey(point.monthKey, i18n.language)}</ThemedText>
-              </Row>
-            ))}
-          </Group>
-        </View>
-      ) : null}
+      <View style={styles.section}>
+        <ThemedText variant="headline">{t("networth.trend")}</ThemedText>
+        <ThemedText variant="caption">{t("networth.trendBody")}</ThemedText>
+        <LineChart
+          testID="networth-trend"
+          labels={[...closedTrend.map((p) => formatMonthKey(p.monthKey, i18n.language)), t("networth.now")]}
+          series={[{ key: "netWorth", label: t("networth.title"), colour: brand.primary, values: [...closedTrend.map((p) => p.netWorth), view.current.netWorth] }]}
+        />
+      </View>
 
       <View style={styles.section}>
         <ThemedText variant="headline">{t("networth.months")}</ThemedText>

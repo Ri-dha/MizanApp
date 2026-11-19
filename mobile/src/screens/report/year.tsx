@@ -6,6 +6,7 @@ import { StyleSheet, View } from "react-native"
 import { trailingSavingRate, yearSummary, type YearSummary } from "@mizan/core/db/report"
 import { formatMoney } from "@/utils/money"
 import { Button } from "@/components/button"
+import { StackedBarChart } from "@/components/charts/bar-chart"
 import { Group, Row } from "@/components/row"
 import { Screen } from "@/components/screen"
 import { ThemedText } from "@/components/themed-text"
@@ -16,7 +17,7 @@ import { formatMonthKey } from "@/utils/month"
 
 const TOP_CATEGORIES = 8
 
-/** FR-RPT-03/04/05: the year at a glance, spending per bucket and category, saving rate; the chart comes with step 7. */
+/** FR-RPT-03/04/05: the year at a glance, spending per bucket and category, saving rate. */
 export function YearReport() {
   const { t, i18n } = useTranslation()
   const brand = useBrandColors()
@@ -34,6 +35,7 @@ export function YearReport() {
   const bucketIds = summary ? [...new Set(summary.months.flatMap((m) => Object.keys(m.byBucket)))] : []
   const bucketName = (id: string) => summary?.months.map((m) => m.bucketNames[id]).find(Boolean) ?? id
   const bucketTotal = (id: string) => summary?.months.reduce((s, m) => s + (m.byBucket[id] ?? 0), 0) ?? 0
+  const monthShort = (key: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { month: "short" }).format(new Date(Date.UTC(year, Number(key.slice(5, 7)) - 1, 1)))
   const hasNetWorth = summary?.netWorthStart != null && summary?.netWorthEnd != null
 
   return (
@@ -66,6 +68,11 @@ export function YearReport() {
           {bucketIds.length > 0 ? (
             <View style={styles.section}>
               <ThemedText variant="headline">{t("report.spendingByBucket")}</ThemedText>
+              <StackedBarChart
+                testID="year-by-bucket"
+                labels={summary.months.map((m) => monthShort(m.key))}
+                stacks={bucketIds.map((id, i) => ({ key: id, label: bucketName(id), colour: brand.chart[i % brand.chart.length], values: summary.months.map((m) => m.byBucket[id] ?? 0) }))}
+              />
               <Group>
                 {bucketIds.map((id, index) => (
                   <Row key={id} last={index === bucketIds.length - 1} trailing={<ThemedText>{money(bucketTotal(id))}</ThemedText>}><ThemedText>{bucketName(id)}</ThemedText></Row>

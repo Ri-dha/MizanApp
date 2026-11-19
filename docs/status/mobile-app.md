@@ -57,15 +57,14 @@
   device like the web's; money and dates on the phone go through them (`@/utils/money`,
   `formatDay`). Phone push is Phase 6.
 - Settings (6eff853), Your data (ca6dbda) and the tours (a5f96bc) are on main; step 5 is done.
-- Step 6 on `feat/mobile-receipts`: the attachment pipeline (encrypt per file, keep locally,
-  upload after the row syncs, fetch and decrypt, drop expired photos) and the backup store moved
-  to core with compression installed by each app; the phone runs uploads, photo expiry and the
-  daily backup in its sync loop. Phone: receipt photo on the transaction editor (camera or
-  library, 1200 px JPEG, colour) and a Backup screen (passphrase, automatic, back up now,
-  restore with preview). Backup checked on the iPhone (wrong passphrase refused, restore
-  preview correct); uploads stay pending locally because the dev object storage is not running.
-  The receipt photo crashed the first build (no photo permission text, see the learning on
-  prebuild); being rebuilt and not yet seen working.
-- Next: check the receipt photo on the rebuilt app; then step 7 (charts: net worth trend, year by bucket, sell-or-hold; printing a report).
+- Step 6 is on main (4b11fef): receipts and backup, with the attachment pipeline and backup store
+  in core. The receipt photo is now checked on the iPhone (library permission prompt, picker,
+  encrypted attachment and preview); the photo library no longer asks for permission first.
+  Uploads stay pending locally while the dev object storage is not running.
+- Step 7 on `feat/mobile-charts` (uncommitted): charts with react-native-svg (ADR mobile-6):
+  net worth trend, year spending by bucket, sell-or-hold on gold and silver, and the Prices
+  screen (series, ranges, chart, every change) reachable from More, Home's dollar card and help.
+  Price series and history moved to core. Checked on the iPhone with the stub price feed.
+- Next: printing a report; a Phase 5 parity review; then Phase 6 (push and release).
   A full reload locks the app (the data key is in memory); fast refresh does not. Reopened months
   still count as the last close in the attribution (core, same on the web). Blockers: none.

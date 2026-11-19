@@ -36,6 +36,7 @@ export function More() {
     { id: "income", href: "/income", label: t("nav.income"), audiences: MEMBERS },
     { id: "bills", href: "/bills", label: t("nav.bills"), audiences: MEMBERS },
     { id: "debts", href: "/debts", label: t("nav.debts"), audiences: MEMBERS },
+    { id: "prices", href: "/prices", label: t("nav.prices"), audiences: EVERYONE },
     { id: "household", href: "/household", label: t("household.title"), audiences: EVERYONE },
     { id: "help", href: "/help", label: t("help.title"), audiences: EVERYONE },
     { id: "settings", href: "/settings", label: t("nav.settings"), audiences: EVERYONE },

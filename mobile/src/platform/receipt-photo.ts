@@ -13,8 +13,8 @@ export type PhotoSource = "camera" | "library"
  * phone keeps colour, since the native resizer has no grey filter.
  */
 export async function takeReceiptPhoto(source: PhotoSource): Promise<ArrayBuffer | null> {
-  const allowed = source === "camera" ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync()
-  if (!allowed.granted) return null
+  // The system photo picker runs outside the app and needs no permission; only the camera does.
+  if (source === "camera" && !(await ImagePicker.requestCameraPermissionsAsync()).granted) return null
   const options: ImagePicker.ImagePickerOptions = { mediaTypes: ["images"], quality: 1 }
   const picked = source === "camera" ? await ImagePicker.launchCameraAsync(options) : await ImagePicker.launchImageLibraryAsync(options)
   const asset = picked.canceled ? null : picked.assets[0]
