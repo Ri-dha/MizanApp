@@ -52,6 +52,7 @@ export function HelpPage() {
         ))}
         {shown.length === 0 && <p className="opacity-70">{t("help.noMatch")}</p>}
       </div>
+      <a href={`/privacy.html#${lang}`} className="text-sm underline">{t("help.privacy")}</a>
     </div>
   )
 }

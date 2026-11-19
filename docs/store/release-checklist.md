@@ -17,7 +17,7 @@ The code side is ready (`mobile/eas.json`, icons, splash). These need the owner'
 6. Build and submit:
    `npx eas-cli@latest build -p ios --profile production --auto-submit` (TestFlight) and
    `npx eas-cli@latest build -p android --profile production --auto-submit` (Play internal track).
-7. Store pages: paste `listing-en.md` and `listing-ar.md`, answer from `privacy.md`, add
+7. Store pages: privacy policy URL `<web origin>/privacy.html`; paste `listing-en.md` and `listing-ar.md`, answer from `privacy.md`, add
    screenshots (iPhone 6.9", Android phone) in both languages, and a demo account for review.
 8. Check on a real device: a reminder arrives, PBKDF2 unlock time on a mid-range Android.
 
@@ -27,4 +27,5 @@ The code side is ready (`mobile/eas.json`, icons, splash). These need the owner'
   exempt, but the answer is a legal one; App Store Connect asks on every upload until it is set.
 - The icon: `mobile/assets/brand/` holds an interim balance-scale glyph; replace it with the real
   brand artwork (see its README for how the PNGs are rendered).
-- Privacy policy URL and support URL.
+- The contact address in `web/public/privacy.html` (both languages), and a support URL.
+  The policy text describes what the code does today; have it reviewed before publishing.

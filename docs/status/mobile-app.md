@@ -78,8 +78,12 @@
   refuses to start), and `docs/store/`: listings in English and Arabic, privacy label and data
   safety answers, the owner's release checklist. `expo config` resolves; icon and splash checked on the
   iPhone simulator after a rebuild.
+- Step 2 is on main (5bea363). On `feat/privacy-page` (uncommitted): a public bilingual privacy
+  policy at `/privacy.html` (static, outside the service worker's app fallback), linked from Help on
+  the web and the phone (in-app browser); checked in a browser in Arabic and dark mode. Also fixed: the More tab lost its menu when a
+  More screen was opened from Home, a reminder or a link (no initial route on the More stack).
 - Blocked on the owner (all in `docs/store/release-checklist.md`): `eas init`, EAS environment
-  variables, Apple Developer with an APNs key, FCM, Play Console, a privacy policy URL. Open owner
+  variables, Apple Developer with an APNs key, FCM, Play Console, the policy's contact address. Not logged in to Expo on this Mac. Open owner
   decisions: export compliance (`ITSAppUsesNonExemptEncryption`), the final brand icon.
 - Next: once EAS exists, a real push to a device, TestFlight and Play internal testing. Phase 7
   (OCR) stays on hold. A full reload locks the app (the data key is in memory); fast refresh does

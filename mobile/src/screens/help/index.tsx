@@ -1,6 +1,8 @@
 import { Stack } from "expo-router"
+import { openBrowserAsync } from "expo-web-browser"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { Pressable } from "react-native"
 
 import { searchPages } from "@mizan/core/help/manual"
 import { LinkRow } from "@/components/link-row"
@@ -8,6 +10,7 @@ import { Group, Row } from "@/components/row"
 import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
+import { WEB_ORIGIN } from "@/platform/api-client"
 import { manualPages } from "./pages"
 
 /** The manual, bundled with the app so it reads offline; the same Markdown builds the web's /docs. */
@@ -28,6 +31,11 @@ export function Help() {
             <ThemedText variant="caption" numberOfLines={2}>{page.lang !== language ? `${page.summary} · ${t("help.englishOnly")}` : page.summary}</ThemedText>
           </LinkRow>
         ))}
+      </Group>
+      <Group>
+        <Pressable testID="help-privacy" accessibilityRole="link" onPress={() => void openBrowserAsync(`${WEB_ORIGIN}/privacy.html#${language}`)}>
+          <Row last trailing={<ThemedText variant="subhead">↗</ThemedText>}><ThemedText>{t("help.privacy")}</ThemedText></Row>
+        </Pressable>
       </Group>
     </Screen>
   )

@@ -9,6 +9,7 @@ kind reach the server). No analytics, advertising or crash-reporting SDK is in t
 | Email address or phone number | App functionality (account) | The sign-in identifier |
 | Name | App functionality | The display name shown to household members |
 | Device ID | App functionality | The Expo push token, only when the user turns on phone reminders |
+| Other (IP address, device name) | App functionality (security) | Recorded on each session and in the account audit trail; not used for location or tracking |
 
 ## Financial info and user content
 Transactions, balances, assets, debts, notes and receipt photos are end-to-end encrypted on the
@@ -23,6 +24,8 @@ Location, contacts, browsing, search history, diagnostics, usage data, advertisi
 ## Other answers
 - Tracking (App Store): no. Data shared with third parties (Play): no; Expo and APNs/FCM are
   processors that deliver notifications.
-- Account deletion: in the app (Settings, delete account) and must also be offered on the web.
-- Privacy policy URL: required by both stores; the owner publishes it (not in this repo yet).
+- Account deletion: in Settings on the phone and the web; the account is purged 30 days later
+  and can be cancelled until then (FR-ACC-08).
+- Privacy policy URL: `<web origin>/privacy.html` (`web/public/privacy.html`, English and Arabic,
+  linked from Help in both apps). Its contact address is a placeholder the owner fills in.
 - Camera and photo library: used only to attach receipt photos, which are encrypted before upload.
