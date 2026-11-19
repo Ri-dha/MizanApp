@@ -28,7 +28,7 @@ export function DebtDetail({ id }: { id: string }) {
   const [amount, setAmount] = useState("")
   const [paidOn, setPaidOn] = useState(todayIso())
   const [extra, setExtra] = useState("")
-  if (!debt) return <Screen>{null}</Screen>
+  if (!debt) return <Screen><Stack.Screen options={{ title: t("debts.title") }} /></Screen>
 
   const money = (value: number) => formatMoney(value, debt.currency, i18n.language)
   const date = (iso: string) => formatDate(iso, i18n.language, false, SHORT_DATE)

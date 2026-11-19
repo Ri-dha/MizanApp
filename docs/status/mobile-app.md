@@ -38,8 +38,10 @@
 - Phase 5 step 1 (uncommitted, `feat/mobile-auth-screens`): register, reset, verify, recovery and
   start over on the phone; checked live on the iPhone.
 - Phase 5 steps 1–2 and the start of step 3 are on main (cd53e6a). The ledger is on main
-  (d8add28), the plan and move money too (df0605e), goals too (4b12dcd). Debts (with payoff,
-  what-if and snowball/avalanche), bills and subscriptions, and income (receipts, pay rises) are
-  on `feat/mobile-debts` (uncommitted), checked on the iPhone. Step 3 is complete.
-- Next: step 4 (cash accounts, gold and silver, other assets, net worth, reports). A full reload
-  locks the app (the data key is in memory); fast refresh does not. Blockers: none.
+  (d8add28), the plan and move money (df0605e), goals (4b12dcd), debts, bills and income
+  (7a3e1fd); step 3 is complete. Step 4 on `feat/mobile-wealth` (uncommitted): cash accounts
+  and gold and silver (lots, sell with undo, price table, refresh, override, zakat, market
+  settings, explainer), checked on the iPhone.
+- Next: other assets, net worth with month close, reports; dealer products. Sell-or-hold has a
+  chart and waits for step 7. A full reload locks the app (the data key is in memory); fast
+  refresh does not. Blockers: none.
