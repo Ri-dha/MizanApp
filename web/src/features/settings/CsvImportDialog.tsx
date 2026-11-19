@@ -139,7 +139,7 @@ export function CsvImportDialog({ file, onClose }: { file: File | null; onClose:
               </Field>
             )}
             <DialogFooter>
-              <Button variant="outline" type="button" onClick={close}>{t("settings.cancel")}</Button>
+              <Button variant="outline" type="button" onClick={close}>{t("common.cancel")}</Button>
               <Button type="button" disabled={!ready || importable.length === 0 || busy} onClick={() => void commit()}>{t("csv.import", { count: importable.length })}</Button>
             </DialogFooter>
           </div>

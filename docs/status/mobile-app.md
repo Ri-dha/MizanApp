@@ -61,10 +61,16 @@
   in core. The receipt photo is now checked on the iPhone (library permission prompt, picker,
   encrypted attachment and preview); the photo library no longer asks for permission first.
   Uploads stay pending locally while the dev object storage is not running.
-- Step 7 on `feat/mobile-charts` (uncommitted): charts with react-native-svg (ADR mobile-6):
-  net worth trend, year spending by bucket, sell-or-hold on gold and silver, and the Prices
-  screen (series, ranges, chart, every change) reachable from More, Home's dollar card and help.
-  Price series and history moved to core. Checked on the iPhone with the stub price feed.
-- Next: printing a report; a Phase 5 parity review; then Phase 6 (push and release).
+- Step 7 is on main (b6c212e): charts with react-native-svg (ADR mobile-6) and the Prices screen.
+- Parity review on `feat/mobile-parity` (uncommitted): every web screen has a phone counterpart
+  except the operator Admin page, which stays on the web. Added: reports saved as PDF through the
+  share sheet (expo-print), operator announcements and the revaluation prompt on Home, and no
+  add button for viewers and advisors. A translation parity test now checks English and Arabic
+  carry the same strings; a scan of both apps found three keys used but missing
+  (`assets.stalePrompt`, `transactions.note`, `settings.cancel`), now fixed, so the web's Home
+  revaluation prompt shows text instead of its key. Phase 5 is complete.
+- Still unverified on a device: viewer and advisor views with real accounts, JSON/CSV import,
+  the camera, uploads to object storage.
+- Next: Phase 6 (push notifications, then store release).
   A full reload locks the app (the data key is in memory); fast refresh does not. Reopened months
   still count as the last close in the attribution (core, same on the web). Blockers: none.

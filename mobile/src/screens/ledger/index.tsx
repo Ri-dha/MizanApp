@@ -34,6 +34,8 @@ export function Ledger() {
   const { t, i18n } = useTranslation()
   useScreenTour("ledger")
   const session = useSession()
+  // Viewers and advisors read only, as on the web; the server refuses their writes in any case.
+  const canWrite = session?.role !== "VIEWER" && session?.role !== "ADVISOR"
   const status = useSyncStatus()
   const startDay = session?.monthStartDay ?? 1
   const [monthKey, setMonthKey] = useSelectedMonth(startDay)
@@ -59,7 +61,7 @@ export function Ledger() {
       <Stack.Screen
         options={{
           title: t("transactions.title"),
-          headerRight: () => <Button testID="open-add-transaction" variant="ghost" title={t("transactions.add")} onPress={() => router.push("/transaction")} />,
+          headerRight: () => (canWrite ? <Button testID="open-add-transaction" variant="ghost" title={t("transactions.add")} onPress={() => router.push("/transaction")} /> : null),
           headerSearchBarOptions: { placeholder: t("transactions.search"), onChangeText: (event) => setText(event.nativeEvent.text) },
         }}
       />

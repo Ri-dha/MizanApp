@@ -13,6 +13,7 @@ import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { currentMonthKey } from "@/hooks/use-views"
 import { spacing, useBrandColors } from "@/theme"
+import { shareReportPdf } from "@/platform/report-pdf"
 import { formatMonthKey } from "@/utils/month"
 
 const TOP_CATEGORIES = 8
@@ -38,12 +39,32 @@ export function YearReport() {
   const monthShort = (key: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { month: "short" }).format(new Date(Date.UTC(year, Number(key.slice(5, 7)) - 1, 1)))
   const hasNetWorth = summary?.netWorthStart != null && summary?.netWorthEnd != null
 
+  function savePdf() {
+    if (!summary) return
+    return shareReportPdf(`mizan-report-${year}`, t("report.yearTitle", { year }), session?.householdName ?? "", [
+      {
+        heading: t("report.summary"),
+        rows: [
+          [t("income.received"), money(summary.received)],
+          [t("plan.spent"), money(summary.spent)],
+          [t("report.saved"), money(summary.saved)],
+          [t("report.rate"), summary.savingRate === null ? "—" : `${summary.savingRate}%`],
+          [t("report.netWorthChange"), hasNetWorth ? money(summary.netWorthEnd! - summary.netWorthStart!) : t("report.noSnapshots")],
+        ],
+      },
+      { heading: t("report.months"), rows: summary.months.map((m) => [formatMonthKey(m.key, i18n.language), `${money(m.received)} · ${money(m.spent)} · ${money(m.saved)}`]) },
+      { heading: t("report.spendingByBucket"), rows: bucketIds.map((id) => [bucketName(id), money(bucketTotal(id))]) },
+      { heading: t("report.topCategories"), rows: categories.map(([name, amount]) => [name, money(amount)]) },
+    ], i18n.language === "ar")
+  }
+
   return (
     <Screen>
       <Stack.Screen options={{ title: t("report.yearTitle", { year }) }} />
       <View style={styles.years}>
         <Button testID="previous-year" variant="secondary" title={String(year - 1)} onPress={() => setYear(year - 1)} />
         <Button testID="next-year" variant="secondary" title={String(year + 1)} onPress={() => setYear(year + 1)} />
+        <Button testID="year-pdf" variant="secondary" title={t("report.savePdf")} disabled={!summary} onPress={() => void savePdf()} />
       </View>
       {summary ? (
         <>
@@ -112,5 +133,5 @@ export function YearReport() {
 
 const styles = StyleSheet.create({
   section: { gap: spacing.sm },
-  years: { flexDirection: "row", gap: spacing.sm },
+  years: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
 })

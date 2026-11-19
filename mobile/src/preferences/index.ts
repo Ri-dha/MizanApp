@@ -17,10 +17,12 @@ export interface Preferences {
   valuationReminderMonths: number
   /** Tour ids already shown on this device; deliberately not synced. */
   toursSeen: string[]
+  /** Operator notices closed on this device (ADR admin-1). */
+  dismissedAnnouncements: string[]
 }
 
 const KEY = "mizan.preferences"
-const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [] }
+const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [], dismissedAnnouncements: [] }
 
 function load(): Preferences {
   try {

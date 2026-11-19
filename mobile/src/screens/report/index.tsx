@@ -6,6 +6,7 @@ import { savingRate, spentByCategory } from "@mizan/core/db/report"
 import { shiftKey } from "@mizan/core/domain/calendar/month"
 import { formatMoney } from "@/utils/money"
 import type { MonthView } from "@mizan/core/db/monthView"
+import { Button } from "@/components/button"
 import { LinkRow } from "@/components/link-row"
 import { MonthSwitcher } from "@/components/month-switcher"
 import { ProgressBar } from "@/components/progress-bar"
@@ -15,7 +16,9 @@ import { ThemedText } from "@/components/themed-text"
 import { useSession } from "@/hooks/use-core"
 import { useSelectedMonth } from "@/hooks/use-selected-month"
 import { useMonthView } from "@/hooks/use-views"
+import { shareReportPdf } from "@/platform/report-pdf"
 import { radius, spacing, useBrandColors } from "@/theme"
+import { formatMonthKey } from "@/utils/month"
 
 const TOP_CATEGORIES = 5
 const FULL = 100
@@ -37,6 +40,25 @@ export function MonthReport() {
   const spent = spentIn(month)
   const rate = savingRate(month.income.received, spent)
   const categories = Object.entries(spentByCategory(month.transactions, t("report.uncategorised"))).sort((a, b) => b[1] - a[1]).slice(0, TOP_CATEGORIES)
+
+  function savePdf() {
+    return shareReportPdf(`mizan-report-${monthKey}`, `${t("report.title")} · ${formatMonthKey(monthKey, i18n.language)}`, session?.householdName ?? "", [
+      {
+        heading: t("report.summary"),
+        rows: [
+          [t("income.received"), money(month.income.received)],
+          [t("plan.spent"), money(spent)],
+          ...(rate !== null ? [[t("report.rate"), `${rate}%`] as [string, string]] : []),
+          [t("report.monthOverMonth", { delta: "" }).replace(/[:：]?\s*$/, ""), signed(spent - spentIn(previous))],
+        ],
+      },
+      {
+        heading: t("report.plannedVsActual"),
+        rows: month.figures.buckets.map((f) => [month.buckets.find((b) => b.id === f.id)?.name ?? "", `${money(f.spent + f.transfersOut)} / ${money(f.allocated)}`]),
+      },
+      { heading: t("report.topCategories"), rows: categories.map(([name, amount]) => [name, money(amount)]) },
+    ], i18n.language === "ar")
+  }
 
   return (
     <Screen>
@@ -88,6 +110,7 @@ export function MonthReport() {
         </Group>
       </View>
 
+      <Button testID="report-pdf" variant="secondary" title={t("report.savePdf")} onPress={() => void savePdf()} />
       <Group>
         <LinkRow testID="open-year-report" href="/report-year" last><ThemedText>{t("report.year")}</ThemedText></LinkRow>
       </Group>

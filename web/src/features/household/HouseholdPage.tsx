@@ -264,7 +264,7 @@ export function HouseholdPage() {
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
             </Field>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setConfirmDelete(false)}>{t("settings.cancel")}</Button>
+              <Button type="button" variant="outline" onClick={() => setConfirmDelete(false)}>{t("common.cancel")}</Button>
               <Button type="submit">{t("household.delete")}</Button>
             </DialogFooter>
           </form>

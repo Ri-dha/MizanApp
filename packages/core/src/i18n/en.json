@@ -587,7 +587,8 @@
     "suggested": "Suggested from your history; change it if it is wrong.",
     "takePhoto": "Take photo",
     "choosePhoto": "Choose photo",
-    "removeReceipt": "Remove photo"
+    "removeReceipt": "Remove photo",
+    "note": "Note"
   },
   "bills": {
     "title": "Bills",
@@ -1188,8 +1189,8 @@
     "soldToggle_other": "{{count}} sold assets",
     "soldLine": "Sold {{date}} for {{price}}",
     "deleted": "Asset deleted",
-    "stalePrompt_one": "{{name}} has not been valued for {{months}} months.",
-    "stalePrompt_other": "{{count}} assets have not been valued for {{months}} months.",
+    "stalePrompt_one": "{{name}} has no new valuation in {{months}} months.",
+    "stalePrompt_other": "{{count}} assets, including {{name}}, have no new valuation in {{months}} months.",
     "tco": "Running costs {{costs}} · total cost of ownership so far {{total}}"
   },
   "privacy": {

@@ -599,7 +599,8 @@
     "suggested": "مقترح من سجلك؛ غيّره إن كان خاطئاً.",
     "takePhoto": "التقاط صورة",
     "choosePhoto": "اختيار صورة",
-    "removeReceipt": "إزالة الصورة"
+    "removeReceipt": "إزالة الصورة",
+    "note": "ملاحظة"
   },
   "bills": {
     "title": "الفواتير",
@@ -1209,11 +1210,11 @@
     "soldLine": "بيع في {{date}} بمبلغ {{price}}",
     "deleted": "حُذف الأصل",
     "stalePrompt_zero": "لا أصول تحتاج تقييماً.",
-    "stalePrompt_one": "{{name}} لم يُقيَّم منذ {{months}} أشهر.",
+    "stalePrompt_one": "لم يُقيَّم {{name}} من جديد منذ {{months}} أشهر.",
     "stalePrompt_two": "أصلان لم يُقيَّما منذ {{months}} أشهر.",
     "stalePrompt_few": "{{count}} أصول لم تُقيَّم منذ {{months}} أشهر.",
     "stalePrompt_many": "{{count}} أصلاً لم تُقيَّم منذ {{months}} أشهر.",
-    "stalePrompt_other": "{{count}} أصل لم تُقيَّم منذ {{months}} أشهر.",
+    "stalePrompt_other": "{{count}} أصول، منها {{name}}، لم تُقيَّم من جديد منذ {{months}} أشهر.",
     "tco": "تكاليف التشغيل {{costs}} · تكلفة الامتلاك الكلية حتى الآن {{total}}"
   },
   "privacy": {
