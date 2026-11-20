@@ -35,7 +35,7 @@ export function OperatorsTab() {
         </CardHeader>
         <CardContent className="flex flex-wrap items-end gap-2">
           <Field id="op-identifier" label={t("auth.identifier")}>
-            <Input id="op-identifier" dir="ltr" className="w-72" value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
+            <Input id="op-identifier" type="email" dir="ltr" className="w-72" value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
           </Field>
           <Button disabled={!identifier.trim()} onClick={() => void grant()}>{t("admin.operators.grant")}</Button>
         </CardContent>

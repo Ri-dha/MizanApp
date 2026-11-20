@@ -22,8 +22,8 @@
     "assets": "Other assets"
   },
   "auth": {
-    "identifier": "Email or phone",
-    "identifierHint": "07xx numbers are saved as +964",
+    "identifier": "Email",
+    "identifierHint": "We send a confirmation code to this address",
     "password": "Password",
     "displayName": "Your name",
     "register": "Create account",
@@ -171,8 +171,8 @@
     },
     "accounts": {
       "title": "Find an account",
-      "body": "Search by the start of an email or phone, or part of a name. You can change an account's state; you cannot see its records.",
-      "search": "Email, phone or name",
+      "body": "Search by the start of an email, or part of a name. You can change an account's state; you cannot see its records.",
+      "search": "Email or name",
       "find": "Search",
       "none": "No accounts found.",
       "operator": "Operator",

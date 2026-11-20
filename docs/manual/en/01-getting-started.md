@@ -5,7 +5,7 @@ summary: "Create an account, set a PIN, install the app, and understand what wor
 ---
 ## Create an account
 
-Register with an email address or an Iraqi phone number. Numbers written as `07xx xxx xxxx` are saved as `+964…`. A six-digit code is sent to confirm the contact; you can skip it for now and confirm later from the banner on the home screen.
+Register with an email address. A six-digit code is emailed to confirm it (check the spam folder if it does not arrive); you can skip it for now and confirm later from the banner on the home screen.
 
 Every account starts its own household with the default plan: Essentials 55%, Guilt-free 5%, Debt & invest 10%, Short-term savings 15%, Investing 15%. You can change all of it on the Plan screen.
 

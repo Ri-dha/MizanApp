@@ -46,7 +46,7 @@ export function ResetPasswordPage() {
     <AuthLayout title={t("auth.resetTitle")}>
       <form onSubmit={submit} className="flex flex-col gap-4">
         <Field id="identifier" label={t("auth.identifier")}>
-          <Input id="identifier" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required disabled={requested} />
+          <Input id="identifier" type="email" dir="ltr" autoComplete="email" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required disabled={requested} />
         </Field>
         {requested && (
           <>

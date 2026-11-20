@@ -34,7 +34,7 @@ export function LoginPage() {
     <AuthLayout title={t("auth.login")}>
       <form onSubmit={submit} className="flex flex-col gap-4">
         <Field id="identifier" label={t("auth.identifier")} hint={t("auth.identifierHint")}>
-          <Input id="identifier" autoComplete="username" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
+          <Input id="identifier" type="email" dir="ltr" autoComplete="email" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
         </Field>
         <Field id="password" label={t("auth.password")}>
           <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
