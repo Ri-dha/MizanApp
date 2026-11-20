@@ -3,6 +3,7 @@ import { RefreshCw } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { dismissConflict, liveConflicts } from "@mizan/core/db/conflicts"
+import { dismissSyncRejection, liveSyncRejections } from "@mizan/core/db/syncRejections"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,6 +13,8 @@ export function SyncPage() {
   const { t, i18n } = useTranslation()
   const status = useSyncStatus()
   const conflicts = useLiveQuery(liveConflicts, [], [])
+  const rejections = useLiveQuery(liveSyncRejections, [], [])
+  const when = (iso: string) => new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso))
 
   const lastSync = status.lastSyncAt
     ? t("sync.lastSync", { when: new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(status.lastSyncAt) })
@@ -32,6 +35,28 @@ export function SyncPage() {
           </Button>
         </CardContent>
       </Card>
+
+      {rejections.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("sync.rejectedTitle")}</CardTitle>
+            <CardDescription>{t("sync.rejectedBody")}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {rejections.map((rejection) => (
+              <div key={rejection.opId} className="flex items-start justify-between gap-3 rounded-lg border p-3">
+                <div className="text-sm">
+                  <p className="font-semibold">{t(`sync.tables.${rejection.table}`)} · {when(rejection.rejectedAt)}</p>
+                  <p className="text-muted-foreground">{t("sync.rejectedReason", { code: rejection.code })}</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => void dismissSyncRejection(rejection.opId)}>
+                  {t("sync.dismiss")}
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

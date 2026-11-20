@@ -1228,9 +1228,16 @@ export interface components {
             /** Format: date-time */
             detectedAt: string;
         };
+        RejectedOpResponse: {
+            /** Format: uuid */
+            opId: string;
+            code: string;
+            detail: string;
+        };
         SyncPushResponse: {
             applied: string[];
             conflicts: components["schemas"]["ConflictResponse"][];
+            rejected: components["schemas"]["RejectedOpResponse"][];
         };
         RegisterDeviceRequest: {
             name: string;

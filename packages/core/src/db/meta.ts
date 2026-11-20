@@ -15,6 +15,7 @@ export const META_KEYS = {
   backupAuto: "backup.auto",
   backupLastAt: "backup.lastAt",
   csvProfiles: "csv.profiles",
+  syncRejections: "sync.rejections",
 } as const
 
 export async function readMeta<T>(key: string): Promise<T | undefined> {

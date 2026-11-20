@@ -87,6 +87,10 @@
   `docs/store/screenshots/README.md`). Fixed on the way: Diagnostics no longer shows in release
   builds, chart axis labels are shortened on the phone (Hermes ignores Intl compact notation), and
   the net worth formula no longer shows "(BR-05)". Android screenshots are still to take.
+- Store screenshots are on main (fd132a9). On `fix/sync-rejected-ops` (uncommitted, server on
+  MizanApi `fix/sync-rejected-ops`, ADR sync-3): a change the server refuses on its own no longer
+  stops sync; it is dropped from the outbox, kept on the device without values, and listed on the
+  Sync screen (web and phone) with Dismiss. Checked on the iPhone against the dev API.
 - Blocked on the owner (all in `docs/store/release-checklist.md`): `eas init`, EAS environment
   variables, Apple Developer with an APNs key, FCM, Play Console, the policy's contact address. Not logged in to Expo on this Mac. Open owner
   decisions: export compliance (`ITSAppUsesNonExemptEncryption`), the final brand icon.

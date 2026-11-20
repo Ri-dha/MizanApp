@@ -1,4 +1,5 @@
 import { installApi, type ApiClient } from "../api/client"
+import { liveSyncRejections } from "../db/syncRejections"
 import { writeFields } from "../db/write"
 import { aesSecretStore, installSecretStore } from "../platform/secretStore"
 import type { LedgerTransaction } from "../schema"
@@ -20,7 +21,7 @@ const session: LocalSession = {
 type Refusal = { status: number; error: { code: string } }
 
 /** Just enough of the server for one device: it accepts every op (unless told to refuse one push) and serves one pulled record. */
-function fakeServer(publicKey: string, pulled: unknown[], options: { grants?: () => unknown[]; refusePush?: () => Refusal | null } = {}) {
+function fakeServer(publicKey: string, pulled: unknown[], options: { grants?: () => unknown[]; refusePush?: () => Refusal | null; rejectOp?: (op: Op) => string | null } = {}) {
   const pushed: Op[] = []
   const ok = (data: unknown) => Promise.resolve({ data, response: new Response(null, { status: 200 }) })
   const routes: Record<string, (init?: { body?: unknown; params?: { query?: { since?: number } } }) => unknown> = {
@@ -32,8 +33,13 @@ function fakeServer(publicKey: string, pulled: unknown[], options: { grants?: ()
       const refusal = options.refusePush?.()
       if (refusal) return refusal
       const ops = (init?.body as { ops: Op[] }).ops
-      pushed.push(...ops)
-      return { applied: ops.map((op) => op.opId), conflicts: [] }
+      const rejected = ops.flatMap((op) => {
+        const code = options.rejectOp?.(op)
+        return code ? [{ opId: op.opId, code, detail: "refused" }] : []
+      })
+      const refused = new Set(rejected.map((r) => r.opId))
+      pushed.push(...ops.filter((op) => !refused.has(op.opId)))
+      return { applied: ops.filter((op) => !refused.has(op.opId)).map((op) => op.opId), conflicts: [], rejected }
     },
     "GET /api/v1/sync/pull": (init) => (init?.params?.query?.since ?? 0) === 0 ? { records: pulled, nextSeq: 1, hasMore: false } : { records: [], nextSeq: 1, hasMore: false },
     "GET /api/v1/vault/status": () => ({ migrated: true, legacyRows: 0 }),
@@ -132,5 +138,34 @@ describe("sync engine", () => {
     const op = server.pushed.find((pushedOp) => pushedOp.rowId === "shared-1")!
     expect(op.fields.payee).toMatch(/^e1\.h\.2\./)
     expect(await table("outbox").count()).toBe(0)
+  })
+
+  it("drops an op the server refused on its own, records it without values, and still syncs the rest (ADR sync-3)", async () => {
+    installStore(memoryStore())
+    const deviceKey = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"])
+    installSecretStore(aesSecretStore(async () => deviceKey))
+    const { wrapSecret } = await derivePasswordKeys(session.contact, "a long test passphrase")
+    const { account } = await createAccountKeys(wrapSecret)
+    await setAccount(account)
+    const server = fakeServer(account.publicKey, [], { rejectOp: (op) => (op.rowId === "bad-1" ? "SYNC_FIELD_UNKNOWN" : null) })
+    installApi(server.client)
+    await writeFields<LedgerTransaction>("ledger_transaction", "bad-1", { visibility: "PRIVATE", payee: "Refused", amount: 1 } as never)
+    await writeFields<LedgerTransaction>("ledger_transaction", "good-1", { visibility: "PRIVATE", payee: "Kept", amount: 2 } as never)
+
+    startSyncEngine({
+      lifecycle: { isOnline: () => true, onOnline: () => {}, onOffline: () => {}, onForeground: () => {} },
+      loadSession: async () => session, refreshProfile: async () => {}, vaultReady: () => true, onVaultReady: () => {},
+      onKeysReplaced: async () => {}, deviceName: () => "Test", afterDuties: async () => {}, afterSync: async () => {},
+    })
+    await syncNow()
+
+    expect(syncStatus()).toMatchObject({ phase: "idle", lastError: null, pending: 0 })
+    expect(server.pushed.some((op) => op.rowId === "good-1")).toBe(true)
+    expect(await table("outbox").count()).toBe(0)
+    const rejections = await liveSyncRejections()
+    expect(rejections).toHaveLength(1)
+    expect(rejections[0]).toMatchObject({ table: "ledger_transaction", rowId: "bad-1", code: "SYNC_FIELD_UNKNOWN" })
+    expect(JSON.stringify(rejections)).not.toContain("Refused")
+    expect(await table("transactions").get("bad-1")).toMatchObject({ payee: "Refused" })
   })
 })

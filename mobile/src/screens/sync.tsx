@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next"
 import { FlatList, StyleSheet, View } from "react-native"
 
 import { dismissConflict, liveConflicts } from "@mizan/core/db/conflicts"
+import { dismissSyncRejection, liveSyncRejections, type SyncRejection } from "@mizan/core/db/syncRejections"
 import type { LocalConflict } from "@mizan/core/schema"
 import { syncNow } from "@mizan/core/sync/engine"
 import { Button } from "@/components/button"
@@ -11,12 +12,15 @@ import { useLiveQuery, useSyncStatus } from "@/hooks/use-core"
 import { colors, spacing } from "@/theme"
 
 const NONE: LocalConflict[] = []
+const NO_REJECTIONS: SyncRejection[] = []
 const show = (value: unknown) => (value === null || value === undefined ? "—" : typeof value === "string" ? value : JSON.stringify(value))
 
 export function Sync() {
   const { t, i18n } = useTranslation()
   const status = useSyncStatus()
   const conflicts = useLiveQuery(liveConflicts, [], NONE)
+  const rejections = useLiveQuery(liveSyncRejections, [], NO_REJECTIONS)
+  const when = (iso: string) => new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso))
   const lastSync = status.lastSyncAt
     ? t("sync.lastSync", { when: new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(status.lastSyncAt) })
     : t("sync.never")
@@ -38,6 +42,25 @@ export function Sync() {
             </Row>
           </Group>
           <Button testID="sync-now" title={t("sync.syncNow")} loading={status.phase === "syncing"} onPress={() => void syncNow()} />
+          {rejections.length > 0 ? (
+            <View style={styles.section}>
+              <ThemedText variant="headline">{t("sync.rejectedTitle")}</ThemedText>
+              <ThemedText variant="subhead">{t("sync.rejectedBody")}</ThemedText>
+              <Group>
+                {rejections.map((rejection, index) => (
+                  <Row
+                    key={rejection.opId}
+                    testID={`rejected-${rejection.opId}`}
+                    last={index === rejections.length - 1}
+                    trailing={<Button variant="ghost" title={t("sync.dismiss")} onPress={() => void dismissSyncRejection(rejection.opId)} />}
+                  >
+                    <ThemedText variant="headline">{`${t(`sync.tables.${rejection.table}`)} · ${when(rejection.rejectedAt)}`}</ThemedText>
+                    <ThemedText variant="subhead">{t("sync.rejectedReason", { code: rejection.code })}</ThemedText>
+                  </Row>
+                ))}
+              </Group>
+            </View>
+          ) : null}
           <View style={styles.section}>
             <ThemedText variant="headline">{t("sync.conflictsTitle")}</ThemedText>
             <ThemedText variant="subhead">{t("sync.conflictsBody")}</ThemedText>

@@ -1,5 +1,6 @@
 import { api, ApiError, unwrap } from "../api/client"
 import { META_KEYS, readMeta, writeMeta } from "../db/meta"
+import { recordSyncRejections } from "../db/syncRejections"
 import { purgeExpiredDeletions } from "../db/transactions"
 import { onLocalWrite } from "../db/write"
 import type { Lifecycle } from "../platform/lifecycle"
@@ -138,8 +139,13 @@ async function push(device: string) {
       dismissed: false,
     })))
     const applied = new Set(appliedIds)
-    await store().transaction(["outbox", "conflicts", ...SYNCED_TABLES], async () => {
-      await table("outbox").bulkDelete(appliedIds)
+    const refused = new Map<string, string>(result.rejected.map((r) => [r.opId, r.code]))
+    const rejectedAt = new Date().toISOString()
+    const rejections = ops.filter((op) => refused.has(op.opId))
+      .map((op) => ({ opId: op.opId, table: op.table, rowId: op.rowId, code: refused.get(op.opId)!, rejectedAt }))
+    await store().transaction(["outbox", "conflicts", "meta", ...SYNCED_TABLES], async () => {
+      await table("outbox").bulkDelete([...appliedIds, ...refused.keys()])
+      await recordSyncRejections(rejections)
       for (const conflict of conflicts) await table("conflicts").put(conflict)
       for (const op of ops) {
         if (applied.has(op.opId) && APPEND_ONLY.has(op.table)) await localTableFor(op.table).update(op.rowId, { vaulted: true })
