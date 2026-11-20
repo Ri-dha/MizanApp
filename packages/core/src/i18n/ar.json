@@ -127,6 +127,7 @@
       "MARKET_MANUAL_DOLLAR_IQD": "دولار السوق اليدوي (دينار)",
       "MARKET_BAGHDAD_BULLION_ENABLED": "مصدر دار بغداد للسبائك",
       "MARKET_GOLD_API_COM_ENABLED": "مصدر gold-api.com",
+      "MARKET_GOLD_PRIMARY": "المصدر الرئيسي لسعر الذهب",
       "MARKET_STALE_AFTER": "يُعد السعر قديماً بعد",
       "MARKET_REFRESH_COOLDOWN": "مهلة زر التحديث"
     },
@@ -140,6 +141,7 @@
       "MARKET_MANUAL_DOLLAR_IQD": "يُستخدم عندما لا يوفر أي مصدر دولار السوق. 0 يوقفه.",
       "MARKET_BAGHDAD_BULLION_ENABLED": "سعر شراء وبيع الذهب والفضة محلياً.",
       "MARKET_GOLD_API_COM_ENABLED": "السعر العالمي للذهب والفضة دون مفتاح.",
+      "MARKET_GOLD_PRIMARY": "المصدر الذي يُسأل أولاً عن سعر الذهب، وتليه المصادر الأخرى إن لم يتوفر لديه سعر. يعطي iraqsm.com سعر غرام عيار 24 (السعر العالمي × دولار السوق) وسعر الأونصة العالمي، دون سعر شراء الصاغة أو الفضة.",
       "MARKET_STALE_AFTER": "مثلاً 24h.",
       "MARKET_REFRESH_COOLDOWN": "مثلاً 30s. كم مرة يصل تحديث أي شخص إلى المصادر."
     },
