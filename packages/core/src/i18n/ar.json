@@ -128,6 +128,7 @@
       "MARKET_BAGHDAD_BULLION_ENABLED": "مصدر دار بغداد للسبائك",
       "MARKET_GOLD_API_COM_ENABLED": "مصدر gold-api.com",
       "MARKET_GOLD_PRIMARY": "المصدر الرئيسي لسعر الذهب",
+      "MARKET_IQWEALTH_GOLD_BID_MARGIN_BP": "ذهب IQWealth: هامش سعر شراء الصاغة",
       "MARKET_STALE_AFTER": "يُعد السعر قديماً بعد",
       "MARKET_REFRESH_COOLDOWN": "مهلة زر التحديث"
     },
@@ -142,6 +143,7 @@
       "MARKET_BAGHDAD_BULLION_ENABLED": "سعر شراء وبيع الذهب والفضة محلياً.",
       "MARKET_GOLD_API_COM_ENABLED": "السعر العالمي للذهب والفضة دون مفتاح.",
       "MARKET_GOLD_PRIMARY": "المصدر الذي يُسأل أولاً عن سعر الذهب، وتليه المصادر الأخرى إن لم يتوفر لديه سعر. يعطي iraqsm.com سعر غرام عيار 24 (السعر العالمي × دولار السوق) وسعر الأونصة العالمي، دون سعر شراء الصاغة أو الفضة.",
+      "MARKET_IQWEALTH_GOLD_BID_MARGIN_BP": "لا ينشر IQWealth سعر شراء الصاغة، فيُحسب أقل من سعر غرام عيار 24 بهذا العدد من النقاط الأساسية (100 = 1%). يُستخدم عندما يكون iraqsm.com المصدر الرئيسي للذهب.",
       "MARKET_STALE_AFTER": "مثلاً 24h.",
       "MARKET_REFRESH_COOLDOWN": "مثلاً 30s. كم مرة يصل تحديث أي شخص إلى المصادر."
     },

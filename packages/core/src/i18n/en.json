@@ -128,6 +128,7 @@
       "MARKET_BAGHDAD_BULLION_ENABLED": "Baghdad Bullion House feed",
       "MARKET_GOLD_API_COM_ENABLED": "gold-api.com feed",
       "MARKET_GOLD_PRIMARY": "Main gold price source",
+      "MARKET_IQWEALTH_GOLD_BID_MARGIN_BP": "IQWealth gold: dealer buying margin",
       "MARKET_STALE_AFTER": "Prices count as stale after",
       "MARKET_REFRESH_COOLDOWN": "Refresh button cooldown"
     },
@@ -142,6 +143,7 @@
       "MARKET_BAGHDAD_BULLION_ENABLED": "Local gold and silver bid and ask.",
       "MARKET_GOLD_API_COM_ENABLED": "Keyless world gold and silver price.",
       "MARKET_GOLD_PRIMARY": "Which source answers gold first; the other sources follow when it has no price. iraqsm.com gives the 24-karat price per gram (world price × market dollar) and the world ounce, but no dealer buying price or silver.",
+      "MARKET_IQWEALTH_GOLD_BID_MARGIN_BP": "IQWealth publishes no dealer buying price, so it is derived this many basis points below its 24-karat gram (100 = 1%). Used when iraqsm.com is the main gold source.",
       "MARKET_STALE_AFTER": "For example 24h.",
       "MARKET_REFRESH_COOLDOWN": "For example 30s. How often anyone's Refresh reaches the feeds."
     },
