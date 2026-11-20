@@ -17,8 +17,9 @@ The code side is ready (`mobile/eas.json`, icons, splash). These need the owner'
 6. Build and submit:
    `npx eas-cli@latest build -p ios --profile production --auto-submit` (TestFlight) and
    `npx eas-cli@latest build -p android --profile production --auto-submit` (Play internal track).
-7. Store pages: privacy policy URL `<web origin>/privacy.html`; paste `listing-en.md` and `listing-ar.md`, answer from `privacy.md`, add
-   screenshots (iPhone 6.9", Android phone) in both languages, and a demo account for review.
+7. Store pages: privacy policy URL `<web origin>/privacy.html`; paste `listing-en.md` and `listing-ar.md`, answer from `privacy.md`, upload the
+   iPhone screenshots in `docs/store/screenshots/` (English and Arabic), take an Android set (Play
+   allows at most 2:1), and add a demo account for review.
 8. Check on a real device: a reminder arrives, PBKDF2 unlock time on a mid-range Android.
 
 ## Owner decisions still open

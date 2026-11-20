@@ -841,7 +841,7 @@
   "networth": {
     "title": "Net worth",
     "headline": "What you are worth today",
-    "formula": "Cash + gold and silver + money owed to you + other assets − what you owe (BR-05)",
+    "formula": "Cash + gold and silver + money owed to you + other assets − what you owe",
     "assets": "Assets",
     "liabilities": "Liabilities",
     "classes": {

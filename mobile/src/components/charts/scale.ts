@@ -17,7 +17,18 @@ export function boundsOf(values: number[], includeZero = false): Bounds {
   return { min, max }
 }
 
-export const compact = (value: number) => new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 2 }).format(value)
+const MAGNITUDES = [
+  { size: 1e9, suffix: "B" },
+  { size: 1e6, suffix: "M" },
+  { size: 1e3, suffix: "K" },
+] as const
+
+/** Hermes ignores Intl's compact notation and prints the full number, so axis labels shorten here. */
+export function compact(value: number): string {
+  const magnitude = MAGNITUDES.find((m) => Math.abs(value) >= m.size)
+  if (!magnitude) return String(Math.round(value))
+  return `${Number((value / magnitude.size).toFixed(2))}${magnitude.suffix}`
+}
 
 /** Up to `count` labels spread evenly, always including the first and the last. */
 export function labelIndexes(length: number, count: number): number[] {

@@ -82,6 +82,11 @@
   policy at `/privacy.html` (static, outside the service worker's app fallback), linked from Help on
   the web and the phone (in-app browser); checked in a browser in Arabic and dark mode. Also fixed: the More tab lost its menu when a
   More screen was opened from Home, a reminder or a link (no initial route on the More stack).
+- Store screenshots (uncommitted, `feat/store-screenshots`): eight iPhone 6.9" screens in English and
+  Arabic from a demo household (`mobile/src/dev/demo-data.ts`, Diagnostics in dev builds only; see
+  `docs/store/screenshots/README.md`). Fixed on the way: Diagnostics no longer shows in release
+  builds, chart axis labels are shortened on the phone (Hermes ignores Intl compact notation), and
+  the net worth formula no longer shows "(BR-05)". Android screenshots are still to take.
 - Blocked on the owner (all in `docs/store/release-checklist.md`): `eas init`, EAS environment
   variables, Apple Developer with an APNs key, FCM, Play Console, the policy's contact address. Not logged in to Expo on this Mac. Open owner
   decisions: export compliance (`ITSAppUsesNonExemptEncryption`), the final brand icon.

@@ -41,7 +41,7 @@ export function More() {
     { id: "help", href: "/help", label: t("help.title"), audiences: EVERYONE },
     { id: "settings", href: "/settings", label: t("nav.settings"), audiences: EVERYONE },
     { id: "sync", href: "/sync", label: t("nav.sync"), audiences: EVERYONE },
-    { id: "diagnostics", href: "/diagnostics", label: "Diagnostics", audiences: EVERYONE },
+    ...(__DEV__ ? [{ id: "diagnostics", href: "/diagnostics", label: "Diagnostics", audiences: EVERYONE } satisfies Destination] : []),
   ]
   const shown = destinations.filter((d) => d.audiences.includes(audience))
   return (

@@ -1,9 +1,12 @@
 import { gunzipSync, gzipSync } from "fflate"
 import { useCallback, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { FlatList, StyleSheet, Text, View } from "react-native"
 
 import { vaultVectorChecks } from "@mizan/core/vault/vectors"
 import { Button } from "@/components/button"
+import { loadDemoData } from "@/dev/demo-data"
+import { useSession } from "@/hooks/use-core"
 import { ThemedText } from "@/components/themed-text"
 import { usePlatformInfo } from "@/platform/context"
 import { colors, spacing, type, useBrandColors } from "@/theme"
@@ -39,6 +42,15 @@ export function Diagnostics() {
     setRunning(false)
   }, [])
 
+  const { i18n } = useTranslation()
+  const session = useSession()
+  const [demo, setDemo] = useState<"idle" | "loading" | "done">("idle")
+  async function loadDemo() {
+    setDemo("loading")
+    await loadDemoData(i18n.language.startsWith("ar") ? "ar" : "en", session?.monthStartDay ?? 1)
+    setDemo("done")
+  }
+
   const brand = useBrandColors()
   const failed = outcomes.filter((o) => o.error).length
   return (
@@ -49,6 +61,9 @@ export function Diagnostics() {
           <View style={styles.header}>
             <ThemedText testID="cipher-version" variant="subhead">SQLCipher {cipherVersion}</ThemedText>
             <Button testID="run-vectors" title="Run vault vectors" loading={running} onPress={run} />
+            {__DEV__ && session ? (
+              <Button testID="load-demo" variant="secondary" title={demo === "done" ? "Demo data loaded" : "Load demo data"} loading={demo === "loading"} disabled={demo === "done"} onPress={() => void loadDemo()} />
+            ) : null}
             {outcomes.length > 0 && !running ? (
               <ThemedText testID="vector-summary" variant="headline">{`${outcomes.length - failed} passed, ${failed} failed`}</ThemedText>
             ) : null}
