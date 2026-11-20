@@ -12,10 +12,11 @@ import { AuditTab } from "./AuditTab"
 import { OperatorsTab } from "./OperatorsTab"
 import { OverviewTab } from "./OverviewTab"
 import { PricesTab } from "./PricesTab"
+import { ReportsTab } from "./ReportsTab"
 import { SettingsTab } from "./SettingsTab"
 import { AdminActionProvider } from "./AdminActionProvider"
 
-const TABS = ["overview", "settings", "prices", "accounts", "announcements", "audit", "operators"] as const
+const TABS = ["overview", "reports", "settings", "prices", "accounts", "announcements", "audit", "operators"] as const
 
 /** ADR admin-1: running the service. Nothing on this page can show a household's records. */
 export function AdminPage() {
@@ -41,6 +42,7 @@ export function AdminPage() {
             </TabsList>
           </div>
           <TabsContent value="overview"><OverviewTab /></TabsContent>
+          <TabsContent value="reports"><ReportsTab /></TabsContent>
           <TabsContent value="settings"><SettingsTab /></TabsContent>
           <TabsContent value="prices"><PricesTab /></TabsContent>
           <TabsContent value="accounts"><AccountsTab /></TabsContent>

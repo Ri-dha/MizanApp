@@ -40,6 +40,23 @@ export interface paths {
         patch: operations["rewrap"];
         trace?: never;
     };
+    "/api/v1/admin/support/reports/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set a report's status */
+        put: operations["status"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/settings/{key}": {
         parameters: {
             query?: never;
@@ -111,6 +128,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/support/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's reports, latest activity first */
+        get: operations["mine_1"];
+        put?: never;
+        /** Send a report with up to four JPEG or PNG images; location and camera data are removed from them */
+        post: operations["create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support/reports/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Answer in the conversation; a resolved report opens again */
+        post: operations["reply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/notifications/test": {
         parameters: {
             query?: never;
@@ -136,7 +188,7 @@ export interface paths {
             cookie?: never;
         };
         /** This account's subscribed devices in the current household */
-        get: operations["mine_1"];
+        get: operations["mine_2"];
         put?: never;
         /** Register this browser's push subscription (FR-NTF-01) */
         post: operations["subscribe"];
@@ -364,7 +416,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Confirm the email or phone with the code that was sent */
+        /** Confirm the email address with the code that was sent */
         post: operations["verify"];
         delete?: never;
         options?: never;
@@ -398,7 +450,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Register with an email or phone number */
+        /** Register with an email address */
         post: operations["register"];
         delete?: never;
         options?: never;
@@ -514,6 +566,23 @@ export interface paths {
         put?: never;
         /** A URL to PUT the encrypted bytes of a synced attachment */
         post: operations["uploadUrl"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/support/reports/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reply to the reporter, who gets a push notification */
+        post: operations["reply_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -715,7 +784,7 @@ export interface paths {
             cookie?: never;
         };
         /** Whether the household still has plain records on the server */
-        get: operations["status"];
+        get: operations["status_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -750,6 +819,40 @@ export interface paths {
         };
         /** Conflicts recorded for a device */
         get: operations["conflicts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support/reports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One of the caller's reports with its conversation; marks the replies read */
+        get: operations["open"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support/reports/{id}/images/{imageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An image attached to one of the caller's reports */
+        get: operations["image"];
         put?: never;
         post?: never;
         delete?: never;
@@ -996,6 +1099,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/support/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Reports to handle, unread first; filter by status */
+        get: operations["queue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/support/reports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A report with its conversation and the reporter; marks it read for operators */
+        get: operations["open_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/support/reports/{id}/images/{imageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An image attached to a report */
+        get: operations["image_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/settings": {
         parameters: {
             query?: never;
@@ -1054,7 +1208,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Find accounts by the start of an email or phone, or part of a name */
+        /** Find accounts by the start of an email, or part of a name */
         get: operations["accounts"];
         put?: never;
         post?: never;
@@ -1172,6 +1326,48 @@ export interface components {
             account?: components["schemas"]["AccountKeysResponse"];
             grants: components["schemas"]["GrantResponse"][];
         };
+        ReportStatusRequest: {
+            /** @enum {string} */
+            status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
+        };
+        ReportAttachment: {
+            /** Format: uuid */
+            id: string;
+            contentType: string;
+            /** Format: int32 */
+            sizeBytes: number;
+        };
+        ReportDetailResponse: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            category: "PROBLEM" | "SUGGESTION" | "QUESTION";
+            subject: string;
+            /** @enum {string} */
+            status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
+            appVersion?: string;
+            platform?: string;
+            /** Format: date-time */
+            createdAt: string;
+            messages: components["schemas"]["ReportMessage"][];
+            reporter?: components["schemas"]["ReportReporter"];
+        };
+        ReportMessage: {
+            /** Format: uuid */
+            id: string;
+            fromOperator: boolean;
+            authorName?: string;
+            body: string;
+            /** Format: date-time */
+            createdAt: string;
+            attachments: components["schemas"]["ReportAttachment"][];
+        };
+        ReportReporter: {
+            /** Format: uuid */
+            userId: string;
+            displayName: string;
+            email?: string;
+        };
         SettingUpdateRequest: {
             value: string;
         };
@@ -1250,6 +1446,19 @@ export interface components {
             lastPullSeq: number;
             /** Format: date-time */
             lastSeenAt: string;
+        };
+        NewReportForm: {
+            /** @enum {string} */
+            category: "PROBLEM" | "SUGGESTION" | "QUESTION";
+            subject: string;
+            body: string;
+            appVersion?: string;
+            platform?: string;
+            images?: string[];
+        };
+        ReplyForm: {
+            body?: string;
+            images?: string[];
         };
         SubscribeRequest: {
             endpoint: string;
@@ -1593,6 +1802,21 @@ export interface components {
             seq: number;
             encrypted: boolean;
         };
+        ReportSummaryResponse: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            category: "PROBLEM" | "SUGGESTION" | "QUESTION";
+            subject: string;
+            /** @enum {string} */
+            status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            lastMessageAt: string;
+            unread: boolean;
+            reporter?: components["schemas"]["ReportReporter"];
+        };
         VapidKeyResponse: {
             publicKey: string;
         };
@@ -1635,7 +1859,6 @@ export interface components {
         };
         JsonNode: {
             floatingPointNumber?: boolean;
-            number?: boolean;
             /** @enum {string} */
             nodeType?: "ARRAY" | "BINARY" | "BOOLEAN" | "MISSING" | "NULL" | "NUMBER" | "OBJECT" | "POJO" | "STRING";
             string?: boolean;
@@ -1653,6 +1876,7 @@ export interface components {
             textual?: boolean;
             boolean?: boolean;
             binary?: boolean;
+            number?: boolean;
             empty?: boolean;
             array?: boolean;
             null?: boolean;
@@ -1800,6 +2024,32 @@ export interface operations {
             };
         };
     };
+    status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportDetailResponse"];
+                };
+            };
+        };
+    };
     putSetting: {
         parameters: {
             query?: never;
@@ -1916,6 +2166,76 @@ export interface operations {
             };
         };
     };
+    mine_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportSummaryResponse"][];
+                };
+            };
+        };
+    };
+    create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["NewReportForm"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportDetailResponse"];
+                };
+            };
+        };
+    };
+    reply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["ReplyForm"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportDetailResponse"];
+                };
+            };
+        };
+    };
     test: {
         parameters: {
             query?: never;
@@ -1938,7 +2258,7 @@ export interface operations {
             };
         };
     };
-    mine_1: {
+    mine_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -2562,6 +2882,32 @@ export interface operations {
             };
         };
     };
+    reply_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["ReplyForm"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportDetailResponse"];
+                };
+            };
+        };
+    };
     session: {
         parameters: {
             query?: never;
@@ -2920,7 +3266,7 @@ export interface operations {
             };
         };
     };
-    status: {
+    status_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -2982,6 +3328,51 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ConflictResponse"][];
+                };
+            };
+        };
+    };
+    open: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportDetailResponse"];
+                };
+            };
+        };
+    };
+    image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                imageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };
@@ -3278,6 +3669,73 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AnnouncementResponse"][];
+                };
+            };
+        };
+    };
+    queue: {
+        parameters: {
+            query?: {
+                status?: "OPEN" | "IN_PROGRESS" | "RESOLVED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportSummaryResponse"][];
+                };
+            };
+        };
+    };
+    open_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportDetailResponse"];
+                };
+            };
+        };
+    };
+    image_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                imageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };

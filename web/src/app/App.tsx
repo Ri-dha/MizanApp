@@ -14,6 +14,9 @@ import { RequireSession, RedirectIfSession } from "./guards"
 import { LoginPage } from "@/features/auth/LoginPage"
 import { RegisterPage } from "@/features/auth/RegisterPage"
 import { ResetPasswordPage } from "@/features/auth/ResetPasswordPage"
+const SupportPage = lazy(() => import("@/features/support/SupportPage").then((m) => ({ default: m.SupportPage })))
+const NewReportPage = lazy(() => import("@/features/support/NewReportPage").then((m) => ({ default: m.NewReportPage })))
+const SupportThreadPage = lazy(() => import("@/features/support/SupportThreadPage").then((m) => ({ default: m.SupportThreadPage })))
 const VerifyPage = lazy(() => import("@/features/auth/VerifyPage").then((m) => ({ default: m.VerifyPage })))
 import { HomePage } from "@/features/home/HomePage"
 const AccountsPage = lazy(() => import("@/features/accounts/AccountsPage").then((m) => ({ default: m.AccountsPage })))
@@ -74,6 +77,9 @@ const router = createBrowserRouter([
       { path: "report/year", element: <YearReportPage /> },
       { path: "help", element: <HelpPage /> },
       { path: "help/:slug", element: <HelpPage /> },
+      { path: "support", element: <SupportPage /> },
+      { path: "support/new", element: <NewReportPage /> },
+      { path: "support/:id", element: <SupportThreadPage /> },
       { path: "more", element: <MorePage /> },
       { path: "income", element: <IncomePage /> },
       { path: "accounts", element: <AccountsPage /> },

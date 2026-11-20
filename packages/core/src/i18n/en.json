@@ -56,6 +56,7 @@
     "elevateConfirm": "Confirm",
     "tabs": {
       "overview": "Overview",
+      "reports": "Reports",
       "settings": "Settings",
       "prices": "Prices",
       "accounts": "Accounts",
@@ -228,6 +229,19 @@
       "revoke": "Remove",
       "revokeConfirm": "Remove this person's operator role?",
       "revoked": "Operator removed"
+    },
+    "reports": {
+      "title": "Reports",
+      "body": "Problems, ideas and questions people sent. Replying and changing the status ask for your password again; the person gets a notification.",
+      "filter": "Show",
+      "all": "All",
+      "none": "No reports here.",
+      "unread": "Unread",
+      "back": "Back to reports",
+      "setStatus": "Status",
+      "statusSaved": "Status saved",
+      "sent": "Reply sent",
+      "replyHint": "The person sees this as from \"Mizan support\"."
     }
   },
   "prices": {
@@ -1535,5 +1549,43 @@
     },
     "noGoals": "No goals yet.",
     "noDebts": "Nothing here."
+  },
+  "support": {
+    "title": "Report a problem",
+    "intro": "Tell the Mizan team about a problem, an idea or a question. You'll see their replies here and get a notification.",
+    "new": "New report",
+    "none": "You haven't sent any reports.",
+    "privacy": "Reports aren't end-to-end encrypted: the Mizan team reads what you write and the images you attach. Location and camera details are removed from images. Don't include amounts or other details you want to keep private.",
+    "categoryLabel": "Type",
+    "category": {
+      "PROBLEM": "Problem",
+      "SUGGESTION": "Suggestion",
+      "QUESTION": "Question"
+    },
+    "status": {
+      "OPEN": "Open",
+      "IN_PROGRESS": "In progress",
+      "RESOLVED": "Resolved"
+    },
+    "subject": "Subject",
+    "body": "What happened?",
+    "bodyHint": "What you did, what you expected and what you saw instead.",
+    "addImage": "Add image",
+    "imageHint": "Up to {{count}} screenshots or photos.",
+    "imageAlt": "Image {{number}}",
+    "openImage": "Open image {{number}}",
+    "removeImage": "Remove image {{number}}",
+    "imageUnreadable": "That image couldn't be read. Try a screenshot in JPEG or PNG.",
+    "imageFailed": "The image couldn't be loaded",
+    "tooManyImages": "Only {{count}} images can be attached.",
+    "send": "Send",
+    "sending": "Sending…",
+    "reply": "Reply",
+    "reopenHint": "This report is resolved; replying opens it again.",
+    "newReply": "New reply",
+    "you": "You",
+    "team": "Mizan support",
+    "operator": "Operator",
+    "reporter": "Reporter"
   }
 }
