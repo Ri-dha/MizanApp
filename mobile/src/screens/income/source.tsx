@@ -1,4 +1,3 @@
-import { SegmentedControl } from "@expo/ui/community/segmented-control"
 import { router, Stack } from "expo-router"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -21,9 +20,10 @@ import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing } from "@/theme"
 import { SHORT_DATE, formatDay } from "@/utils/dates"
+import { CurrencyField } from "@/components/currency-field"
+import { useTodayRate } from "@/hooks/use-currency"
 
 const FREQUENCIES: Frequency[] = ["MONTHLY", "BIWEEKLY", "WEEKLY", "ONE_OFF"]
-const CURRENCIES = ["IQD", "USD"]
 const DEFAULT_PAY_DAY = "25"
 
 export function IncomeSourceEditor({ id }: { id?: string }) {
@@ -37,6 +37,11 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
   const [amount, setAmount] = useState("")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [frequency, setFrequency] = useState<Frequency>("MONTHLY")
   const [payDay, setPayDay] = useState(DEFAULT_PAY_DAY)
   const [anchorDate, setAnchorDate] = useState(todayIso())
@@ -114,8 +119,7 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
           <TextField testID="source-amount" label={id ? t("income.currentAmount") : t("income.amount")} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} editable={!id} />
         </View>
         <View style={styles.narrow}>
-          <ThemedText variant="subhead">{t("accounts.currency")}</ThemedText>
-          <SegmentedControl values={CURRENCIES} selectedIndex={Math.max(0, CURRENCIES.indexOf(currency))} onChange={(event) => setCurrency(CURRENCIES[event.nativeEvent.selectedSegmentIndex])} />
+          <CurrencyField testID="source-currency" value={currency} onChange={pickCurrency} />
         </View>
       </View>
       {id ? <ThemedText variant="caption">{t("income.amountLocked")}</ThemedText> : null}

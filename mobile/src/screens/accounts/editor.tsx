@@ -1,4 +1,3 @@
-import { SegmentedControl } from "@expo/ui/community/segmented-control"
 import { router, Stack } from "expo-router"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -19,9 +18,9 @@ import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing } from "@/theme"
+import { CurrencyField } from "@/components/currency-field"
 
 const KINDS: CashAccountKind[] = ["WALLET", "BANK", "CASH_AT_HOME", "OTHER"]
-const CURRENCIES = ["IQD", "USD"]
 
 export function AccountEditor({ id }: { id?: string }) {
   const { t, i18n } = useTranslation()
@@ -87,8 +86,7 @@ export function AccountEditor({ id }: { id?: string }) {
       <View style={styles.pair}>
         <View style={styles.wide}><TextField testID="account-balance" label={t("accounts.balance")} keyboardType="decimal-pad" value={balance} onChangeText={setBalance} /></View>
         <View style={styles.narrow}>
-          <ThemedText variant="subhead">{t("accounts.currency")}</ThemedText>
-          <SegmentedControl values={CURRENCIES} selectedIndex={Math.max(0, CURRENCIES.indexOf(currency))} onChange={(event) => setCurrency(CURRENCIES[event.nativeEvent.selectedSegmentIndex])} />
+          <CurrencyField testID="account-currency" value={currency} onChange={setCurrency} />
         </View>
       </View>
       {id ? <TextField testID="account-adjustment-note" label={t("accounts.adjustmentNote")} maxLength={120} value={adjustmentNote} onChangeText={setAdjustmentNote} /> : null}

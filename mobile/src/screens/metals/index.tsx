@@ -26,12 +26,16 @@ import { formatWhen } from "@/utils/dates"
 const METALS: Metal[] = ["GOLD", "SILVER"]
 const USD_MINOR_PER_MICROS = 1e4
 
+const WORLD_SOURCE = "frankfurter.dev"
+
 export function Metals() {
   const { t, i18n } = useTranslation()
   useScreenTour("metals")
   const brand = useBrandColors()
   const session = useSession()
   const base = session?.baseCurrency ?? "IQD"
+  // The dollar kind, the sell-or-hold history and the Baghdad dealer only mean something to a household counting in dinars.
+  const dinar = base === "IQD"
   const view = useMetals()
   const [refreshing, setRefreshing] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -124,9 +128,9 @@ export function Metals() {
         <Button testID="refresh-prices" variant="secondary" title={t("metals.refresh")} loading={refreshing} onPress={() => void refresh()} />
       </View>
 
-      <SellOrHold view={view} currency={base} />
+      {dinar ? <SellOrHold view={view} currency={base} /> : null}
 
-      <DealerProducts currency={base} />
+      {dinar ? <DealerProducts currency={base} /> : null}
 
       <View style={styles.section}>
         <ThemedText variant="headline">{t("metals.prices")}</ThemedText>
@@ -137,9 +141,16 @@ export function Metals() {
               {view.prices.spot[metal].source.stale ? <ThemedText variant="caption">{t("metals.stale")}</ThemedText> : null}
             </Row>
           ))}
-          <Row last trailing={<ThemedText variant="subhead">{sourceLabel(view.prices.rateSource.kind, view.prices.rateSource.label)}</ThemedText>}>
-            <ThemedText>{`USD → ${base} (${t(`metals.rateKinds.${view.prices.rateKind}`)}): ${money(wholeFromMicros(view.prices.usdIqdMicros))}`}</ThemedText>
-          </Row>
+          {dinar ? (
+            <Row last trailing={<ThemedText variant="subhead">{sourceLabel(view.prices.rateSource.kind, view.prices.rateSource.label)}</ThemedText>}>
+              <ThemedText>{`USD → ${base} (${t(`metals.rateKinds.${view.prices.rateKind}`)}): ${money(wholeFromMicros(view.prices.usdIqdMicros))}`}</ThemedText>
+            </Row>
+          ) : (
+            // Rates for a household not counting in dinars come from the daily world list (ADR rates-2).
+            <Row last trailing={<ThemedText variant="subhead">{WORLD_SOURCE}</ThemedText>}>
+              <ThemedText>{`USD → ${base}: ${money(wholeFromMicros(view.prices.usdBaseMicros))}`}</ThemedText>
+            </Row>
+          )}
         </Group>
         <Group>
           <LinkRow testID="metals-explain" href="/metal-explain"><ThemedText>{t("metals.howCalculated")}</ThemedText></LinkRow>

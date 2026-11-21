@@ -6,6 +6,7 @@ import { staleAssets } from "@mizan/core/db/assets"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { Announcements } from "@/components/announcements"
 import { AwaitingKey } from "@/components/awaiting-key"
+import { ShownCurrencyBadge } from "@/components/shown-currency"
 import { LinkRow } from "@/components/link-row"
 import { Notice } from "@/components/notice"
 import { Group } from "@/components/row"
@@ -37,6 +38,7 @@ export function Home() {
         </Link>
       ) : null}
       <AwaitingKey />
+      <ShownCurrencyBadge />
       <Announcements />
       {stale.length > 0 ? (
         <Link href="/assets" asChild>

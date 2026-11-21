@@ -108,6 +108,10 @@
   `formatNumber`; the phone's and web's `formatWhen`/`formatCount`; Hijri and Gregorian dates take the
   setting). Hermes ignores `-u-nu-` and browsers pick digits by region, so digits are set after
   formatting. A screen already open shows a new digit setting once it re-renders (as money did before).
+- Arabic digits are on main (811effb). On `feat/mobile-any-currency` (uncommitted): any main currency on the
+  phone (T-any-base-currency, ADR currency-1). Checked on the iPhone: a German sign-up gets EUR, a USD asset
+  shows ≈ EUR, changing EUR→USD leaves it at exactly 1:1, switching the country to Iraq brings back the
+  Baghdad dollar, show-amounts-in converts and its badge turns it off, Arabic search by currency name.
 - Blocked on the owner (all in `docs/store/release-checklist.md`): `eas init`, EAS environment
   variables, Apple Developer with an APNs key, FCM, Play Console, the policy's contact address. Not logged in to Expo on this Mac. Open owner
   decisions: export compliance (`ITSAppUsesNonExemptEncryption`), the final brand icon.

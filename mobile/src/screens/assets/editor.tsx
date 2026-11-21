@@ -1,4 +1,3 @@
-import { SegmentedControl } from "@expo/ui/community/segmented-control"
 import { router, Stack } from "expo-router"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -24,9 +23,9 @@ import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { useMetals } from "@/hooks/use-views"
 import { spacing } from "@/theme"
 import { ASSET_TYPES } from "."
+import { CurrencyField } from "@/components/currency-field"
 
 const METHODS: DepreciationMethod[] = ["NONE", "STRAIGHT_LINE", "DECLINING_BALANCE"]
-const CURRENCIES = ["IQD", "USD"]
 const NUMERIC_ATTRIBUTES: ReadonlySet<string> = new Set(["year", "mileageKm", "areaSqm", "headCount"])
 const DEFAULT_RATE_PERCENT = "15"
 const BASIS_POINTS_PER_PERCENT = 100
@@ -136,8 +135,7 @@ export function AssetEditor({ id }: { id?: string }) {
       <View style={styles.pair}>
         <View style={styles.wide}><TextField testID="asset-price" label={t("assets.purchasePrice")} keyboardType="decimal-pad" value={price} onChangeText={setPrice} /></View>
         <View style={styles.narrow}>
-          <ThemedText variant="subhead">{t("accounts.currency")}</ThemedText>
-          <SegmentedControl values={CURRENCIES} selectedIndex={Math.max(0, CURRENCIES.indexOf(currency))} onChange={(event) => setCurrency(CURRENCIES[event.nativeEvent.selectedSegmentIndex])} />
+          <CurrencyField testID="asset-currency" value={currency} onChange={setCurrency} />
         </View>
       </View>
       <DateField label={t("assets.purchaseDate")} value={purchaseDate} onChange={setPurchaseDate} optional />

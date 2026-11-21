@@ -1,4 +1,3 @@
-import { SegmentedControl } from "@expo/ui/community/segmented-control"
 import { router, Stack } from "expo-router"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -22,8 +21,8 @@ import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { currentMonthKey } from "@/hooks/use-views"
 import { spacing } from "@/theme"
+import { CurrencyField } from "@/components/currency-field"
 
-const CURRENCIES = ["IQD", "USD"]
 
 export function GoalEditor({ id }: { id?: string }) {
   const { t } = useTranslation()
@@ -86,8 +85,7 @@ export function GoalEditor({ id }: { id?: string }) {
       <View style={styles.amountRow}>
         <View style={styles.amount}><TextField testID="goal-target" label={t("goals.target")} keyboardType="decimal-pad" value={target} onChangeText={setTarget} /></View>
         <View style={styles.currency}>
-          <ThemedText variant="subhead">{t("accounts.currency")}</ThemedText>
-          <SegmentedControl values={CURRENCIES} selectedIndex={Math.max(0, CURRENCIES.indexOf(currency))} onChange={(event) => setCurrency(CURRENCIES[event.nativeEvent.selectedSegmentIndex])} />
+          <CurrencyField testID="goal-currency" value={currency} onChange={setCurrency} />
         </View>
       </View>
       <DateField label={t("goals.targetDate")} value={targetDate} onChange={setTargetDate} optional />

@@ -23,8 +23,9 @@ import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { currentMonthKey } from "@/hooks/use-views"
 import { spacing } from "@/theme"
+import { CurrencyField } from "@/components/currency-field"
+import { useTodayRate } from "@/hooks/use-currency"
 
-const CURRENCIES = ["IQD", "USD"]
 const DIRECTIONS: DebtDirection[] = ["OWING", "OWED"]
 
 export function DebtEditor({ id }: { id?: string }) {
@@ -41,6 +42,11 @@ export function DebtEditor({ id }: { id?: string }) {
   const [principal, setPrincipal] = useState("")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [annualPercent, setAnnualPercent] = useState("0")
   const [termMonths, setTermMonths] = useState("")
   const [monthlyPayment, setMonthlyPayment] = useState("")
@@ -111,8 +117,7 @@ export function DebtEditor({ id }: { id?: string }) {
       <View style={styles.pair}>
         <View style={styles.wide}><TextField testID="debt-principal" label={t("debts.principal")} keyboardType="decimal-pad" value={principal} onChangeText={setPrincipal} /></View>
         <View style={styles.narrow}>
-          <ThemedText variant="subhead">{t("accounts.currency")}</ThemedText>
-          <SegmentedControl values={CURRENCIES} selectedIndex={Math.max(0, CURRENCIES.indexOf(currency))} onChange={(event) => setCurrency(CURRENCIES[event.nativeEvent.selectedSegmentIndex])} />
+          <CurrencyField testID="debt-currency" value={currency} onChange={pickCurrency} />
         </View>
       </View>
       {needsRate ? <TextField testID="debt-rate" label={t("income.fxRate", { from: currency, to: base })} keyboardType="decimal-pad" value={rate} onChangeText={setRate} /> : null}

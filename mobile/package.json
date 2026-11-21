@@ -59,7 +59,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "manual": "node scripts/bundle-manual.mjs"
+    "manual": "node scripts/bundle-manual.mjs",
+    "names": "node scripts/bundle-names.mjs"
   },
   "private": true
 }

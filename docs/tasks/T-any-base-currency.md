@@ -7,4 +7,10 @@
   transaction (a loop of writes in one transaction ended it early). Web: sign-up country and currency, Settings card,
   `CurrencySelect` in every money form with today's rate, assets at today's rate, Iraq-only screens behind `useIraqi`,
   followed currencies on Prices and home, and a per-device "show amounts in" switch applied in `app/money.ts`
-  (rates from `DisplayRatesSync`, a badge in the shell turns it off). Phone: rate helpers and conversions fixed; its screens still offer IQD/USD only.
+  (rates from `DisplayRatesSync`, a badge in the shell turns it off). Phone (`feat/mobile-any-currency`): the same screens. A searchable `CurrencyField`/`CountryField`
+  (`components/currency-field.tsx`) in sign-up and every money editor, which prefill today's rate (`useTodayRate`);
+  Settings "Country and currency" with the owner's change (native confirm) and the device's "show amounts in";
+  `utils/display-rates.ts` + `utils/money.ts` with a badge on Home; Iraq-only gating via `useIraqi`; a followed-rates
+  home card and `screens/prices/world-rates.tsx`. Hermes has no `Intl.DisplayNames`, so country and currency names
+  are bundled by `scripts/bundle-names.mjs`. The navigator remounts when the display currency or digits change, so
+  open screens redraw. After each sync the phone refreshes world rates and finishes or claims a pending rebase.

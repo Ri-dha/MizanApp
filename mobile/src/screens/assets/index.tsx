@@ -17,6 +17,7 @@ import { usePreferences } from "@/preferences"
 import { spacing, useBrandColors } from "@/theme"
 import { SHORT_DATE, formatDay } from "@/utils/dates"
 import { useScreenTour } from "@/tours"
+import { useMetals } from "@/hooks/use-views"
 
 export const ASSET_TYPES: AssetType[] = ["VEHICLE", "PROPERTY", "ELECTRONICS", "EQUIPMENT", "FURNITURE", "LIVESTOCK", "OTHER"]
 const RECENT_VALUATIONS = 3
@@ -27,6 +28,9 @@ async function runningCosts(): Promise<Record<string, number>> {
   for (const row of expenses) totals[row.assetId!] = (totals[row.assetId!] ?? 0) + row.baseAmount
   return totals
 }
+
+/** Counted at today's rate, so marked ≈; amounts the display switch converts are already marked. */
+const approximately = (text: string) => (text.startsWith("≈") ? text : `≈ ${text}`)
 
 export function Assets() {
   const { t, i18n } = useTranslation()
@@ -39,18 +43,19 @@ export function Assets() {
   const costs = useLiveQuery(runningCosts, [], {})
   const [showSold, setShowSold] = useState(false)
   const prefs = usePreferences()
+  const { prices } = useMetals()
   const today = todayIso()
   const money = (v: number, currency = base) => formatMoney(v, currency, i18n.language)
   const signed = (v: number, currency = base) => (v > 0 ? "+" : "") + money(v, currency)
   const date = (iso: string) => formatDay(iso, i18n.language, SHORT_DATE)
   const held = assets.filter((a) => a.status === "HELD")
   const sold = assets.filter((a) => a.status === "SOLD")
-  const totalBase = held.reduce((sum, a) => sum + currentValue(a, valuations, today).baseValue, 0)
+  const totalBase = held.reduce((sum, a) => sum + currentValue(a, valuations, today, prices).baseValue, 0)
   const negative = (v: number) => (v < 0 ? { color: brand.destructive } : null)
   const openAction = (kind: "value" | "sell", asset: Asset) => router.push({ pathname: "/asset-action", params: { id: asset.id, kind } })
 
   function card(asset: Asset) {
-    const value = currentValue(asset, valuations, today)
+    const value = currentValue(asset, valuations, today, prices)
     const history = valuationsOf(asset.id, valuations).slice(0, RECENT_VALUATIONS)
     const stale = value.monthsSinceBaseline >= prefs.valuationReminderMonths
     const change = value.value - asset.purchasePrice
@@ -64,6 +69,7 @@ export function Assets() {
             <ThemedText variant="headline" style={styles.name} onPress={() => router.push({ pathname: "/asset-edit", params: { id: asset.id } })}>{asset.name}</ThemedText>
             <ThemedText variant="headline">{money(value.value, asset.currency)}</ThemedText>
           </View>
+          {asset.currency !== base ? <ThemedText testID={`asset-in-base-${asset.id}`} variant="subhead" style={styles.inBase}>{approximately(money(value.baseValue))}</ThemedText> : null}
           {attributes ? <ThemedText variant="caption">{attributes}</ThemedText> : null}
           {badges.length > 0 ? <ThemedText variant="caption">{badges.join(" · ")}</ThemedText> : null}
           <ThemedText variant="subhead">
@@ -126,6 +132,7 @@ export function Assets() {
 }
 
 const styles = StyleSheet.create({
+  inBase: { alignSelf: "flex-end" },
   section: { gap: spacing.sm },
   card: { padding: spacing.md, gap: spacing.xs },
   title: { flexDirection: "row", justifyContent: "space-between", gap: spacing.sm },

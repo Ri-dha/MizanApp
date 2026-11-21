@@ -13,6 +13,7 @@ import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
 import { useMetals } from "@/hooks/use-views"
 import { spacing } from "@/theme"
+import { useSession } from "@/hooks/use-core"
 
 const METHODS: DisposalMethod[] = ["FIFO", "SPECIFIC", "WEIGHTED_AVERAGE"]
 const RATE_KINDS: RateKind[] = ["PARALLEL", "OFFICIAL"]
@@ -62,19 +63,25 @@ export function MarketSettings() {
   }
 
   const name = (metal: Metal) => t(`metals.metal.${metal}`)
+  const dinar = (useSession()?.baseCurrency ?? "IQD") === "IQD"
   return (
     <Screen sheet>
       <Stack.Screen options={{ title: t("metals.settings"), headerRight: () => <Button testID="save-market-settings" variant="ghost" title={t("accounts.save")} onPress={() => void save()} /> }} />
-      <View style={styles.field}>
-        <ThemedText variant="subhead">{t("metals.rateKind")}</ThemedText>
-        <Chips options={RATE_KINDS.map((k) => ({ value: k, label: t(`metals.rateKinds.${k}`) }))} value={rateKind} onChange={(next) => next && setRateKind(next as RateKind)} />
-        <ThemedText variant="caption">{t("metals.rateKindHint")}</ThemedText>
-      </View>
-      <View style={styles.field}>
-        <ThemedText variant="subhead">{t("metals.priceSource")}</ThemedText>
-        <Chips options={PRICE_SOURCES.map((k) => ({ value: k, label: t(`metals.priceSources.${k}`) }))} value={priceSource} onChange={(next) => next && setPriceSource(next as PriceSource)} />
-        <ThemedText variant="caption">{t("metals.priceSourceHint")}</ThemedText>
-      </View>
+      {/* The dollar kind and the Baghdad dealer only mean something to a household counting in dinars. */}
+      {dinar ? (
+        <>
+          <View style={styles.field}>
+            <ThemedText variant="subhead">{t("metals.rateKind")}</ThemedText>
+            <Chips options={RATE_KINDS.map((k) => ({ value: k, label: t(`metals.rateKinds.${k}`) }))} value={rateKind} onChange={(next) => next && setRateKind(next as RateKind)} />
+            <ThemedText variant="caption">{t("metals.rateKindHint")}</ThemedText>
+          </View>
+          <View style={styles.field}>
+            <ThemedText variant="subhead">{t("metals.priceSource")}</ThemedText>
+            <Chips options={PRICE_SOURCES.map((k) => ({ value: k, label: t(`metals.priceSources.${k}`) }))} value={priceSource} onChange={(next) => next && setPriceSource(next as PriceSource)} />
+            <ThemedText variant="caption">{t("metals.priceSourceHint")}</ThemedText>
+          </View>
+        </>
+      ) : null}
       <View style={styles.pair}>
         {METALS.map((metal) => (
           <View key={metal} style={styles.half}>

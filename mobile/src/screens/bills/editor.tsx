@@ -1,4 +1,3 @@
-import { SegmentedControl } from "@expo/ui/community/segmented-control"
 import { router, Stack } from "expo-router"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -23,9 +22,10 @@ import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { currentMonthKey } from "@/hooks/use-views"
 import { spacing } from "@/theme"
+import { CurrencyField } from "@/components/currency-field"
+import { useTodayRate } from "@/hooks/use-currency"
 
 const FREQUENCIES: ExpenseFrequency[] = ["MONTHLY", "QUARTERLY", "ANNUAL", "CUSTOM"]
-const CURRENCIES = ["IQD", "USD"]
 const MAX_REMINDER_DAYS = 30
 const DEFAULT_INTERVAL_DAYS = "30"
 
@@ -44,6 +44,11 @@ export function BillEditor({ id }: { id?: string }) {
   const [reminderDays, setReminderDays] = useState("")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [frequency, setFrequency] = useState<ExpenseFrequency>("MONTHLY")
   const [dueDay, setDueDay] = useState("1")
   const [anchorDate, setAnchorDate] = useState(todayIso())
@@ -124,8 +129,7 @@ export function BillEditor({ id }: { id?: string }) {
       <View style={styles.pair}>
         <View style={styles.wide}><TextField testID="bill-amount" label={t("income.amount")} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} /></View>
         <View style={styles.narrow}>
-          <ThemedText variant="subhead">{t("accounts.currency")}</ThemedText>
-          <SegmentedControl values={CURRENCIES} selectedIndex={Math.max(0, CURRENCIES.indexOf(currency))} onChange={(event) => setCurrency(CURRENCIES[event.nativeEvent.selectedSegmentIndex])} />
+          <CurrencyField testID="bill-currency" value={currency} onChange={pickCurrency} />
         </View>
       </View>
       {needsRate ? <TextField testID="bill-rate" label={t("income.fxRate", { from: currency, to: base })} keyboardType="decimal-pad" value={rate} onChangeText={setRate} /> : null}

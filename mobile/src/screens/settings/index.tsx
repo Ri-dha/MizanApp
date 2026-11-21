@@ -29,6 +29,7 @@ import { spacing } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { forgetAllTours, useScreenTour } from "@/tours"
 import { DATE, formatWhen } from "@/utils/dates"
+import { CurrencySettings } from "./currency"
 
 const LOCK_CHOICES = [0, 30, 60, 300]
 const THEMES: ThemeChoice[] = ["system", "light", "dark"]
@@ -190,6 +191,10 @@ export function Settings() {
 
       <Section title={t("vault.settingsTitle")} body={t("vault.settingsBody")}>
         <Button testID="settings-recovery" variant="secondary" title={t("vault.regenerate")} onPress={() => void run(regenerateRecoveryCode)} />
+      </Section>
+
+      <Section title={t("currency.title")} body={t("currency.body")}>
+        <CurrencySettings />
       </Section>
 
       <Section title={t("settings.household")} body={t("settings.householdBody", { name: session?.householdName ?? "", role: t(`household.roles.${session?.role ?? "OWNER"}`) })}>

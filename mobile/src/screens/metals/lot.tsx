@@ -24,10 +24,11 @@ import { useMetals } from "@/hooks/use-views"
 import { spacing } from "@/theme"
 import { UNITS, wholeFromMicros } from "./format"
 import { inBase } from "@mizan/core/market/currency"
+import { CurrencyField } from "@/components/currency-field"
+import { useTodayRate } from "@/hooks/use-currency"
 
 const METALS: Metal[] = ["GOLD", "SILVER"]
 const FORMS: MetalForm[] = ["JEWELLERY", "COIN", "BAR", "SCRAP"]
-const CURRENCIES = ["IQD", "USD"]
 const DEFAULT_PURITY: Record<Metal, string> = { GOLD: "21k", SILVER: "999" }
 
 export function LotEditor({ id }: { id?: string }) {
@@ -47,6 +48,11 @@ export function LotEditor({ id }: { id?: string }) {
   const [fees, setFees] = useState("")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [form, setForm] = useState<MetalForm>("JEWELLERY")
   const [dealer, setDealer] = useState("")
   const [location, setLocation] = useState("")
@@ -155,8 +161,7 @@ export function LotEditor({ id }: { id?: string }) {
           <TextField testID="lot-cost" label={t("metals.metalCost")} keyboardType="decimal-pad" value={metalCost} onChangeText={(v) => { setCostTouched(true); setMetalCost(v) }} />
         </View>
         <View style={styles.narrow}>
-          <ThemedText variant="subhead">{t("accounts.currency")}</ThemedText>
-          <SegmentedControl values={CURRENCIES} selectedIndex={Math.max(0, CURRENCIES.indexOf(currency))} onChange={(event) => setCurrency(CURRENCIES[event.nativeEvent.selectedSegmentIndex])} />
+          <CurrencyField testID="lot-currency" value={currency} onChange={pickCurrency} />
         </View>
       </View>
       {hasPrice ? (

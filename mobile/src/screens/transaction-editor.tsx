@@ -30,9 +30,10 @@ import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing, useBrandColors } from "@/theme"
 import { dateOf, isoOf } from "@/utils/dates"
 import { ReceiptField } from "@/components/receipt-field"
+import { CurrencyField } from "@/components/currency-field"
+import { useTodayRate } from "@/hooks/use-currency"
 
 const TYPES: TransactionType[] = ["EXPENSE", "TRANSFER", "INCOME"]
-const CURRENCIES = ["IQD", "USD"]
 const SUGGEST_AFTER_MS = 300
 const HISTORY_LIMIT = 2000
 const NO_BUCKETS: Bucket[] = []
@@ -56,6 +57,11 @@ export function TransactionEditor({ id }: { id?: string }) {
   const [amount, setAmount] = useState("")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [occurredOn, setOccurredOn] = useState(todayIso())
   const [bucketId, setBucketId] = useState<string | null>(null)
   const [counterparty, setCounterparty] = useState<string | null>(null)
@@ -184,8 +190,7 @@ export function TransactionEditor({ id }: { id?: string }) {
           <TextField testID="new-amount" label={t("transactions.amount")} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} autoFocus={!id} />
         </View>
         <View style={styles.currency}>
-          <ThemedText variant="subhead">{t("accounts.currency")}</ThemedText>
-          <SegmentedControl values={CURRENCIES} selectedIndex={Math.max(0, CURRENCIES.indexOf(currency))} onChange={(event) => setCurrency(CURRENCIES[event.nativeEvent.selectedSegmentIndex])} />
+          <CurrencyField testID="transaction-currency" value={currency} onChange={pickCurrency} />
         </View>
       </View>
       {needsRate ? <TextField testID="fx-rate" label={t("income.fxRate")} keyboardType="decimal-pad" value={rate} onChangeText={setRate} /> : null}

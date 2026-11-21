@@ -19,10 +19,12 @@ export interface Preferences {
   toursSeen: string[]
   /** Operator notices closed on this device (ADR admin-1). */
   dismissedAnnouncements: string[]
+  /** Shows main-currency amounts in another currency at today's rate; nothing stored changes. Null shows them as they are. */
+  displayCurrency: string | null
 }
 
 const KEY = "mizan.preferences"
-const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [], dismissedAnnouncements: [] }
+const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [], dismissedAnnouncements: [], displayCurrency: null }
 
 function load(): Preferences {
   try {
@@ -41,6 +43,12 @@ export const preferences = (): Preferences => current
 export function setPreferences(change: Partial<Preferences>) {
   current = { ...current, ...change }
   Storage.setItemSync(KEY, JSON.stringify(current))
+  listeners.forEach((listener) => listener())
+}
+
+/** Re-renders everything that formats with the preferences, e.g. when the rates they depend on arrive. */
+export function refreshPreferences() {
+  current = { ...current }
   listeners.forEach((listener) => listener())
 }
 

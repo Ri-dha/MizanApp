@@ -1639,6 +1639,7 @@
     "showIn": "Show amounts in",
     "showInHint": "Totals in {{base}} are shown converted at today's rate on this device, marked ≈. Nothing you saved changes, and amounts are still entered in their own currency.",
     "showing": "In {{currency}}",
-    "showingOff": "Show amounts in the main currency again"
+    "showingOff": "Show amounts in the main currency again",
+    "searchCountry": "Search a country"
   }
 }

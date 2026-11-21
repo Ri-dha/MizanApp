@@ -1,4 +1,3 @@
-import { SegmentedControl } from "@expo/ui/community/segmented-control"
 import { router, Stack } from "expo-router"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -17,8 +16,9 @@ import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing } from "@/theme"
+import { CurrencyField } from "@/components/currency-field"
+import { useTodayRate } from "@/hooks/use-currency"
 
-const CURRENCIES = ["IQD", "USD"]
 
 interface Props {
   monthKey: string
@@ -39,6 +39,11 @@ export function IncomeReceiptSheet({ monthKey, sourceId, date, receiptId }: Prop
   const [amount, setAmount] = useState("")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [receivedOn, setReceivedOn] = useState(date && date <= today ? date : today)
   const [note, setNote] = useState("")
   const [loaded, setLoaded] = useState(!receiptId && !sourceId)
@@ -84,8 +89,7 @@ export function IncomeReceiptSheet({ monthKey, sourceId, date, receiptId }: Prop
       <View style={styles.pair}>
         <View style={styles.wide}><TextField testID="receipt-amount" label={t("income.amount")} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} autoFocus={!receiptId} /></View>
         <View style={styles.narrow}>
-          <ThemedText variant="subhead">{t("accounts.currency")}</ThemedText>
-          <SegmentedControl values={CURRENCIES} selectedIndex={Math.max(0, CURRENCIES.indexOf(currency))} onChange={(event) => setCurrency(CURRENCIES[event.nativeEvent.selectedSegmentIndex])} />
+          <CurrencyField testID="receipt-currency" value={currency} onChange={pickCurrency} />
         </View>
       </View>
       {needsRate ? (

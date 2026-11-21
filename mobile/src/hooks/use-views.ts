@@ -14,8 +14,10 @@ export function useMonthView(monthKey: string, startDay: number): MonthView {
   return useLiveQuery(() => monthViewFor(monthKey, startDay), [monthKey, startDay], EMPTY_MONTH_VIEW)
 }
 
+/** Prices follow the household currency, so a currency change must reach the view (ADR currency-1). */
 export function useMetals(): MetalsView {
-  return useLiveQuery(metalsViewFor, [], EMPTY_METALS_VIEW)
+  const base = useSession()?.baseCurrency
+  return useLiveQuery(() => metalsViewFor(base), [base], EMPTY_METALS_VIEW)
 }
 
 export function useNetWorth(): NetWorthView & { metals: MetalsView } {

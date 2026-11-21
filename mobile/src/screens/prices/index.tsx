@@ -11,13 +11,17 @@ import { Screen } from "@/components/screen"
 import { ThemedText } from "@/components/themed-text"
 import { usePriceSeries } from "@/hooks/use-market"
 import { spacing, useBrandColors } from "@/theme"
-import { formatMoney } from "@/utils/money"
+import { formatMoney } from "@mizan/core/domain/money/format"
+import { useIraqi } from "@/hooks/use-currency"
+import { preferences } from "@/preferences"
+import { WorldRates } from "./world-rates"
 import { DATE, DATE_TIME, formatWhen } from "@/utils/dates"
 
 const SHORT_RANGES: ReadonlySet<Range> = new Set(["1D", "1W"])
 const COMPACT_FROM = 100_000
 const CENTS = 100
 const CHANGES_LISTED = 20
+const WORLD_SERIES: SeriesKey[] = ["goldSpot"]
 
 /** The dollar moves a few dinars at a time, so its axis needs whole numbers; gold per mithqal does not. */
 function axisNumber(value: number): string {
@@ -28,13 +32,19 @@ function axisNumber(value: number): string {
 export function Prices() {
   const { t, i18n } = useTranslation()
   const brand = useBrandColors()
-  const [key, setKey] = useState<SeriesKey>("usdMarket")
+  // The dinar series are the Baghdad market's; elsewhere only the world gold price applies (ADR currency-1).
+  const iraqi = useIraqi()
+  const keys = iraqi ? SERIES_KEYS : WORLD_SERIES
+  const [chosen, setKey] = useState<SeriesKey>(iraqi ? "usdMarket" : "goldSpot")
+  const key = keys.includes(chosen) ? chosen : keys[0]
   const [range, setRange] = useState<Range>("1M")
   const series = usePriceSeries(key, range)
   const official = usePriceSeries("usdOfficial", "1D")
   const usd = SERIES[key].unit === "usdPerOunce"
-  const locale = i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB"
-  const format = (value: number) => (usd ? formatMoney(Math.round(value * CENTS), "USD", i18n.language) : formatMoney(Math.round(value), "IQD", i18n.language))
+  const locale = i18n.language
+  // Prices, not amounts: shown in their own currency even while amounts are shown in another one.
+  const digits = preferences().digitStyle
+  const format = (value: number) => (usd ? formatMoney(Math.round(value * CENTS), "USD", locale, digits) : formatMoney(Math.round(value), "IQD", locale, digits))
   const signed = (value: number) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${format(Math.abs(value))}`
   const percent = (value: number, base: number) => (base === 0 ? "" : `${value > 0 ? "+" : value < 0 ? "−" : ""}${Math.abs((value / base) * 100).toFixed(2)}%`)
   const when = (iso: string, withTime: boolean) => formatWhen(iso, locale, withTime ? DATE_TIME : DATE)
@@ -50,7 +60,8 @@ export function Prices() {
   return (
     <Screen>
       <Stack.Screen options={{ title: t("prices.title") }} />
-      <Chips testID="prices-series" options={SERIES_KEYS.map((k) => ({ value: k, label: t(`prices.series.${k}`) }))} value={key} onChange={(next) => next && setKey(next as SeriesKey)} />
+      {!iraqi ? <WorldRates /> : null}
+      <Chips testID="prices-series" options={keys.map((k) => ({ value: k, label: t(`prices.series.${k}`) }))} value={key} onChange={(next) => next && setKey(next as SeriesKey)} />
       <View style={styles.section}>
         <ThemedText variant="caption">{`${t(`prices.series.${key}`)} · ${t(`prices.units.${SERIES[key].unit}`)}`}</ThemedText>
         <ThemedText testID="prices-latest" variant="largeTitle">{latest ? format(latest.value) : "—"}</ThemedText>
@@ -85,6 +96,7 @@ export function Prices() {
           })}
         </Group>
       </View>
+      {iraqi ? <WorldRates /> : null}
     </Screen>
   )
 }

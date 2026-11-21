@@ -9,7 +9,12 @@ import { liveDeposits, liveGoals, savedOf } from "@mizan/core/db/goals"
 import type { HomeWidget } from "@mizan/core/db/homeLayout"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { goalProjection } from "@mizan/core/domain/goal/projection"
+import { formatMoney as formatWithDigits } from "@mizan/core/domain/money/format"
+import { trackedCurrencies, unitRate } from "@mizan/core/market/currency"
 import { formatMoney } from "@/utils/money"
+import { formatCount } from "@/utils/dates"
+import { preferences } from "@/preferences"
+import { useIraqi } from "@/hooks/use-currency"
 import { Group, Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
@@ -101,15 +106,43 @@ function NetWorthCard({ widget }: WidgetProps) {
   )
 }
 
+/** The rates card: the Baghdad dollar for people in Iraq, the first followed currencies for everyone else (ADR currency-1). */
 function DollarCard({ widget }: WidgetProps) {
-  const { t } = useTranslation()
-  const { money } = useMoney()
+  return useIraqi() ? <BaghdadDollarCard widget={widget} /> : <FollowedRatesCard widget={widget} />
+}
+
+function BaghdadDollarCard({ widget }: WidgetProps) {
+  const { t, i18n } = useTranslation()
   const worth = useNetWorth()
   const micros = worth.metals.prices.usdIqdMicros
   if (micros <= 0) return null
+  // A rate, not an amount: shown in dinars even while amounts are shown in another currency.
+  const figure = formatWithDigits(Math.round(micros / MICROS), "IQD", i18n.language, preferences().digitStyle)
   return (
     <Card testID="home-dollar" compact={widget.size === "compact"} title={t("prices.dollarToday")} href="/prices"
-      figure={money(Math.round(micros / MICROS), "IQD")} detail={worth.metals.prices.rateSource.label} />
+      figure={figure} detail={worth.metals.prices.rateSource.label} />
+  )
+}
+
+const FOLLOWED_SHOWN = 4
+
+function FollowedRatesCard({ widget }: WidgetProps) {
+  const { t, i18n } = useTranslation()
+  const session = useSession()
+  const { metals } = useNetWorth()
+  const base = session?.baseCurrency ?? "USD"
+  const rows = trackedCurrencies(session)
+    .map((code) => ({ code, rate: unitRate(code, base, metals.prices.perUsd) }))
+    .filter((r): r is { code: string; rate: number } => r.rate !== null)
+    .slice(0, FOLLOWED_SHOWN)
+  if (rows.length === 0) return null
+  const number = (v: number) => formatCount(v, i18n.language, v >= 100 ? { maximumFractionDigits: 0 } : v >= 1 ? { maximumFractionDigits: 2 } : { maximumSignificantDigits: 4 })
+  const first = rows[0]
+  return (
+    <Card testID="home-rates" compact={widget.size === "compact"} title={t("worldRates.today", { base })} href="/prices"
+      figure={widget.size === "compact" ? `1 ${first.code} = ${number(first.rate)} ${base}` : undefined}>
+      {widget.size === "compact" ? null : rows.map((r, i) => <Line key={r.code} label={`1 ${r.code}`} value={`${number(r.rate)} ${base}`} last={i === rows.length - 1} />)}
+    </Card>
   )
 }
 
