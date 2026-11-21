@@ -3,7 +3,9 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { register } from "@mizan/core/auth/session"
+import type { AppMode } from "@mizan/core/domain/appMode"
 import { IRAQ } from "@mizan/core/market/currency"
+import { AppModeChoice } from "@/components/app-mode-choice"
 import { Button } from "@/components/button"
 import { CountryField, CurrencyField } from "@/components/currency-field"
 import { Notice } from "@/components/notice"
@@ -11,6 +13,7 @@ import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { useCatalogue } from "@/hooks/use-currency"
+import { applyLocal } from "@/preferences"
 import { describeError } from "@/utils/errors"
 
 const MIN_PASSWORD = 8
@@ -23,6 +26,7 @@ export function Register() {
   const catalogue = useCatalogue()
   const [country, setCountry] = useState(IRAQ)
   const [currency, setCurrency] = useState("IQD")
+  const [mode, setMode] = useState<AppMode>("simple")
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -48,6 +52,8 @@ export function Register() {
     setError(null)
     try {
       await register(identifier, password, displayName, i18n.language.startsWith("ar") ? "ar" : "en", country, currency)
+      // Kept on this device now; it reaches the person's synced row once the first sync has run (ADR home-2).
+      applyLocal({ appMode: mode })
     } catch (e) {
       setError(describeError(e))
     } finally {
@@ -64,6 +70,8 @@ export function Register() {
       <CountryField testID="register-country" label={t("auth.country")} value={country} catalogue={catalogue} onChange={pickCountry} />
       <CurrencyField testID="register-currency" label={t("auth.baseCurrency")} value={currency} onChange={setCurrency} codes={catalogue?.currencies} />
       <ThemedText variant="caption">{t("auth.baseCurrencyHint")}</ThemedText>
+      <ThemedText variant="subhead">{t("appMode.label")}</ThemedText>
+      <AppModeChoice value={mode} onChange={setMode} />
       {error ? <Notice tone="error" testID="register-error">{error}</Notice> : null}
       <Button testID="register" size="lg" title={t("auth.register")} loading={busy} disabled={!displayName || !identifier || password.length < MIN_PASSWORD} onPress={() => void submit()} />
     </Screen>

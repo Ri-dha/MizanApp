@@ -5,7 +5,7 @@ import { StyleSheet, View } from "react-native"
 import { savingRate, spentByCategory } from "@mizan/core/db/report"
 import { shiftKey } from "@mizan/core/domain/calendar/month"
 import { formatMoney } from "@/utils/money"
-import type { MonthView } from "@mizan/core/db/monthView"
+import { monthFlow, type MonthView } from "@mizan/core/db/monthView"
 import { Button } from "@/components/button"
 import { LinkRow } from "@/components/link-row"
 import { MonthSwitcher } from "@/components/month-switcher"
@@ -13,6 +13,7 @@ import { ProgressBar } from "@/components/progress-bar"
 import { Group, Row } from "@/components/row"
 import { Screen } from "@/components/screen"
 import { ThemedText } from "@/components/themed-text"
+import { useAppMode } from "@/hooks/use-app-mode"
 import { useSession } from "@/hooks/use-core"
 import { useSelectedMonth } from "@/hooks/use-selected-month"
 import { useMonthView } from "@/hooks/use-views"
@@ -23,7 +24,7 @@ import { formatMonthKey } from "@/utils/month"
 const TOP_CATEGORIES = 5
 const FULL = 100
 
-const spentIn = (view: MonthView) => view.figures.buckets.reduce((s, b) => s + b.spent, 0)
+const bucketSpent = (view: MonthView) => view.figures.buckets.reduce((s, b) => s + b.spent, 0)
 
 /** FR-RPT-02: planned versus actual per bucket, the biggest categories, and the change from last month. */
 export function MonthReport() {
@@ -37,8 +38,12 @@ export function MonthReport() {
   const previous = useMonthView(shiftKey(monthKey, -1), startDay)
   const money = (v: number) => formatMoney(v, base, i18n.language)
   const signed = (v: number) => (v > 0 ? "+" : "") + money(v)
+  const simple = useAppMode() === "simple"
+  // Simple mode has no buckets, so its month is everything that came in and went out (ADR mode-1).
+  const spentIn = (view: MonthView) => (simple ? monthFlow(view).spent : bucketSpent(view))
   const spent = spentIn(month)
-  const rate = savingRate(month.income.received, spent)
+  const received = simple ? monthFlow(month).received : month.income.received
+  const rate = savingRate(received, spent)
   const categories = Object.entries(spentByCategory(month.transactions, t("report.uncategorised"))).sort((a, b) => b[1] - a[1]).slice(0, TOP_CATEGORIES)
 
   function savePdf() {
@@ -46,16 +51,16 @@ export function MonthReport() {
       {
         heading: t("report.summary"),
         rows: [
-          [t("income.received"), money(month.income.received)],
+          [t("income.received"), money(received)],
           [t("plan.spent"), money(spent)],
           ...(rate !== null ? [[t("report.rate"), `${rate}%`] as [string, string]] : []),
           [t("report.monthOverMonth", { delta: "" }).replace(/[:：]?\s*$/, ""), signed(spent - spentIn(previous))],
         ],
       },
-      {
+      ...(simple ? [] : [{
         heading: t("report.plannedVsActual"),
-        rows: month.figures.buckets.map((f) => [month.buckets.find((b) => b.id === f.id)?.name ?? "", `${money(f.spent + f.transfersOut)} / ${money(f.allocated)}`]),
-      },
+        rows: month.figures.buckets.map((f): [string, string] => [month.buckets.find((b) => b.id === f.id)?.name ?? "", `${money(f.spent + f.transfersOut)} / ${money(f.allocated)}`]),
+      }]),
       { heading: t("report.topCategories"), rows: categories.map(([name, amount]) => [name, money(amount)]) },
     ], i18n.language === "ar")
   }
@@ -68,14 +73,14 @@ export function MonthReport() {
       <View style={styles.section}>
         <ThemedText variant="headline">{t("report.summary")}</ThemedText>
         <Group>
-          <Row trailing={<ThemedText>{money(month.income.received)}</ThemedText>}><ThemedText>{t("income.received")}</ThemedText></Row>
+          <Row trailing={<ThemedText>{money(received)}</ThemedText>}><ThemedText>{t("income.received")}</ThemedText></Row>
           <Row trailing={<ThemedText>{money(spent)}</ThemedText>}><ThemedText>{t("plan.spent")}</ThemedText></Row>
           {rate !== null ? <Row><ThemedText testID="report-saving-rate">{t("report.savingRate", { rate })}</ThemedText></Row> : null}
           <Row last><ThemedText variant="subhead">{t("report.monthOverMonth", { delta: signed(spent - spentIn(previous)) })}</ThemedText></Row>
         </Group>
       </View>
 
-      <View style={styles.section}>
+      {simple ? null : <View style={styles.section}>
         <ThemedText variant="headline">{t("report.plannedVsActual")}</ThemedText>
         <Group>
           {month.figures.buckets.length === 0 ? <Row last><ThemedText variant="subhead">{t("plan.noBuckets")}</ThemedText></Row> : null}
@@ -98,7 +103,7 @@ export function MonthReport() {
             )
           })}
         </Group>
-      </View>
+      </View>}
 
       <View style={styles.section}>
         <ThemedText variant="headline">{t("report.topCategories")}</ThemedText>
@@ -111,9 +116,11 @@ export function MonthReport() {
       </View>
 
       <Button testID="report-pdf" variant="secondary" title={t("report.savePdf")} onPress={() => void savePdf()} />
-      <Group>
-        <LinkRow testID="open-year-report" href="/report-year" last><ThemedText>{t("report.year")}</ThemedText></LinkRow>
-      </Group>
+      {simple ? null : (
+        <Group>
+          <LinkRow testID="open-year-report" href="/report-year" last><ThemedText>{t("report.year")}</ThemedText></LinkRow>
+        </Group>
+      )}
     </Screen>
   )
 }

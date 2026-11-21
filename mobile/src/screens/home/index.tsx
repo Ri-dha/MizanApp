@@ -12,6 +12,7 @@ import { Notice } from "@/components/notice"
 import { Group } from "@/components/row"
 import { Screen } from "@/components/screen"
 import { ThemedText } from "@/components/themed-text"
+import { useAppMode } from "@/hooks/use-app-mode"
 import { useSession } from "@/hooks/use-core"
 import { useHomeLayout } from "@/hooks/use-home-layout"
 import { useNetWorth } from "@/hooks/use-views"
@@ -26,6 +27,7 @@ export function Home() {
   const layout = useHomeLayout()
   const prefs = usePreferences()
   const worth = useNetWorth()
+  const simple = useAppMode() === "simple"
   const stale = staleAssets(worth.assets, worth.valuations, todayIso(), prefs.valuationReminderMonths)
   return (
     <Screen>
@@ -40,7 +42,7 @@ export function Home() {
       <AwaitingKey />
       <ShownCurrencyBadge />
       <Announcements />
-      {stale.length > 0 ? (
+      {stale.length > 0 && !simple ? (
         <Link href="/assets" asChild>
           <Pressable testID="open-stale-assets" accessibilityRole="link">
             <Notice>{t("assets.stalePrompt", { count: stale.length, name: stale[0].name, months: prefs.valuationReminderMonths })}</Notice>

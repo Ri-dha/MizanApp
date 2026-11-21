@@ -21,6 +21,8 @@ import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
+import { AppModeChoice } from "@/components/app-mode-choice"
+import { useAppMode } from "@/hooks/use-app-mode"
 import { useLiveQuery, useLockState, useSession } from "@/hooks/use-core"
 import { SUPPORTED_LOCALES, applyTheme, directionNeedsRestart, localeFor } from "@/platform/appearance"
 import { disablePhonePush, enablePhonePush, phonePushState, sendTestPush, type PhonePushState } from "@/platform/push"
@@ -68,6 +70,8 @@ export function Settings() {
   const session = useSession()
   // §4.2: an advisor has no records, Home or reminders; a viewer cannot write records.
   const advisor = session?.role === "ADVISOR"
+  const restricted = advisor || session?.role === "DEPENDENT"
+  const mode = useAppMode()
   const writes = mayWriteRecords(session?.role ?? "OWNER")
   const lockState = useLockState()
   const prefs = usePreferences()
@@ -197,11 +201,17 @@ export function Settings() {
         <CurrencySettings />
       </Section>
 
-      <Section title={t("settings.household")} body={t("settings.householdBody", { name: session?.householdName ?? "", role: t(`household.roles.${session?.role ?? "OWNER"}`) })}>
-        <Group><LinkRow href="/household" last><ThemedText>{t("household.manage")}</ThemedText></LinkRow></Group>
-      </Section>
+      {!restricted ? (
+        <Section title={t("appMode.title")} body={t("appMode.body")}>
+          <AppModeChoice value={mode} onChange={(next) => setPreferences({ appMode: next })} />
+        </Section>
+      ) : null}
 
-      {writes ? (
+      {mode === "advanced" ? <Section title={t("settings.household")} body={t("settings.householdBody", { name: session?.householdName ?? "", role: t(`household.roles.${session?.role ?? "OWNER"}`) })}>
+        <Group><LinkRow href="/household" last><ThemedText>{t("household.manage")}</ThemedText></LinkRow></Group>
+      </Section> : null}
+
+      {writes && mode === "advanced" ? (
         <Section title={t("privacy.title")} body={t("privacy.body")}>
           <Group>
             {PRIVACY_KINDS.map((kind, index) => (

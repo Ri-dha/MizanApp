@@ -28,6 +28,7 @@ import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
+import { useAppMode } from "@/hooks/use-app-mode"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing, useBrandColors } from "@/theme"
 import { dateOf, isoOf } from "@/utils/dates"
@@ -67,6 +68,9 @@ export function TransactionEditor({ id }: { id?: string }) {
   }
   const [occurredOn, setOccurredOn] = useState(todayIso())
   const [bucketId, setBucketId] = useState<string | null>(null)
+  // ADR mode-1: simple mode records money in and out with no bucket. A bucket transfer opened for editing keeps its form.
+  const bucketless = useAppMode() === "simple" && type !== "TRANSFER"
+  const types = bucketless ? TYPES.filter((choice) => choice !== "TRANSFER") : TYPES
   const [counterparty, setCounterparty] = useState<string | null>(null)
   const [payee, setPayee] = useState("")
   const [category, setCategory] = useState("")
@@ -120,10 +124,10 @@ export function TransactionEditor({ id }: { id?: string }) {
       if (!suggestion) return
       setCategory(suggestion.category)
       setSuggested(suggestion.category)
-      if (!bucketId && suggestion.bucketId && buckets.some((b) => b.id === suggestion.bucketId)) setBucketId(suggestion.bucketId)
+      if (!bucketless && !bucketId && suggestion.bucketId && buckets.some((b) => b.id === suggestion.bucketId)) setBucketId(suggestion.bucketId)
     }, SUGGEST_AFTER_MS)
     return () => clearTimeout(timer)
-  }, [payee, note, type, id, category, bucketId, buckets, history])
+  }, [payee, note, type, id, category, bucketId, buckets, history, bucketless])
 
   const counterparties = useMemo(() => [
     ...buckets.filter((b) => b.id !== bucketId).map((b) => ({ value: `BUCKET:${b.id}`, label: `${t("transactions.bucket")}: ${b.name}` })),
@@ -136,7 +140,7 @@ export function TransactionEditor({ id }: { id?: string }) {
   const splitTotal = parts.reduce((sum, p) => sum + (p.amount ? toMinorUnits(p.amount, currency) : 0), 0)
   const splitRemainder = toMinorUnits(amount || "0", currency) - splitTotal
   const partOfSplit = !!existing?.splitGroupId
-  const canSave = !!amount && (type === "INCOME" || split || !!bucketId)
+  const canSave = !!amount && (type === "INCOME" || bucketless || split || !!bucketId)
 
   async function save() {
     setProblem(null)
@@ -191,9 +195,9 @@ export function TransactionEditor({ id }: { id?: string }) {
       {partOfSplit ? <Notice>{t("transactions.partOfSplit")}</Notice> : null}
       <SegmentedControl
         testID="transaction-type"
-        values={TYPES.map((value) => t(`transactions.types.${value}`))}
-        selectedIndex={TYPES.indexOf(type)}
-        onChange={(event) => setType(TYPES[event.nativeEvent.selectedSegmentIndex])}
+        values={types.map((value) => t(`transactions.types.${value}`))}
+        selectedIndex={types.indexOf(type)}
+        onChange={(event) => setType(types[event.nativeEvent.selectedSegmentIndex])}
       />
       <View style={styles.amountRow}>
         <View style={styles.amount}>
@@ -209,7 +213,7 @@ export function TransactionEditor({ id }: { id?: string }) {
         <DateTimePicker value={dateOf(occurredOn)} mode="date" display="compact" accentColor={brand.primary} locale={i18n.language} onChange={(_, date) => date && setOccurredOn(isoOf(date))} />
       </View>
 
-      {type !== "INCOME" && !split ? (
+      {type !== "INCOME" && !split && !bucketless ? (
         <View style={styles.field}>
           <ThemedText variant="subhead">{type === "TRANSFER" ? t("transactions.fromBucket") : t("transactions.bucket")}</ThemedText>
           {buckets.length === 0 ? <ThemedText variant="subhead">{t("plan.noBuckets")}</ThemedText> : <Chips testID="bucket" options={bucketChips} value={bucketId} onChange={setBucketId} />}
@@ -228,7 +232,7 @@ export function TransactionEditor({ id }: { id?: string }) {
         </View>
       ) : null}
 
-      {type === "EXPENSE" && !id ? <ToggleRow testID="split" label={t("transactions.split")} value={split} onChange={(on) => { setSplit(on); if (on && parts.length === 0) setParts([{ bucketId: null, amount: "" }]) }} /> : null}
+      {type === "EXPENSE" && !id && !bucketless ? <ToggleRow testID="split" label={t("transactions.split")} value={split} onChange={(on) => { setSplit(on); if (on && parts.length === 0) setParts([{ bucketId: null, amount: "" }]) }} /> : null}
       {split ? (
         <Group>
           <View style={styles.parts}>

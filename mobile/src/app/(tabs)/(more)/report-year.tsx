@@ -1,5 +1,6 @@
+import { AreaGate } from "@/components/area-gate"
 import { YearReport } from "@/screens/report/year"
 
 export default function YearReportScreen() {
-  return <YearReport />
+  return <AreaGate area="yearReport"><YearReport /></AreaGate>
 }

@@ -7,7 +7,7 @@ import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { liveDebts } from "@mizan/core/db/debts"
 import { liveGoals } from "@mizan/core/db/goals"
 import {
-  addWidget, DEFAULT_LAYOUT, definitionOf, MAX_TITLE, moveWidget, removeWidget, saveHomeLayout, shownWidgets, updateWidget, WIDGETS,
+  addWidget, DEFAULT_LAYOUT, definitionOf, MAX_TITLE, placeWidget, removeWidget, saveHomeLayout, shownWidgets, templatesFor, updateWidget, widgetsFor,
   type HomeWidget, type WidgetDefinition, type WidgetSize,
 } from "@mizan/core/db/homeLayout"
 import { Button } from "@/components/button"
@@ -17,6 +17,7 @@ import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery } from "@/hooks/use-core"
+import { useAppMode } from "@/hooks/use-app-mode"
 import { useHomeLayout } from "@/hooks/use-home-layout"
 import { colors, radius, spacing, useBrandColors } from "@/theme"
 
@@ -52,7 +53,9 @@ export function HomeLayoutEditor() {
   const choices = useChoices()
   const [adding, setAdding] = useState(false)
   const save = (next: HomeWidget[]) => void saveHomeLayout(next)
-  const shown = shownWidgets(layout)
+  const mode = useAppMode()
+  // Cards simple mode leaves out stay in the saved layout, in place, for when the person switches back.
+  const shown = widgetsFor(mode, shownWidgets(layout))
 
   return (
     <Screen>
@@ -61,6 +64,7 @@ export function HomeLayoutEditor() {
       {shown.length === 0 ? <ThemedText variant="subhead">{t("homeLayout.empty")}</ThemedText> : null}
       {shown.map((widget, index) => (
         <CardEditor key={widget.id} widget={widget} index={index} count={shown.length} layout={layout} save={save}
+          move={(step) => save(placeWidget(layout, widget.id, layout.findIndex((w) => w.id === shown[index + step]?.id)))}
           choices={definitionOf(widget.kind)?.picks ? choices[definitionOf(widget.kind)!.picks!] : undefined} />
       ))}
       <Button testID="reset-home" variant="secondary" title={t("homeLayout.reset")} onPress={() => save(DEFAULT_LAYOUT)} />
@@ -68,7 +72,7 @@ export function HomeLayoutEditor() {
         visible={adding}
         title={t("homeLayout.templates")}
         onClose={() => setAdding(false)}
-        items={WIDGETS.map((template) => ({ id: template.kind, name: t(`homeLayout.kinds.${template.kind}`) }))}
+        items={templatesFor(mode).map((template) => ({ id: template.kind, name: t(`homeLayout.kinds.${template.kind}`) }))}
         onPick={(kind) => {
           setAdding(false)
           save(addWidget(layout, kind as HomeWidget["kind"]))
@@ -79,8 +83,9 @@ export function HomeLayoutEditor() {
   )
 }
 
-function CardEditor({ widget, index, count, layout, save, choices }: {
+function CardEditor({ widget, index, count, layout, save, move, choices }: {
   widget: HomeWidget
+  move: (step: -1 | 1) => void
   index: number
   count: number
   layout: HomeWidget[]
@@ -167,8 +172,8 @@ function CardEditor({ widget, index, count, layout, save, choices }: {
       ) : null}
       <Row last>
         <View style={styles.moves}>
-          <Button testID={`card-${widget.id}-up`} variant="ghost" title={`↑ ${t("homeLayout.moveUp")}`} disabled={index === 0} onPress={() => save(moveWidget(layout, widget.id, -1))} />
-          <Button testID={`card-${widget.id}-down`} variant="ghost" title={`↓ ${t("homeLayout.moveDown")}`} disabled={index === count - 1} onPress={() => save(moveWidget(layout, widget.id, 1))} />
+          <Button testID={`card-${widget.id}-up`} variant="ghost" title={`↑ ${t("homeLayout.moveUp")}`} disabled={index === 0} onPress={() => move(-1)} />
+          <Button testID={`card-${widget.id}-down`} variant="ghost" title={`↓ ${t("homeLayout.moveDown")}`} disabled={index === count - 1} onPress={() => move(1)} />
           <Button testID={`card-${widget.id}-remove`} variant="ghost" title={t("homeLayout.remove", { card: widget.title || templateName })}
             onPress={() => save(removeWidget(layout, widget.id))} />
         </View>

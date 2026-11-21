@@ -21,7 +21,8 @@ import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { currentMonthKey, useMonthView, useNetWorth } from "@/hooks/use-views"
 import { colors, radius, spacing, type, useBrandColors } from "@/theme"
-import { pickedFrom, shownWidgets } from "@mizan/core/db/homeLayout"
+import { pickedFrom, shownWidgets, widgetsFor } from "@mizan/core/db/homeLayout"
+import { useAppMode } from "@/hooks/use-app-mode"
 import { monthFlow } from "@mizan/core/db/monthView"
 
 const MICROS = 1_000_000
@@ -99,12 +100,19 @@ function NetWorthCard({ widget }: WidgetProps) {
   const { t } = useTranslation()
   const { money } = useMoney()
   const worth = useNetWorth()
+  const simple = useAppMode() === "simple"
   const classes = widget.options.breakdown === "classes" ? worth.current.composition.filter((c) => c.amount !== 0) : []
+  // Simple mode still counts what was recorded in advanced mode, and says so, so the total never changes with the mode.
+  const hiddenCounted = simple && worth.current.composition.some((c) => c.amount !== 0 && c.assetClass !== "CASH" && c.assetClass !== "RECEIVABLES")
+  const rows = [
+    ...classes.map((c, i) => <Line key={c.assetClass} label={t(`networth.classes.${c.assetClass}`)} value={money(c.amount)} last={!hiddenCounted && i === classes.length - 1} />),
+    ...(hiddenCounted ? [<Empty key="includes-advanced" text={t("appMode.includesAdvanced")} />] : []),
+  ]
   return (
-    <Card testID="home-networth" compact={widget.size === "compact"} title={widget.title || t("home.netWorth")} href="/networth"
+    <Card testID="home-networth" compact={widget.size === "compact"} title={widget.title || t("home.netWorth")} href={simple ? "/accounts" : "/networth"}
       figure={money(worth.current.netWorth)} figureNegative={worth.current.netWorth < 0}
       detail={widget.options.breakdown === "totals" ? `${t("networth.assets")}: ${money(worth.current.totalAssets)} · ${t("networth.liabilities")}: ${money(worth.current.totalLiabilities)}` : undefined}>
-      {classes.length > 0 ? classes.map((c, i) => <Line key={c.assetClass} label={t(`networth.classes.${c.assetClass}`)} value={money(c.amount)} last={i === classes.length - 1} />) : undefined}
+      {rows.length > 0 ? rows : undefined}
     </Card>
   )
 }
@@ -268,9 +276,10 @@ const CARDS: Record<HomeWidget["kind"], (props: WidgetProps) => ReactNode> = {
 }
 
 export function HomeCards({ layout }: { layout: HomeWidget[] }) {
+  const mode = useAppMode()
   return (
     <>
-      {shownWidgets(layout).map((widget) => {
+      {widgetsFor(mode, shownWidgets(layout)).map((widget) => {
         const Widget = CARDS[widget.kind]
         return <Widget key={widget.id} widget={widget} />
       })}

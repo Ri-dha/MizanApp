@@ -1,5 +1,6 @@
+import { AreaGate } from "@/components/area-gate"
 import { Assets } from "@/screens/assets"
 
 export default function AssetsScreen() {
-  return <Assets />
+  return <AreaGate area="assets"><Assets /></AreaGate>
 }
