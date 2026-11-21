@@ -1,5 +1,5 @@
 # T-any-base-currency — Any main currency, country at sign-up, followed rates
-- Status: in review
+- Status: done (2026-11-21, c6df925 on develop and main)
 - Context: user request 2026-11-21; base change re-expresses everything at the day's rate (user's choice). Server and ADR currency-1 in Ri-dha/mizan.
 - Notes: `market/currency.ts` (catalogue, perUsd table, `marketFxRateMicros`, `inBase`, `trackedCurrencies`); `ResolvedPrices`
   gains `base`, `perUsd`, `usdBaseMicros`; `minorUnitsPerMajor` follows Intl (dinar whole); `rateToMicros` takes the base;
