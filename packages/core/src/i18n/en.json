@@ -1517,7 +1517,7 @@
   },
   "homeLayout": {
     "title": "Home screen",
-    "body": "Choose which cards Home shows, their order, their size and what each one shows. Saved for you on every device you sign in on.",
+    "body": "Choose which cards Home shows, their order (drag the handle or use the arrows), their size and what each one shows. Saved for you on every device you sign in on.",
     "customise": "Customise Home",
     "show": "Show on Home",
     "size": "Size",
@@ -1587,7 +1587,15 @@
       }
     },
     "noGoals": "No goals yet.",
-    "noDebts": "Nothing here."
+    "noDebts": "Nothing here.",
+    "drag": "Drag to move {{card}}",
+    "dragInstructions": "To move a card, press space or enter to pick it up, use the arrow keys to move it, and press space or enter again to drop it. Press escape to cancel.",
+    "announce": {
+      "picked": "Picked up {{card}}, position {{position}} of {{count}}.",
+      "over": "{{card}} is over position {{position}}.",
+      "dropped": "{{card}} dropped at position {{position}}.",
+      "cancelled": "Moving {{card}} cancelled."
+    }
   },
   "support": {
     "title": "Report a problem",

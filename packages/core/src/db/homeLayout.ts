@@ -89,6 +89,16 @@ export function moveWidget(widgets: HomeWidget[], kind: WidgetKind, step: -1 | 1
   return next
 }
 
+/** Drag and drop: the widget is taken out and put back at the index it was dropped on. */
+export function placeWidget(widgets: HomeWidget[], kind: WidgetKind, to: number): HomeWidget[] {
+  const from = widgets.findIndex((w) => w.kind === kind)
+  if (from < 0 || to < 0 || to >= widgets.length || from === to) return widgets
+  const next = [...widgets]
+  const [moved] = next.splice(from, 1)
+  next.splice(to, 0, moved)
+  return next
+}
+
 export function updateWidget(widgets: HomeWidget[], kind: WidgetKind, change: Partial<Omit<HomeWidget, "kind" | "options">> & { options?: Record<string, string> }): HomeWidget[] {
   return widgets.map((w) => (w.kind === kind ? { ...w, ...change, options: { ...w.options, ...change.options } } : w))
 }

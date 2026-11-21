@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { DEFAULT_LAYOUT, moveWidget, normaliseLayout, updateWidget, WIDGETS } from "./homeLayout"
+import { DEFAULT_LAYOUT, moveWidget, normaliseLayout, placeWidget, updateWidget, WIDGETS } from "./homeLayout"
 import type { HomeWidget } from "../schema"
 
 describe("home layout", () => {
@@ -42,5 +42,14 @@ describe("home layout", () => {
     const changed = updateWidget(DEFAULT_LAYOUT, "plan", { size: "compact", options: { figure: "spent" } })
     expect(changed.find((w) => w.kind === "plan")).toEqual({ kind: "plan", visible: true, size: "compact", options: { figure: "spent" } })
     expect(changed.filter((w) => w.kind !== "plan")).toEqual(DEFAULT_LAYOUT.filter((w) => w.kind !== "plan"))
+  })
+
+  it("places a dragged card where it was dropped, the others keeping their order", () => {
+    const kinds = (widgets: HomeWidget[]) => widgets.map((w) => w.kind)
+    const start = kinds(DEFAULT_LAYOUT)
+    const moved = placeWidget(DEFAULT_LAYOUT, start[0], 3)
+    expect(kinds(moved)).toEqual([start[1], start[2], start[3], start[0], ...start.slice(4)])
+    expect(placeWidget(DEFAULT_LAYOUT, start[2], 2)).toBe(DEFAULT_LAYOUT)
+    expect(placeWidget(DEFAULT_LAYOUT, start[2], 99)).toBe(DEFAULT_LAYOUT)
   })
 })
