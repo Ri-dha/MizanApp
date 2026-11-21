@@ -21,6 +21,7 @@ import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { currentMonthKey, useMonthView, useNetWorth } from "@/hooks/use-views"
 import { colors, radius, spacing, type, useBrandColors } from "@/theme"
+import { pickedFrom, shownWidgets } from "@mizan/core/db/homeLayout"
 
 const MICROS = 1_000_000
 
@@ -99,7 +100,7 @@ function NetWorthCard({ widget }: WidgetProps) {
   const worth = useNetWorth()
   const classes = widget.options.breakdown === "classes" ? worth.current.composition.filter((c) => c.amount !== 0) : []
   return (
-    <Card testID="home-networth" compact={widget.size === "compact"} title={t("home.netWorth")} href="/networth"
+    <Card testID="home-networth" compact={widget.size === "compact"} title={widget.title || t("home.netWorth")} href="/networth"
       figure={money(worth.current.netWorth)} figureNegative={worth.current.netWorth < 0}
       detail={widget.options.breakdown === "totals" ? `${t("networth.assets")}: ${money(worth.current.totalAssets)} · ${t("networth.liabilities")}: ${money(worth.current.totalLiabilities)}` : undefined}>
       {classes.length > 0 ? classes.map((c, i) => <Line key={c.assetClass} label={t(`networth.classes.${c.assetClass}`)} value={money(c.amount)} last={i === classes.length - 1} />) : undefined}
@@ -120,7 +121,7 @@ function BaghdadDollarCard({ widget }: WidgetProps) {
   // A rate, not an amount: shown in dinars even while amounts are shown in another currency.
   const figure = formatWithDigits(Math.round(micros / MICROS), "IQD", i18n.language, preferences().digitStyle)
   return (
-    <Card testID="home-dollar" compact={widget.size === "compact"} title={t("prices.dollarToday")} href="/prices"
+    <Card testID="home-dollar" compact={widget.size === "compact"} title={widget.title || t("prices.dollarToday")} href="/prices"
       figure={figure} detail={worth.metals.prices.rateSource.label} />
   )
 }
@@ -140,7 +141,7 @@ function FollowedRatesCard({ widget }: WidgetProps) {
   const number = (v: number) => formatCount(v, i18n.language, v >= 100 ? { maximumFractionDigits: 0 } : v >= 1 ? { maximumFractionDigits: 2 } : { maximumSignificantDigits: 4 })
   const first = rows[0]
   return (
-    <Card testID="home-rates" compact={widget.size === "compact"} title={t("worldRates.today", { base })} href="/prices"
+    <Card testID="home-rates" compact={widget.size === "compact"} title={widget.title || t("worldRates.today", { base })} href="/prices"
       figure={widget.size === "compact" ? `1 ${first.code} = ${number(first.rate)} ${base}` : undefined}>
       {widget.size === "compact" ? null : rows.map((r, i) => <Line key={r.code} label={`1 ${r.code}`} value={`${number(r.rate)} ${base}`} last={i === rows.length - 1} />)}
     </Card>
@@ -157,7 +158,7 @@ function PlanCard({ widget }: WidgetProps) {
   const word = t(`homeLayout.options.figure.values.${figure}`)
   const total = month.figures.buckets.reduce((sum, b) => sum + b[figure], 0)
   return (
-    <Card testID="home-plan" compact={widget.size === "compact"} title={t("home.planTitle")} href="/plan"
+    <Card testID="home-plan" compact={widget.size === "compact"} title={widget.title || t("home.planTitle")} href="/plan"
       figure={widget.size === "compact" ? `${money(total)} ${word}` : undefined}
       detail={`${t("home.incomePlanned")}: ${money(month.income.planned)} · ${t("home.incomeReceived")}: ${money(month.income.received)}`}>
       {month.figures.buckets.length === 0 ? <Empty text={t("plan.noBuckets")} /> : month.figures.buckets.map((b, i) => {
@@ -176,7 +177,7 @@ function MetalsCard({ widget }: WidgetProps) {
   const showGain = widget.options.show === "gain"
   const shown = showGain ? total.gain : total.value
   return (
-    <Card testID="home-metals" compact={widget.size === "compact"} title={t("home.metalsTitle")} href="/metals"
+    <Card testID="home-metals" compact={widget.size === "compact"} title={widget.title || t("home.metalsTitle")} href="/metals"
       figure={(showGain && shown > 0 ? "+" : "") + money(shown)} figureNegative={shown < 0}
       detail={metals.lines.length === 0 ? t("home.metalsNone") : showGain ? `${t("metals.valueNow")}: ${money(total.value)}` : `${t("metals.gain")}: ${money(total.gain)}`} />
   )
@@ -191,7 +192,7 @@ function BillsCard({ widget }: WidgetProps) {
   const upcoming = month.bills.filter((b) => !b.occurrence)
   const shown = upcoming.slice(0, Number(widget.options.count))
   return (
-    <Card testID="home-bills" compact={widget.size === "compact"} title={t("home.upcomingBills")} href="/bills"
+    <Card testID="home-bills" compact={widget.size === "compact"} title={widget.title || t("home.upcomingBills")} href="/bills"
       figure={widget.size === "compact" ? money(upcoming.reduce((s, b) => s + b.expectedAmount, 0)) : undefined}>
       {shown.length === 0 ? <Empty text={t("home.noUpcoming")} /> : shown.map((bill, i) => (
         <Line key={`${bill.expense.id}-${bill.dueDate}`} label={`${bill.expense.name} · ${bill.dueDate.slice(5)}`} value={money(bill.expectedAmount)} last={i === shown.length - 1} />
@@ -203,11 +204,11 @@ function BillsCard({ widget }: WidgetProps) {
 function CashCard({ widget }: WidgetProps) {
   const { t } = useTranslation()
   const { money } = useMoney()
-  const accounts = useCashAccounts()
+  const accounts = pickedFrom(widget, useCashAccounts())
   const wanted = widget.options.currency
   const totals = Object.entries(totalsByCurrency(accounts)).filter(([currency]) => wanted === "all" || currency === wanted)
   return (
-    <Card testID="home-cash" compact={widget.size === "compact"} title={t("home.cashTotal")} href="/accounts"
+    <Card testID="home-cash" compact={widget.size === "compact"} title={widget.title || t("home.cashTotal")} href="/accounts"
       figure={widget.size === "compact" ? totals.map(([c, v]) => money(v, c)).join(" · ") || "—" : undefined}
       detail={t("home.accounts", { count: accounts.length })}>
       {totals.length === 0 ? <Empty text={t("home.noAccounts")} /> : totals.map(([currency, total], i) => (
@@ -222,10 +223,10 @@ function GoalsCard({ widget }: WidgetProps) {
   const goals = useLiveQuery(liveGoals, [], [])
   const deposits = useLiveQuery(liveDeposits, [], [])
   const today = todayIso()
-  const active = goals.filter((g) => g.status === "ACTIVE").slice(0, Number(widget.options.count))
+  const active = pickedFrom(widget, goals.filter((g) => g.status === "ACTIVE")).slice(0, Number(widget.options.count))
   const percent = (goal: (typeof active)[number]) => goalProjection(goal.targetAmount, savedOf(goal, deposits), goal.monthlyContribution, goal.targetDate, today).percent
   return (
-    <Card testID="home-goals" compact={widget.size === "compact"} title={t("nav.goals")} href="/goals"
+    <Card testID="home-goals" compact={widget.size === "compact"} title={widget.title || t("nav.goals")} href="/goals"
       figure={widget.size === "compact" && active[0] ? `${active[0].name} · ${percent(active[0])}%` : undefined}>
       {active.length === 0 ? <Empty text={t("homeLayout.noGoals")} /> : active.map((goal, i) => <Line key={goal.id} label={goal.name} value={`${percent(goal)}%`} last={i === active.length - 1} />)}
     </Card>
@@ -237,9 +238,9 @@ function DebtsCard({ widget }: WidgetProps) {
   const { money } = useMoney()
   const debts = useLiveQuery(liveDebts, [], [])
   const payments = useLiveQuery(livePayments, [], [])
-  const listed = debts.filter((d) => d.status === "ACTIVE" && d.direction === widget.options.direction)
+  const listed = pickedFrom(widget, debts.filter((d) => d.status === "ACTIVE" && d.direction === widget.options.direction))
   return (
-    <Card testID="home-debts" compact={widget.size === "compact"} title={t(`homeLayout.options.direction.values.${widget.options.direction}`)} href="/debts"
+    <Card testID="home-debts" compact={widget.size === "compact"} title={widget.title || t(`homeLayout.options.direction.values.${widget.options.direction}`)} href="/debts"
       figure={widget.size === "compact" ? listed.map((d) => money(balanceOf(d, payments), d.currency)).join(" · ") || "—" : undefined}>
       {listed.length === 0 ? <Empty text={t("homeLayout.noDebts")} /> : listed.map((debt, i) => <Line key={debt.id} label={debt.name} value={money(balanceOf(debt, payments), debt.currency)} last={i === listed.length - 1} />)}
     </Card>
@@ -254,9 +255,9 @@ const CARDS: Record<HomeWidget["kind"], (props: WidgetProps) => ReactNode> = {
 export function HomeCards({ layout }: { layout: HomeWidget[] }) {
   return (
     <>
-      {layout.filter((w) => w.visible).map((widget) => {
+      {shownWidgets(layout).map((widget) => {
         const Widget = CARDS[widget.kind]
-        return <Widget key={widget.kind} widget={widget} />
+        return <Widget key={widget.id} widget={widget} />
       })}
     </>
   )

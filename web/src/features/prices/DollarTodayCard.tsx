@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { usePriceSeries } from "@/market/prices"
 
 /** The market dollar today and its move since yesterday's close; hidden until a price is known. */
-export function DollarTodayCard() {
+export function DollarTodayCard({ title }: { title?: string | null } = {}) {
   const { t, i18n } = useTranslation()
   const series = usePriceSeries("usdMarket", "1M")
   const latest = series.changes[0]
@@ -22,7 +22,7 @@ export function DollarTodayCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("prices.dollarToday")}</CardTitle>
+        <CardTitle>{title || t("prices.dollarToday")}</CardTitle>
         <CardDescription className="flex flex-wrap items-center gap-2">
           {t("prices.series.usdMarket")}
           <SourceCredit source={latest.source} />

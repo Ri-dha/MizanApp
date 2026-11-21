@@ -20,6 +20,7 @@ import { liveDeposits, liveGoals, savedOf } from "@mizan/core/db/goals"
 import type { HomeWidget } from "@mizan/core/db/homeLayout"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { goalProjection } from "@mizan/core/domain/goal/projection"
+import { pickedFrom, shownWidgets } from "@mizan/core/db/homeLayout"
 
 interface WidgetProps {
   widget: HomeWidget
@@ -76,7 +77,7 @@ function NetWorthWidget({ widget }: WidgetProps) {
   const worth = useNetWorth()
   const byClass = widget.options.breakdown === "classes"
   return (
-    <WidgetCard tour="home-networth" compact={widget.size === "compact"} title={t("home.netWorth")} to="/networth" action={t("home.openNetWorth")}
+    <WidgetCard tour="home-networth" compact={widget.size === "compact"} title={widget.title || t("home.netWorth")} to="/networth" action={t("home.openNetWorth")}
       figure={money(worth.current.netWorth)} negative={worth.current.netWorth < 0}
       description={byClass ? undefined : `${t("networth.assets")}: ${money(worth.current.totalAssets)} · ${t("networth.liabilities")}: ${money(worth.current.totalLiabilities)}`}>
       {byClass && worth.current.composition.filter((c) => c.amount !== 0).map((c) => <Line key={c.assetClass} label={t(`networth.classes.${c.assetClass}`)} value={money(c.amount)} />)}
@@ -93,7 +94,7 @@ function PlanWidget({ widget }: WidgetProps) {
   const figure = widget.options.figure as "free" | "spent" | "allocated"
   const total = month.figures.buckets.reduce((sum, b) => sum + b[figure], 0)
   return (
-    <WidgetCard tour="home-plan" compact={widget.size === "compact"} title={t("home.planTitle")} to="/plan" action={t("home.viewPlan")}
+    <WidgetCard tour="home-plan" compact={widget.size === "compact"} title={widget.title || t("home.planTitle")} to="/plan" action={t("home.viewPlan")}
       figure={widget.size === "compact" ? `${money(total)} ${t(`homeLayout.options.figure.values.${figure}`)}` : undefined}
       description={`${t("home.incomePlanned")}: ${money(month.income.planned)} · ${t("home.incomeReceived")}: ${money(month.income.received)}`}>
       {month.figures.buckets.map((b) => {
@@ -112,7 +113,7 @@ function MetalsWidget({ widget }: WidgetProps) {
   const total = metals.lines.reduce((acc, l) => ({ value: acc.value + l.valueNow, gain: acc.gain + l.gain }), { value: 0, gain: 0 })
   const shown = showGain ? total.gain : total.value
   return (
-    <WidgetCard tour="home-metals" compact={widget.size === "compact"} title={t("home.metalsTitle")} to="/metals" action={t("nav.metals")}
+    <WidgetCard tour="home-metals" compact={widget.size === "compact"} title={widget.title || t("home.metalsTitle")} to="/metals" action={t("nav.metals")}
       figure={(showGain && shown > 0 ? "+" : "") + money(shown)} negative={shown < 0}
       description={metals.lines.length === 0 ? t("home.metalsNone") : showGain ? `${t("metals.valueNow")}: ${money(total.value)}` : `${t("metals.gain")}: ${money(total.gain)}`} />
   )
@@ -127,7 +128,7 @@ function BillsWidget({ widget }: WidgetProps) {
   const upcoming = month.bills.filter((b) => !b.occurrence)
   const due = upcoming.reduce((sum, b) => sum + b.expectedAmount, 0)
   return (
-    <WidgetCard tour="home-bills" compact={widget.size === "compact"} title={t("home.upcomingBills")} to="/bills" action={t("nav.bills")}
+    <WidgetCard tour="home-bills" compact={widget.size === "compact"} title={widget.title || t("home.upcomingBills")} to="/bills" action={t("nav.bills")}
       figure={widget.size === "compact" ? money(due) : undefined}>
       {upcoming.slice(0, Number(widget.options.count)).map((bill) => (
         <Line key={`${bill.expense.id}-${bill.dueDate}`} label={<>{bill.expense.name} <span className="text-xs opacity-70">{bill.dueDate.slice(5)}</span></>} value={money(bill.expectedAmount)} />
@@ -140,11 +141,11 @@ function BillsWidget({ widget }: WidgetProps) {
 function CashWidget({ widget }: WidgetProps) {
   const { t } = useTranslation()
   const { money } = useMoney()
-  const accounts = useAccountsNow()
+  const accounts = pickedFrom(widget, useAccountsNow())
   const wanted = widget.options.currency
   const totals = Object.entries(totalsByCurrency(accounts)).filter(([currency]) => wanted === "all" || currency === wanted)
   return (
-    <WidgetCard compact={widget.size === "compact"} title={t("home.cashTotal")} to="/accounts" action={accounts.length === 0 ? t("home.addAccount") : t("nav.accounts")}
+    <WidgetCard compact={widget.size === "compact"} title={widget.title || t("home.cashTotal")} to="/accounts" action={accounts.length === 0 ? t("home.addAccount") : t("nav.accounts")}
       figure={widget.size === "compact" && totals[0] ? totals.map(([c, v]) => money(v, c)).join(" · ") : undefined}
       description={t("home.accounts", { count: accounts.length })}>
       {accounts.length === 0 && <p>{t("home.noAccounts")}</p>}
@@ -157,11 +158,11 @@ function GoalsWidget({ widget }: WidgetProps) {
   const { t } = useTranslation()
   const goals = useLiveQuery(liveGoals, [], [])
   const deposits = useLiveQuery(liveDeposits, [], [])
-  const active = goals.filter((g) => g.status === "ACTIVE").slice(0, Number(widget.options.count))
+  const active = pickedFrom(widget, goals.filter((g) => g.status === "ACTIVE")).slice(0, Number(widget.options.count))
   const today = todayIso()
   const percentOf = (goal: typeof active[number]) => goalProjection(goal.targetAmount, savedOf(goal, deposits), goal.monthlyContribution, goal.targetDate, today).percent
   return (
-    <WidgetCard compact={widget.size === "compact"} title={t("nav.goals")} to="/goals" action={t("nav.goals")}
+    <WidgetCard compact={widget.size === "compact"} title={widget.title || t("nav.goals")} to="/goals" action={t("nav.goals")}
       figure={widget.size === "compact" && active[0] ? `${active[0].name} · ${percentOf(active[0])}%` : undefined}>
       {active.length === 0 && <p className="opacity-70">{t("homeLayout.noGoals")}</p>}
       {active.map((goal) => <Line key={goal.id} label={goal.name} value={`${percentOf(goal)}%`} />)}
@@ -174,9 +175,9 @@ function DebtsWidget({ widget }: WidgetProps) {
   const { money } = useMoney()
   const debts = useLiveQuery(liveDebts, [], [])
   const payments = useLiveQuery(livePayments, [], [])
-  const listed = debts.filter((d) => d.status === "ACTIVE" && d.direction === widget.options.direction)
+  const listed = pickedFrom(widget, debts.filter((d) => d.status === "ACTIVE" && d.direction === widget.options.direction))
   return (
-    <WidgetCard compact={widget.size === "compact"} title={t(`homeLayout.options.direction.values.${widget.options.direction}`)} to="/debts" action={t("nav.debts")}
+    <WidgetCard compact={widget.size === "compact"} title={widget.title || t(`homeLayout.options.direction.values.${widget.options.direction}`)} to="/debts" action={t("nav.debts")}
       figure={widget.size === "compact" ? listed.map((d) => money(balanceOf(d, payments), d.currency)).join(" · ") || "—" : undefined}>
       {listed.length === 0 && <p className="opacity-70">{t("homeLayout.noDebts")}</p>}
       {listed.map((debt) => <Line key={debt.id} label={debt.name} value={money(balanceOf(debt, payments), debt.currency)} />)}
@@ -186,7 +187,7 @@ function DebtsWidget({ widget }: WidgetProps) {
 
 const RENDERERS: Record<HomeWidget["kind"], (props: WidgetProps) => ReactNode> = {
   netWorth: NetWorthWidget,
-  dollar: () => <RatesTodayCard />,
+  dollar: ({ widget }) => <RatesTodayCard title={widget.title} />,
   plan: PlanWidget,
   metals: MetalsWidget,
   bills: BillsWidget,
@@ -198,9 +199,9 @@ const RENDERERS: Record<HomeWidget["kind"], (props: WidgetProps) => ReactNode> =
 export function HomeWidgets({ layout }: { layout: HomeWidget[] }) {
   return (
     <>
-      {layout.filter((w) => w.visible).map((widget) => {
+      {shownWidgets(layout).map((widget) => {
         const Widget = RENDERERS[widget.kind]
-        return <Widget key={widget.kind} widget={widget} />
+        return <Widget key={widget.id} widget={widget} />
       })}
     </>
   )

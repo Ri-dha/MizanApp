@@ -27,9 +27,9 @@ export function HomeLayoutEditor() {
       {layout.map((widget, index) => {
         const definition = definitionOf(widget.kind)
         return (
-          <Group key={widget.kind}>
+          <Group key={widget.id}>
             <Row>
-              <ToggleRow testID={`widget-${widget.kind}`} label={t(`homeLayout.kinds.${widget.kind}`)} value={widget.visible} onChange={(visible) => save(updateWidget(layout, widget.kind, { visible }))} />
+              <ToggleRow testID={`widget-${widget.kind}`} label={widget.title || t(`homeLayout.kinds.${widget.kind}`)} value={widget.visible} onChange={(visible) => save(updateWidget(layout, widget.id, { visible }))} />
             </Row>
             {widget.visible ? (
               <Row>
@@ -39,7 +39,7 @@ export function HomeLayoutEditor() {
                     testID={`widget-${widget.kind}-size`}
                     options={SIZES.map((size) => ({ value: size, label: t(`homeLayout.sizes.${size}`) }))}
                     value={widget.size}
-                    onChange={(size) => size && save(updateWidget(layout, widget.kind, { size: size as WidgetSize }))}
+                    onChange={(size) => size && save(updateWidget(layout, widget.id, { size: size as WidgetSize }))}
                   />
                 </View>
               </Row>
@@ -53,7 +53,7 @@ export function HomeLayoutEditor() {
                         testID={`widget-${widget.kind}-${option.key}`}
                         options={option.values.map((value) => ({ value, label: t(`homeLayout.options.${option.key}.values.${value}`) }))}
                         value={widget.options[option.key]}
-                        onChange={(value) => value && save(updateWidget(layout, widget.kind, { options: { [option.key]: value } }))}
+                        onChange={(value) => value && save(updateWidget(layout, widget.id, { options: { [option.key]: value } }))}
                       />
                     </View>
                   </Row>
@@ -61,8 +61,8 @@ export function HomeLayoutEditor() {
               : null}
             <Row last>
               <View style={styles.moves}>
-                <Button testID={`up-${widget.kind}`} variant="ghost" title={`↑ ${t("homeLayout.moveUp")}`} disabled={index === 0} onPress={() => save(moveWidget(layout, widget.kind, -1))} />
-                <Button testID={`down-${widget.kind}`} variant="ghost" title={`↓ ${t("homeLayout.moveDown")}`} disabled={index === layout.length - 1} onPress={() => save(moveWidget(layout, widget.kind, 1))} />
+                <Button testID={`up-${widget.kind}`} variant="ghost" title={`↑ ${t("homeLayout.moveUp")}`} disabled={index === 0} onPress={() => save(moveWidget(layout, widget.id, -1))} />
+                <Button testID={`down-${widget.kind}`} variant="ghost" title={`↓ ${t("homeLayout.moveDown")}`} disabled={index === layout.length - 1} onPress={() => save(moveWidget(layout, widget.id, 1))} />
               </View>
             </Row>
           </Group>

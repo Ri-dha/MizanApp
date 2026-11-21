@@ -1517,7 +1517,7 @@
   },
   "homeLayout": {
     "title": "Home screen",
-    "body": "Choose which cards Home shows, their order (drag the handle or use the arrows), their size and what each one shows. Saved for you on every device you sign in on.",
+    "body": "The cards on Home. Add a card from a template, as many as you like; rename it, choose its size and what it shows, limit it to some accounts, goals or debts, drag it into place, or remove it. Saved for you on every device you sign in on.",
     "customise": "Customise Home",
     "show": "Show on Home",
     "size": "Size",
@@ -1595,6 +1595,26 @@
       "over": "{{card}} is over position {{position}}.",
       "dropped": "{{card}} dropped at position {{position}}.",
       "cancelled": "Moving {{card}} cancelled."
+    },
+    "add": "Add a card",
+    "templates": "Templates",
+    "empty": "Home shows no cards. Add one from a template.",
+    "cardName": "Name of the {{card}} card",
+    "remove": "Remove {{card}}",
+    "pickHint": "None ticked shows all of them.",
+    "picks": {
+      "accounts": {
+        "label": "Accounts",
+        "all": "All accounts"
+      },
+      "goals": {
+        "label": "Goals",
+        "all": "All goals"
+      },
+      "debts": {
+        "label": "Debts",
+        "all": "All debts"
+      }
     }
   },
   "support": {

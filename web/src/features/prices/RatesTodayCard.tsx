@@ -14,12 +14,12 @@ import { DollarTodayCard } from "./DollarTodayCard"
 const SHOWN = 4
 
 /** The home rates widget: the Baghdad dollar for people in Iraq, the first followed currencies for everyone else. */
-export function RatesTodayCard() {
+export function RatesTodayCard({ title }: { title?: string | null }) {
   const iraqi = useIraqi()
-  return iraqi ? <DollarTodayCard /> : <FollowedRatesCard />
+  return iraqi ? <DollarTodayCard title={title} /> : <FollowedRatesCard title={title} />
 }
 
-function FollowedRatesCard() {
+function FollowedRatesCard({ title }: { title?: string | null }) {
   const { t, i18n } = useTranslation()
   const { digitStyle } = usePreferences()
   const session = useSession()
@@ -33,7 +33,7 @@ function FollowedRatesCard() {
   const number = (v: number) => formatNumber(v, i18n.language, v >= 100 ? { maximumFractionDigits: 0 } : v >= 1 ? { maximumFractionDigits: 2 } : { maximumSignificantDigits: 4 }, digitStyle)
   return (
     <Card>
-      <CardHeader><CardTitle>{t("worldRates.today", { base })}</CardTitle></CardHeader>
+      <CardHeader><CardTitle>{title || t("worldRates.today", { base })}</CardTitle></CardHeader>
       <CardContent className="flex flex-wrap items-end justify-between gap-4">
         <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-4">
           {rows.map((r) => (

@@ -35,3 +35,9 @@ this need, and every key would need its own merge rules).
   languages; old devices simply do not show it.
 - Tours skip steps whose card is hidden.
 - Other per-person preferences can follow the same pattern later if they should sync.
+
+## Amendment (2026-11-21, T-home-templates)
+Cards are made from templates and may repeat: each has an id (a card saved earlier takes its kind
+as id), an optional name, and, for cash, goals and debts cards, a list of the accounts, goals or
+debts it shows. Removing the last card of a kind hides it instead, because an app from before this
+change expects one of each kind. No server change: the layout is one sealed field.

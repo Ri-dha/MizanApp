@@ -339,10 +339,16 @@ export type WidgetKind = "netWorth" | "dollar" | "plan" | "metals" | "bills" | "
 export type WidgetSize = "compact" | "full"
 
 export interface HomeWidget {
+  /** One card made from a template; the kind for cards saved before cards could repeat (T-home-templates). */
+  id: string
   kind: WidgetKind
   visible: boolean
   size: WidgetSize
   options: Record<string, string>
+  /** The person's own name for the card; empty shows the template's. */
+  title?: string | null
+  /** For cash, goals and debts cards: which accounts, goals or debts to show; empty shows them all. */
+  pick?: string[]
 }
 
 export interface NotificationSetting extends Syncable {
