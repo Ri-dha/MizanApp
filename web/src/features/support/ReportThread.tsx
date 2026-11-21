@@ -37,7 +37,7 @@ export function ReportThread({ report, asOperator }: { report: ReportDetail; asO
             {message.attachments.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {message.attachments.map((image) => (
-                  <ReportImage key={image.id} reportId={report.id} imageId={image.id} asOperator={asOperator} number={++imageNumber} />
+                  <ReportImage key={image.id} reportId={report.id} imageId={image.id} asOperator={asOperator} number={++imageNumber} removed={!!image.removedAt} />
                 ))}
               </div>
             )}

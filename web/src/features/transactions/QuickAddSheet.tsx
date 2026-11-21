@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils"
 import { useLiveQuery } from "dexie-react-hooks"
 import { CurrencySelect } from "@/features/currency/CurrencySelect"
 import { useTodayRate } from "@/features/currency/useCurrencies"
+import { lastAccount, NO_ACCOUNT, rememberAccount } from "@/features/accounts/lastAccount"
 
 const TYPES: TransactionType[] = ["EXPENSE", "TRANSFER", "INCOME"]
 
@@ -45,26 +46,6 @@ interface Props {
  * FR-TRX-01: amount, a bucket chip and Save are the only required taps; the date defaults to
  * today and everything else is optional. Doubles as the editor for an existing row.
  */
-const NO_ACCOUNT = "none"
-const LAST_ACCOUNT_KEY = "mizan.lastCashAccount"
-
-/** The account last used on this device, so a run of purchases from one wallet needs no picking. */
-function lastAccount(): string {
-  try {
-    return localStorage.getItem(LAST_ACCOUNT_KEY) ?? NO_ACCOUNT
-  } catch {
-    return NO_ACCOUNT
-  }
-}
-
-function rememberAccount(id: string) {
-  try {
-    localStorage.setItem(LAST_ACCOUNT_KEY, id)
-  } catch {
-    // A per-device convenience; losing it costs one extra pick.
-  }
-}
-
 export function QuickAddSheet({ open, transaction, onClose }: Props) {
   const { t, i18n } = useTranslation()
   const privacy = usePrivacyDefaults()

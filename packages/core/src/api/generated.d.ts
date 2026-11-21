@@ -845,6 +845,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sync/wait": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Held open until the household's feed moves past `since`, or the wait times out
+         * @description ADR sync-4: answers at once when there is already something to pull. Devices call it again after each answer.
+         */
+        get: operations["waitForChanges"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sync/pull": {
         parameters: {
             query?: never;
@@ -1442,6 +1462,8 @@ export interface components {
             contentType: string;
             /** Format: int32 */
             sizeBytes: number;
+            /** Format: date-time */
+            removedAt?: string;
         };
         ReportDetailResponse: {
             /** Format: uuid */
@@ -1890,6 +1912,9 @@ export interface components {
             expiresAt?: string;
             you: boolean;
         };
+        SyncWaitResponse: {
+            changed: boolean;
+        };
         SyncPullResponse: {
             records: components["schemas"]["SyncRecordResponse"][];
             /** Format: int64 */
@@ -1991,14 +2016,14 @@ export interface components {
             catalogue: components["schemas"]["JsonNode"];
         };
         JsonNode: {
-            floatingPointNumber?: boolean;
+            number?: boolean;
+            valueNode?: boolean;
+            container?: boolean;
+            missingNode?: boolean;
             /** @enum {string} */
             nodeType?: "ARRAY" | "BINARY" | "BOOLEAN" | "MISSING" | "NULL" | "NUMBER" | "OBJECT" | "POJO" | "STRING";
             string?: boolean;
             integralNumber?: boolean;
-            missingNode?: boolean;
-            valueNode?: boolean;
-            container?: boolean;
             pojo?: boolean;
             int?: boolean;
             long?: boolean;
@@ -2009,7 +2034,7 @@ export interface components {
             textual?: boolean;
             boolean?: boolean;
             binary?: boolean;
-            number?: boolean;
+            floatingPointNumber?: boolean;
             empty?: boolean;
             array?: boolean;
             null?: boolean;
@@ -3503,6 +3528,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["VaultStatusResponse"];
+                };
+            };
+        };
+    };
+    waitForChanges: {
+        parameters: {
+            query: {
+                since: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SyncWaitResponse"];
                 };
             };
         };

@@ -22,6 +22,9 @@ import { todayIso } from "@mizan/core/domain/calendar/month"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
 import { CurrencySelect } from "@/features/currency/CurrencySelect"
 import { useTodayRate } from "@/features/currency/useCurrencies"
+import { AccountPicker } from "@/features/accounts/AccountPicker"
+import { NO_ACCOUNT, pickedAccount } from "@/features/accounts/lastAccount"
+import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 
 const NONE = "__none__"
 
@@ -49,6 +52,8 @@ export function DebtSheet({ open, debt, onClose }: { open: boolean; debt: Debt |
   const [bucketId, setBucketId] = useState(NONE)
   const [startDate, setStartDate] = useState(todayIso())
   const [isPrivate, setIsPrivate] = useState(false)
+  const [accountId, setAccountId] = useState(NO_ACCOUNT)
+  const accounts = useLiveQuery(liveCashAccounts, [], [])
 
   useEffect(() => {
     if (!open) return
@@ -64,6 +69,7 @@ export function DebtSheet({ open, debt, onClose }: { open: boolean; debt: Debt |
     setBucketId(debt?.bucketId ?? NONE)
     setStartDate(debt?.startDate ?? todayIso())
     setIsPrivate(debt ? debt.visibility === "PRIVATE" : privacy.debts === "PRIVATE")
+    setAccountId(debt ? debt.cashAccountId ?? NO_ACCOUNT : NO_ACCOUNT)
   }, [open, debt, base, privacy])
 
   const needsRate = currency !== base
@@ -85,8 +91,11 @@ export function DebtSheet({ open, debt, onClose }: { open: boolean; debt: Debt |
       note: null,
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
     }
-    if (debt) await updateDebt(debt.id, input)
-    else await createDebt(input)
+    const cashAccountId = pickedAccount(accountId, accounts)
+    // Rewriting an unchanged account would count the loan again after a balance set by hand (ADR cash-1).
+    const account = debt && (debt.cashAccountId ?? null) === cashAccountId ? {} : { cashAccountId }
+    if (debt) await updateDebt(debt.id, { ...input, ...account })
+    else await createDebt({ ...input, ...account })
     onClose()
   }
 
@@ -144,6 +153,8 @@ export function DebtSheet({ open, debt, onClose }: { open: boolean; debt: Debt |
           <Field id="startDate" label={t("debts.startDate")}>
             <Input id="startDate" type="date" dir="ltr" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
           </Field>
+          <AccountPicker id="debtAccount" label={direction === "OWING" ? t("debts.receivedInto") : t("debts.takenFrom")}
+            value={accountId} onChange={setAccountId} accounts={accounts} />
           <div className="flex items-center gap-2">
             <Switch id="private" checked={isPrivate} onCheckedChange={setIsPrivate} />
             <Label htmlFor="private">{t("accounts.private")}</Label>

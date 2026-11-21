@@ -7,7 +7,7 @@ summary: "Sending a problem, idea or question to the Mizan team with screenshots
 
 Open **More → Report a problem** and press **New report**. Choose whether it is a problem, a suggestion or a question, give it a short subject and describe what you did, what you expected and what you saw instead.
 
-You can attach up to four screenshots or photos. Mizan shrinks them on your device before sending, and removes the location and camera details from them.
+You can attach up to four screenshots or photos. Mizan shrinks them on your device before sending, and removes the location and camera details from them. Photos are deleted six months after a report is resolved; the thread then says a photo was there.
 
 ## Who can read it
 

@@ -19,6 +19,8 @@ export interface DebtInput {
   startDate: string
   note: string | null
   visibility: Visibility
+  /** T-debt-accounts: where the money came from (lent) or went into (borrowed). */
+  cashAccountId?: string | null
 }
 
 export async function createDebt(input: DebtInput): Promise<string> {
@@ -52,7 +54,8 @@ export function baseBalanceOf(debt: Debt, payments: DebtPayment[]): number {
  * Interest for the month is charged on the balance before the payment and frozen on the
  * ledger row, so a later rate change never rewrites what was paid (BR-09).
  */
-export async function recordPayment(debt: Debt, payments: DebtPayment[], amount: number, paidOn: string, monthKey: string, note: string | null) {
+/** {@code cashAccountId}: the account paid from (a debt you owe) or into (one owed to you), ADR cash-1. */
+export async function recordPayment(debt: Debt, payments: DebtPayment[], amount: number, paidOn: string, monthKey: string, note: string | null, cashAccountId: string | null = null) {
   const balanceBefore = balanceOf(debt, payments)
   const interest = monthlyInterest(balanceBefore, debt.annualRateBasisPoints)
   await store().transaction(ALL_TABLES, async () => {
@@ -71,6 +74,7 @@ export async function recordPayment(debt: Debt, payments: DebtPayment[], amount:
       counterpartyId: debt.id,
       attachmentId: null,
       visibility: debt.visibility,
+      cashAccountId,
     })
     await writeFields<DebtPayment>("debt_payment", crypto.randomUUID(), {
       visibility: debt.visibility,

@@ -1,5 +1,5 @@
 import { rows } from "../store/store"
-import type { AccountShare, CashAccount, IncomeReceipt, LedgerTransaction } from "../schema"
+import type { AccountShare, CashAccount, Debt, IncomeReceipt, LedgerTransaction } from "../schema"
 import { inBase } from "../market/currency"
 import { liveCashAccounts } from "./cashAccounts"
 import { createTransaction, updateTransaction } from "./transactions"
@@ -31,12 +31,14 @@ export interface Movement {
   cashAccountId: string
   amount: number
   on: string
-  kind: "INCOME" | "EXPENSE" | "TRANSFER"
+  kind: "INCOME" | "EXPENSE" | "TRANSFER" | "DEBT"
 }
 
 export interface MovementSources {
   receipts: IncomeReceipt[]
   transactions: LedgerTransaction[]
+  /** Every debt, for its direction: a payment on one you owe leaves an account, on one owed to you arrives. */
+  debts: Debt[]
 }
 
 /**
@@ -66,6 +68,15 @@ export function movementsOf(accounts: CashAccount[], sources: MovementSources, p
       movements.push(...transferMovements(transaction, byId, after, perUsd))
       continue
     }
+    if (transaction.type === "TRANSFER" && transaction.counterpartyType === "DEBT") {
+      const debt = sources.debts.find((d) => d.id === transaction.counterpartyId)
+      const account = byId.get(transaction.cashAccountId)
+      if (!debt || !account || !after(account, transaction.clocks?.cashAccountId)) continue
+      const amount = inBase(transaction.amount, transaction.currency, account.currency, perUsd)
+      // Paying what you owe takes money out; someone paying you back puts it in.
+      if (amount !== null) movements.push({ recordId: transaction.id, cashAccountId: account.id, amount: debt.direction === "OWING" ? -amount : amount, on: transaction.occurredOn, kind: "DEBT" })
+      continue
+    }
     if (transaction.type !== "EXPENSE" && transaction.type !== "INCOME") continue
     const account = byId.get(transaction.cashAccountId)
     if (!account || !after(account, transaction.clocks?.cashAccountId)) continue
@@ -73,6 +84,14 @@ export function movementsOf(accounts: CashAccount[], sources: MovementSources, p
     if (amount === null) continue
     const sign = transaction.type === "EXPENSE" ? -1 : 1
     movements.push({ recordId: transaction.id, cashAccountId: account.id, amount: sign * amount, on: transaction.occurredOn, kind: transaction.type })
+  }
+  for (const debt of sources.debts) {
+    if (debt.deletedAt !== null || !debt.cashAccountId) continue
+    const account = byId.get(debt.cashAccountId)
+    if (!account || !after(account, debt.clocks?.cashAccountId)) continue
+    const amount = inBase(debt.principal, debt.currency, account.currency, perUsd)
+    // Borrowing brings money in; lending sends it out.
+    if (amount !== null) movements.push({ recordId: debt.id, cashAccountId: account.id, amount: debt.direction === "OWING" ? amount : -amount, on: debt.startDate, kind: "DEBT" })
   }
   return movements
 }
@@ -109,11 +128,12 @@ export function withMovements(accounts: CashAccount[], movements: Movement[]): C
 }
 
 export async function liveMovementSources(): Promise<MovementSources> {
-  const [receipts, transactions] = await Promise.all([
+  const [receipts, transactions, debts] = await Promise.all([
     rows("incomeReceipts", (r) => r.deletedAt === null && (r.intoAccounts?.length ?? 0) > 0),
     rows("transactions", (t) => t.deletedAt === null && !!t.cashAccountId),
+    rows("debts", (d) => d.deletedAt === null),
   ])
-  return { receipts, transactions }
+  return { receipts, transactions, debts }
 }
 
 /** Every live account with today's balance; what net worth, Home and the Cash screen show. */

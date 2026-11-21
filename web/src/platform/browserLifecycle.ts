@@ -8,4 +8,5 @@ export const browserLifecycle: Lifecycle = {
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") listener()
     }),
+  isForeground: () => document.visibilityState === "visible",
 }

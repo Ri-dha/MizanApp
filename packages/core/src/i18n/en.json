@@ -762,7 +762,10 @@
       "avalanche": "Highest rate first: least interest."
     },
     "strategyOutcome": "Debt-free in {{months}} months · {{interest}} interest",
-    "strategyDifference": "The difference between the two orders is {{amount}} in interest."
+    "strategyDifference": "The difference between the two orders is {{amount}} in interest.",
+    "receivedInto": "Money went into",
+    "takenFrom": "Money came from",
+    "repaidInto": "Received into"
   },
   "goals": {
     "title": "Goals",
@@ -1535,7 +1538,7 @@
     "hidden": "Hidden",
     "kinds": {
       "netWorth": "Net worth",
-      "dollar": "Dollar today",
+      "dollar": "Exchange rates",
       "plan": "This month's plan",
       "metals": "Gold & silver",
       "bills": "Upcoming bills",
@@ -1658,7 +1661,9 @@
     "team": "Mizan support",
     "operator": "Operator",
     "reporter": "Reporter",
-    "closeImage": "Close image"
+    "closeImage": "Close image",
+    "imageRemoved": "Photo removed after the report had been resolved for 6 months",
+    "imageRemovedShort": "Photo removed"
   },
   "currency": {
     "all": "All currencies",

@@ -774,7 +774,10 @@
       "avalanche": "الأعلى فائدة أولاً: أقل فائدة."
     },
     "strategyOutcome": "بلا ديون خلال {{months}} شهراً · فائدة {{interest}}",
-    "strategyDifference": "الفرق بين الترتيبين {{amount}} من الفائدة."
+    "strategyDifference": "الفرق بين الترتيبين {{amount}} من الفائدة.",
+    "receivedInto": "دخل المال إلى",
+    "takenFrom": "خرج المال من",
+    "repaidInto": "استُلم في"
   },
   "goals": {
     "title": "الأهداف",
@@ -1571,7 +1574,7 @@
     "hidden": "مخفية",
     "kinds": {
       "netWorth": "صافي الثروة",
-      "dollar": "الدولار اليوم",
+      "dollar": "أسعار الصرف",
       "plan": "خطة هذا الشهر",
       "metals": "الذهب والفضة",
       "bills": "الفواتير القادمة",
@@ -1694,7 +1697,9 @@
     "team": "دعم ميزان",
     "operator": "مشغّل",
     "reporter": "صاحب البلاغ",
-    "closeImage": "إغلاق الصورة"
+    "closeImage": "إغلاق الصورة",
+    "imageRemoved": "حُذفت الصورة بعد ستة أشهر من حل البلاغ",
+    "imageRemovedShort": "حُذفت الصورة"
   },
   "currency": {
     "all": "كل العملات",

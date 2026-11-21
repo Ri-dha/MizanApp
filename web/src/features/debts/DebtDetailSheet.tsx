@@ -11,6 +11,10 @@ import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
 import { debtPayoff } from "@mizan/core/domain/debt/payoff"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 import { formatWhen } from "@/app/dates"
+import { useLiveQuery } from "dexie-react-hooks"
+import { AccountPicker } from "@/features/accounts/AccountPicker"
+import { lastAccount, pickedAccount, rememberAccount } from "@/features/accounts/lastAccount"
+import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 
 interface Props {
   debt: Debt | null
@@ -25,6 +29,8 @@ export function DebtDetailSheet({ debt, payments, startDay, onClose, onEdit }: P
   const [amount, setAmount] = useState("")
   const [paidOn, setPaidOn] = useState(todayIso())
   const [extra, setExtra] = useState("")
+  const [accountId, setAccountId] = useState(lastAccount)
+  const accounts = useLiveQuery(liveCashAccounts, [], [])
 
   if (!debt) return <Sheet open={false}><SheetContent /></Sheet>
 
@@ -40,7 +46,9 @@ export function DebtDetailSheet({ debt, payments, startDay, onClose, onEdit }: P
     event.preventDefault()
     if (!debt) return
     const paid = toMinorUnits(amount || fromMinorUnits(debt.monthlyPayment, debt.currency), debt.currency)
-    await recordPayment(debt, payments, paid, paidOn, monthKeyFor(paidOn, startDay), null)
+    const cashAccountId = pickedAccount(accountId, accounts)
+    rememberAccount(accountId)
+    await recordPayment(debt, payments, paid, paidOn, monthKeyFor(paidOn, startDay), null, cashAccountId)
     setAmount("")
   }
 
@@ -72,6 +80,8 @@ export function DebtDetailSheet({ debt, payments, startDay, onClose, onEdit }: P
                   <Input id="paidOn" type="date" dir="ltr" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} required />
                 </Field>
               </div>
+              <AccountPicker id="paymentAccount" label={debt.direction === "OWING" ? t("cashMovements.paidFrom") : t("debts.repaidInto")}
+                value={accountId} onChange={setAccountId} accounts={accounts} />
               <Button type="submit" className="self-start">{t("debts.recordPayment")}</Button>
             </form>
           )}

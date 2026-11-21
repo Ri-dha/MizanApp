@@ -191,6 +191,8 @@ export interface Debt extends Syncable {
   startDate: string
   status: "ACTIVE" | "SETTLED"
   note: string | null
+  /** T-debt-accounts: the account the money left (lent) or arrived in (borrowed) when the debt began. */
+  cashAccountId?: string | null
 }
 
 export interface DebtPayment extends Syncable {

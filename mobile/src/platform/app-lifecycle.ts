@@ -19,4 +19,5 @@ export const appLifecycle: Lifecycle = {
   onForeground: (listener) => AppState.addEventListener("change", (state) => {
     if (state === "active") listener()
   }),
+  isForeground: () => AppState.currentState === "active",
 }

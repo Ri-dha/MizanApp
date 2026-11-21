@@ -7,6 +7,7 @@ import { createCashAccount, updateCashAccount } from "./cashAccounts"
 import { createAccountTransfer, liveAccountsNow, resolveShares, unassigned, updateAccountTransfer } from "./cashMovements"
 import { recordReceipt } from "./income"
 import { createTransaction } from "./transactions"
+import { createDebt, recordPayment } from "./debts"
 import { softDelete } from "./write"
 
 const PER_USD = perUsdTable([], 1_500_000_000)
@@ -94,5 +95,33 @@ describe("income and spending move cash balances (ADR cash-1)", () => {
     await updateAccountTransfer((await table("transactions").get(id))!, { from, to, amount: 10_000, counterAmount: 146_500, occurredOn: "2026-11-21", monthKey: "2026-11", fxRateMicros: 15_000_000, note: "Exchange office" })
     expect(await balanceOf(dollars)).toBe(40_000)
     expect(await balanceOf(dinars)).toBe(146_500)
+  })
+
+  const debt = (direction: "OWING" | "OWED", principal: number, cashAccountId: string, currency = "IQD") =>
+    createDebt({ name: "Loan", counterparty: null, direction, principal, currency, fxRateMicros: currency === "IQD" ? 1_000_000 : 15_000_000, annualRateBasisPoints: 0, termMonths: null, monthlyPayment: 0, bucketId: null, startDate: "2026-11-21", note: null, visibility: "SHARED", cashAccountId })
+
+  it("lending takes money out and being repaid brings it back", async () => {
+    const wallet = await account("Wallet", "IQD", 500_000)
+    const bank = await account("Bank", "IQD", 0)
+    const id = await debt("OWED", 200_000, wallet)
+    expect(await balanceOf(wallet)).toBe(300_000)
+
+    await recordPayment((await table("debts").get(id))!, [], 50_000, "2026-11-25", "2026-11", null, bank)
+    expect(await balanceOf(bank)).toBe(50_000)
+  })
+
+  it("borrowing brings money in and paying it back takes it out", async () => {
+    const bank = await account("Bank", "IQD", 0)
+    const id = await debt("OWING", 1_000_000, bank)
+    expect(await balanceOf(bank)).toBe(1_000_000)
+
+    await recordPayment((await table("debts").get(id))!, [], 250_000, "2026-11-25", "2026-11", null, bank)
+    expect(await balanceOf(bank)).toBe(750_000)
+  })
+
+  it("converts a debt in another currency into the account's", async () => {
+    const dinars = await account("Dinars", "IQD", 0)
+    await debt("OWING", 10_000, dinars, "USD")
+    expect(await balanceOf(dinars)).toBe(150_000)
   })
 })

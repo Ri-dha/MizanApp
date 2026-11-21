@@ -11,9 +11,13 @@ summary: "Money you owe and money owed to you, payments, payoff date, and the ex
 
 Enter the original amount, the yearly rate (0 for an interest-free loan), the monthly payment, the start date, and which bucket the payment comes from. A scheduled payment commits that bucket until the month's payment is recorded.
 
+You can also pick a cash account: where the money you borrowed went (**Money went into**) or where the money you lent came from (**Money came from**). Borrowing raises that account's balance and lending lowers it, so net worth does not jump when you record the debt.
+
 ## Payments
 
 Open a debt and record a payment. Interest for the month is charged on the balance before the payment and shown separately from principal. The balance always comes from the payment ledger; **Undo** removes a payment.
+
+Pick the account the payment left (**Paid from**) or, for money owed to you, the account it arrived in (**Received into**), and that account's balance moves with it. Mizan remembers the last account you picked.
 
 ## Which debt first
 

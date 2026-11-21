@@ -11,6 +11,7 @@ import { rows, sorted, store, table, type Table, type TableName } from "../store
 import { holdsKey, KeysReplacedError, refreshGrants, rotateKeysIfDue, shareKeysWithMembers } from "../vault/keyring"
 import { openFields, openValue, sealFields } from "../vault/records"
 import { completeMigrationIfDrained, runDeviceDuties } from "./duties"
+import { watchForChanges } from "./watch"
 import { newNodeId, observe, type HlcState } from "./hlc"
 import { mergeFields } from "./merge"
 
@@ -284,6 +285,7 @@ export async function syncNow(): Promise<void> {
       const now = Date.now()
       await writeMeta(META_KEYS.lastSyncAt, now)
       update({ phase: "idle", lastSyncAt: now })
+      startWatching()
     } catch (error) {
       const message = error instanceof ApiError ? error.code : String(error)
       update({ phase: error instanceof ApiError && error.status === 0 ? "offline" : "error", lastError: message })
@@ -306,6 +308,7 @@ export function startSyncEngine(next: SyncHost) {
 
   next.onVaultReady(() => void syncNow())
   next.lifecycle.onOnline(() => void syncNow())
+  next.lifecycle.onForeground(startWatching)
   next.lifecycle.onOffline(() => update({ phase: "offline" }))
   next.lifecycle.onForeground(() => void syncNow())
   setInterval(() => void syncNow(), PERIODIC_MS)
@@ -314,6 +317,25 @@ export function startSyncEngine(next: SyncHost) {
     scheduleSoon()
   })
   void syncNow()
+}
+
+let watching = false
+
+/** ADR sync-4: while on screen and online, a held request brings other devices' changes in seconds. */
+function startWatching() {
+  const lifecycle = current?.lifecycle
+  if (!lifecycle?.isForeground || watching) return
+  const isForeground = lifecycle.isForeground.bind(lifecycle)
+  watching = true
+  void watchForChanges({
+    since: async () => ((await host().loadSession()) && host().vaultReady() ? readMeta<number>(META_KEYS.pullCursor) : undefined),
+    wait: async (since) => (await unwrap(api().GET("/api/v1/sync/wait", { params: { query: { since } } }))).changed,
+    changed: () => syncNow(),
+    active: () => lifecycle.isOnline() && isForeground(),
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  }).finally(() => {
+    watching = false
+  })
 }
 
 let debounce: ReturnType<typeof setTimeout> | undefined
