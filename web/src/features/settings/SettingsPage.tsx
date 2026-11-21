@@ -27,6 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { HomeLayoutCard } from "./HomeLayoutCard"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { META_KEYS, readMeta, writeMeta } from "@mizan/core/db/meta"
+import { mayWriteRecords } from "@mizan/core/roles"
 import { SUPPORTED_LOCALES } from "@/i18n"
 import { clearLock, currentDataKey, DEFAULT_LOCK_AFTER_SECONDS, removePin, lock, useLockState } from "@/lock/store"
 import { enrollWebAuthn, hasWebAuthnUnlock, removeWebAuthn, webAuthnAvailable } from "@/lock/webauthn"
@@ -43,6 +44,9 @@ const THEMES: Theme[] = ["system", "light", "dark"]
 export function SettingsPage() {
   const { t, i18n } = useTranslation()
   const session = useSession()
+  // §4.2: an advisor has no records, Home or reminders; a viewer cannot write records.
+  const advisor = session?.role === "ADVISOR"
+  const writes = mayWriteRecords(session?.role ?? "OWNER")
   const theme = useTheme()
   const lockState = useLockState()
   const [lockAfter, setLockAfter] = useState(DEFAULT_LOCK_AFTER_SECONDS)
@@ -233,7 +237,7 @@ export function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card data-tour="settings-privacy">
+      {writes && <Card data-tour="settings-privacy">
         <CardHeader><CardTitle>{t("privacy.title")}</CardTitle></CardHeader>
         <CardContent className="flex flex-col gap-3">
           <p className="text-sm opacity-70">{t("privacy.body")}</p>
@@ -244,9 +248,9 @@ export function SettingsPage() {
             </div>
           ))}
         </CardContent>
-      </Card>
+      </Card>}
 
-      <HomeLayoutCard />
+      {!advisor && <HomeLayoutCard />}
 
       <Card>
         <CardHeader><CardTitle>{t("settings.display")}</CardTitle></CardHeader>
@@ -271,7 +275,7 @@ export function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card data-tour="settings-backup">
+      {!advisor && <Card data-tour="settings-backup">
         <CardHeader><CardTitle>{t("backup.title")}</CardTitle></CardHeader>
         <CardContent className="flex flex-col gap-3">
           <p className="text-sm opacity-70">{t("backup.body")}</p>
@@ -303,7 +307,7 @@ export function SettingsPage() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card>}
 
       <Dialog open={passphraseDialog !== null} onOpenChange={(open) => !open && setPassphraseDialog(null)}>
         <DialogContent>
@@ -320,7 +324,7 @@ export function SettingsPage() {
         </DialogContent>
       </Dialog>
 
-      <Card data-tour="settings-notifications">
+      {!advisor && <Card data-tour="settings-notifications">
         <CardHeader><CardTitle>{t("settings.notifications")}</CardTitle></CardHeader>
         <CardContent className="flex flex-col gap-4">
           <p className="text-sm opacity-70">{t("settings.notificationsBody")}</p>
@@ -351,18 +355,22 @@ export function SettingsPage() {
             </div>
           ))}
         </CardContent>
-      </Card>
+      </Card>}
 
-      <Card data-tour="settings-data">
+      {!advisor && <Card data-tour="settings-data">
         <CardHeader><CardTitle>{t("data.title")}</CardTitle></CardHeader>
         <CardContent className="flex flex-col gap-3">
           <p className="text-sm opacity-70">{t("data.body")}</p>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => void exportData()}>{t("data.export")}</Button>
-            <Button variant="outline" onClick={() => fileInput.current?.click()}>{t("data.import")}</Button>
-            <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(e) => void pickImport(e.target.files?.[0])} />
-            <Button variant="outline" onClick={() => csvInput.current?.click()}>{t("csv.button")}</Button>
-            <input ref={csvInput} type="file" accept="text/csv,.csv" hidden onChange={(e) => { setCsvFile(e.target.files?.[0] ?? null); e.target.value = "" }} />
+            {writes && (
+              <>
+                <Button variant="outline" onClick={() => fileInput.current?.click()}>{t("data.import")}</Button>
+                <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(e) => void pickImport(e.target.files?.[0])} />
+                <Button variant="outline" onClick={() => csvInput.current?.click()}>{t("csv.button")}</Button>
+                <input ref={csvInput} type="file" accept="text/csv,.csv" hidden onChange={(e) => { setCsvFile(e.target.files?.[0] ?? null); e.target.value = "" }} />
+              </>
+            )}
           </div>
                   <div className="flex flex-col gap-2">
             <p className="text-sm opacity-70">{t("exports.body")}</p>
@@ -374,8 +382,8 @@ export function SettingsPage() {
               </div>
             ))}
           </div>
-</CardContent>
-      </Card>
+        </CardContent>
+      </Card>}
 
       <Card data-tour="settings-account">
         <CardHeader><CardTitle>{t("settings.account")}</CardTitle></CardHeader>
@@ -407,8 +415,8 @@ export function SettingsPage() {
             <DialogDescription>{t("data.previewBody")}</DialogDescription>
           </DialogHeader>
           <ul className="text-sm">
-            {preview && Object.entries(preview.counts).map(([table, count]) => <li key={table}>{table}: {count}</li>)}
-            {preview && preview.skipped.length > 0 && <li className="opacity-70">{t("data.skipped", { tables: preview.skipped.join(", ") })}</li>}
+            {preview && Object.entries(preview.counts).map(([table, count]) => <li key={table}>{t(`sync.tables.${table}`, { defaultValue: table })}: {count}</li>)}
+            {preview && preview.skipped.length > 0 && <li className="opacity-70">{t("data.skipped", { tables: preview.skipped.map((table) => t(`sync.tables.${table}`, { defaultValue: table })).join(", ") })}</li>}
           </ul>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPreview(null)}>{t("common.cancel")}</Button>

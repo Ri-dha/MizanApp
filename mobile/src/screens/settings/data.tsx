@@ -7,6 +7,7 @@ import { Alert, StyleSheet, View } from "react-native"
 import { applyImport, buildExport, ImportError, validateImport } from "@mizan/core/data/export"
 import { EXPORT_COLUMNS, EXPORT_KINDS, exportTableFor, type ExportKind } from "@mizan/core/data/exportTables"
 import { toCsv, toXlsx } from "@mizan/core/data/tabular"
+import { mayWriteRecords } from "@mizan/core/roles"
 import { Button } from "@/components/button"
 import { Notice } from "@/components/notice"
 import { Group, Row } from "@/components/row"
@@ -28,6 +29,7 @@ const stamp = () => new Date().toISOString().slice(0, 10)
 export function DataSettings() {
   const { t, i18n } = useTranslation()
   const session = useSession()
+  const writes = mayWriteRecords(session?.role ?? "OWNER")
   const [message, setMessage] = useState<string | null>(null)
 
   async function run(action: () => Promise<unknown>) {
@@ -54,8 +56,9 @@ export function DataSettings() {
       setMessage(e instanceof ImportError ? t("data.invalid", { reason: e.message }) : t("data.notJson"))
       return
     }
-    const lines = Object.entries(preview.counts).map(([table, count]) => `${table}: ${count}`)
-    if (preview.skipped.length > 0) lines.push(t("data.skipped", { tables: preview.skipped.join(", ") }))
+    const name = (table: string) => t(`sync.tables.${table}`, { defaultValue: table })
+    const lines = Object.entries(preview.counts).map(([table, count]) => `${name(table)}: ${count}`)
+    if (preview.skipped.length > 0) lines.push(t("data.skipped", { tables: preview.skipped.map(name).join(", ") }))
     Alert.alert(t("data.previewTitle"), `${t("data.previewBody")}\n\n${lines.join("\n")}`, [
       { text: t("common.cancel"), style: "cancel" },
       { text: t("data.confirmImport"), onPress: () => void run(async () => setMessage(t("data.imported", { count: await applyImport(preview) }))) },
@@ -83,8 +86,12 @@ export function DataSettings() {
       <ThemedText variant="subhead">{t("data.body")}</ThemedText>
       <View style={styles.buttons}>
         <Button testID="data-export" variant="secondary" title={t("data.export")} onPress={() => void run(exportAll)} />
-        <Button testID="data-import" variant="secondary" title={t("data.import")} onPress={() => void run(importAll)} />
-        <Button testID="data-csv" variant="secondary" title={t("csv.button")} onPress={() => void run(importCsv)} />
+        {writes ? (
+          <>
+            <Button testID="data-import" variant="secondary" title={t("data.import")} onPress={() => void run(importAll)} />
+            <Button testID="data-csv" variant="secondary" title={t("csv.button")} onPress={() => void run(importCsv)} />
+          </>
+        ) : null}
       </View>
       <View style={styles.section}>
         <ThemedText variant="caption">{t("exports.body")}</ThemedText>

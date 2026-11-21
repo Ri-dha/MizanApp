@@ -99,6 +99,10 @@
   HOUSEHOLD_VIEW, `mayReadQuotes` in core), signing out on the phone opens Sign in (not Reset), the
   join sheet no longer cuts off its button, and a member waiting for the household key is told so
   (`SyncStatus.awaitingKey`, Home and the advisor report on both apps). Checked on the iPhone.
+- Role fixes are on main (abce124). On `fix/small-findings` (uncommitted): Settings on both apps hide
+  what a role cannot use (advisor: Home cards, notifications, backup, your data; viewer: privacy
+  defaults and imports), import previews name tables in the app language, pages pushed over the tabs
+  show a plain back arrow instead of "(tabs)", and the reset email field autofills.
 - Blocked on the owner (all in `docs/store/release-checklist.md`): `eas init`, EAS environment
   variables, Apple Developer with an APNs key, FCM, Play Console, the policy's contact address. Not logged in to Expo on this Mac. Open owner
   decisions: export compliance (`ITSAppUsesNonExemptEncryption`), the final brand icon.

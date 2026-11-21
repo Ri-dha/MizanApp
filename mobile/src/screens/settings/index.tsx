@@ -7,6 +7,7 @@ import { cancelAccountDeletion, logout, requestAccountDeletion } from "@mizan/co
 import { META_KEYS, readMeta, writeMeta } from "@mizan/core/db/meta"
 import { NOTIFICATION_DEFAULTS, NOTIFICATION_SWITCHES, liveNotificationSetting, saveNotificationSettings } from "@mizan/core/db/notifications"
 import { PRIVACY_KINDS, defaultsOf, livePrivacySetting, savePrivacyDefault } from "@mizan/core/db/privacy"
+import { mayWriteRecords } from "@mizan/core/roles"
 import { DEFAULT_LOCK_AFTER_SECONDS, biometricUnlock, clearLock, currentDataKey, lock, removePin } from "@mizan/core/lock/store"
 import { resetSyncState } from "@mizan/core/sync/engine"
 import { regenerateRecoveryCode } from "@mizan/core/vault/account"
@@ -63,6 +64,9 @@ export function Settings() {
   const { t, i18n } = useTranslation()
   useScreenTour("settings")
   const session = useSession()
+  // §4.2: an advisor has no records, Home or reminders; a viewer cannot write records.
+  const advisor = session?.role === "ADVISOR"
+  const writes = mayWriteRecords(session?.role ?? "OWNER")
   const lockState = useLockState()
   const prefs = usePreferences()
   const privacy = useLiveQuery(async () => defaultsOf(await livePrivacySetting()), [], defaultsOf(undefined))
@@ -152,14 +156,16 @@ export function Settings() {
         </Group>
       </Section>
 
-      <Section title={t("homeLayout.title")}>
-        <Group>
-          <LinkRow testID="settings-home-layout" href="/home-layout" last>
-            <ThemedText>{t("homeLayout.customise")}</ThemedText>
-            <ThemedText variant="caption" numberOfLines={2}>{t("homeLayout.body")}</ThemedText>
-          </LinkRow>
-        </Group>
-      </Section>
+      {!advisor ? (
+        <Section title={t("homeLayout.title")}>
+          <Group>
+            <LinkRow testID="settings-home-layout" href="/home-layout" last>
+              <ThemedText>{t("homeLayout.customise")}</ThemedText>
+              <ThemedText variant="caption" numberOfLines={2}>{t("homeLayout.body")}</ThemedText>
+            </LinkRow>
+          </Group>
+        </Section>
+      ) : null}
 
       <Section title={t("settings.security")}>
         <Group>
@@ -189,15 +195,17 @@ export function Settings() {
         <Group><LinkRow href="/household" last><ThemedText>{t("household.manage")}</ThemedText></LinkRow></Group>
       </Section>
 
-      <Section title={t("privacy.title")} body={t("privacy.body")}>
-        <Group>
-          {PRIVACY_KINDS.map((kind, index) => (
-            <Row key={kind} last={index === PRIVACY_KINDS.length - 1}>
-              <ToggleRow testID={`privacy-${kind}`} label={t(`privacy.kinds.${kind}`)} value={privacy[kind] === "PRIVATE"} onChange={(on) => void savePrivacyDefault(kind, on ? "PRIVATE" : "SHARED")} />
-            </Row>
-          ))}
-        </Group>
-      </Section>
+      {writes ? (
+        <Section title={t("privacy.title")} body={t("privacy.body")}>
+          <Group>
+            {PRIVACY_KINDS.map((kind, index) => (
+              <Row key={kind} last={index === PRIVACY_KINDS.length - 1}>
+                <ToggleRow testID={`privacy-${kind}`} label={t(`privacy.kinds.${kind}`)} value={privacy[kind] === "PRIVATE"} onChange={(on) => void savePrivacyDefault(kind, on ? "PRIVATE" : "SHARED")} />
+              </Row>
+            ))}
+          </Group>
+        </Section>
+      ) : null}
 
       <Section title={t("settings.display")}>
         <Group>
@@ -220,14 +228,15 @@ export function Settings() {
         </Group>
       </Section>
 
-      <Section title={t("settings.notifications")} body={t("settings.notificationsBody")}>
-        {push === "needs-setup" ? <ThemedText variant="caption">{t("notifications.phoneNeedsSetup")}</ThemedText> : null}
-        {push === "denied" ? <ThemedText variant="caption">{t("notifications.phoneDenied")}</ThemedText> : null}
-        {push === "on" || push === "off" ? (
-          <Group>
-            <Row last={push === "off"}><ToggleRow testID="notify-phone" label={t("notifications.onThisDevice")} value={push === "on"} onChange={(on) => void togglePush(on)} /></Row>
-            {push === "on" ? (
-              <Row last><Button testID="notify-test" variant="ghost" title={t("notifications.sendTest")} style={styles.start} onPress={() => void run(async () => setMessage(t("notifications.testSent", { count: await sendTestPush() })))} /></Row>
+      {!advisor ? (
+        <Section title={t("settings.notifications")} body={t("settings.notificationsBody")}>
+          {push === "needs-setup" ? <ThemedText variant="caption">{t("notifications.phoneNeedsSetup")}</ThemedText> : null}
+          {push === "denied" ? <ThemedText variant="caption">{t("notifications.phoneDenied")}</ThemedText> : null}
+          {push === "on" || push === "off" ? (
+            <Group>
+              <Row last={push === "off"}><ToggleRow testID="notify-phone" label={t("notifications.onThisDevice")} value={push === "on"} onChange={(on) => void togglePush(on)} /></Row>
+              {push === "on" ? (
+                <Row last><Button testID="notify-test" variant="ghost" title={t("notifications.sendTest")} style={styles.start} onPress={() => void run(async () => setMessage(t("notifications.testSent", { count: await sendTestPush() })))} /></Row>
             ) : null}
           </Group>
         ) : null}
@@ -252,14 +261,19 @@ export function Settings() {
           ))}
         </Group>
       </Section>
+      ) : null}
 
-      <Section title={t("backup.title")}>
-        <Group><LinkRow testID="settings-backup" href="/backup" last><ThemedText>{t("backup.title")}</ThemedText><ThemedText variant="caption" numberOfLines={2}>{t("backup.body")}</ThemedText></LinkRow></Group>
-      </Section>
+      {!advisor ? (
+        <Section title={t("backup.title")}>
+          <Group><LinkRow testID="settings-backup" href="/backup" last><ThemedText>{t("backup.title")}</ThemedText><ThemedText variant="caption" numberOfLines={2}>{t("backup.body")}</ThemedText></LinkRow></Group>
+        </Section>
+      ) : null}
 
-      <Section title={t("data.title")}>
-        <Group><LinkRow testID="settings-data" href="/data" last><ThemedText>{t("data.title")}</ThemedText><ThemedText variant="caption" numberOfLines={2}>{t("data.body")}</ThemedText></LinkRow></Group>
-      </Section>
+      {!advisor ? (
+        <Section title={t("data.title")}>
+          <Group><LinkRow testID="settings-data" href="/data" last><ThemedText>{t("data.title")}</ThemedText><ThemedText variant="caption" numberOfLines={2}>{t("data.body")}</ThemedText></LinkRow></Group>
+        </Section>
+      ) : null}
 
       <Section title={t("settings.account")}>
         {pendingDeletion !== null ? <Notice tone="error">{t("account.deletionPending", { date: date(pendingDeletion) })}</Notice> : null}

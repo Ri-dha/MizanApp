@@ -52,7 +52,8 @@ function Routes() {
   const signedIn = !!session
   useEffect(() => (signedIn ? openRemindersOnTap() : undefined), [signedIn])
   return (
-    <Stack>
+    // The screen under a pushed page is the tab group, whose name "(tabs)" would show as the back label.
+    <Stack screenOptions={{ headerBackButtonDisplayMode: "minimal" }}>
       {/* Without a target, signing out fell back to the last signed-out screen (reset password). */}
       <Stack.Protected guard={signedIn} redirectTo="/sign-in">
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

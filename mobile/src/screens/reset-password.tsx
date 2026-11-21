@@ -50,7 +50,7 @@ export function ResetPassword() {
   }
   return (
     <Screen>
-      <TextField testID="reset-identifier" label={t("auth.identifier")} autoCapitalize="none" keyboardType="email-address" editable={!requested} value={identifier} onChangeText={setIdentifier} />
+      <TextField testID="reset-identifier" label={t("auth.identifier")} autoCapitalize="none" autoComplete="email" textContentType="emailAddress" keyboardType="email-address" editable={!requested} value={identifier} onChangeText={setIdentifier} />
       {requested ? (
         <>
           <Notice>{t("auth.resetRequested")}</Notice>
