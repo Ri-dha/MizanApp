@@ -40,6 +40,7 @@ export function TransferSheet({ open, transfer, onClose }: { open: boolean; tran
     setFromId(transfer?.cashAccountId ?? accounts[0]?.id ?? "")
     setToId(transfer?.counterpartyId ?? accounts[1]?.id ?? "")
     setAmount(transfer ? fromMinorUnits(transfer.amount, transfer.currency) : "")
+    setReceived("")
     setReceivedTyped(!!transfer?.counterAmount)
     setOccurredOn(transfer?.occurredOn ?? todayIso())
     setNote(transfer?.note ?? "")
@@ -52,9 +53,10 @@ export function TransferSheet({ open, transfer, onClose }: { open: boolean; tran
   const sent = from ? toMinorUnits(amount || "0", from.currency) : 0
   const atToday = from && to ? inBase(sent, from.currency, to.currency, prices.perUsd) : null
 
+  // An exchange being edited shows what arrived; a new one starts from today's rate until the person types.
   useEffect(() => {
     if (!open || !to) return
-    if (transfer?.counterAmount && !receivedTyped) setReceived(fromMinorUnits(transfer.counterAmount, to.currency))
+    if (transfer?.counterAmount && transfer.counterpartyId === to.id) setReceived((typed) => typed || fromMinorUnits(transfer.counterAmount!, to.currency))
     else if (!receivedTyped) setReceived(atToday === null ? "" : fromMinorUnits(atToday, to.currency))
   }, [open, to, atToday, receivedTyped, transfer])
 

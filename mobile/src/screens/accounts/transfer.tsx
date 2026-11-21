@@ -45,6 +45,8 @@ export function AccountTransferEditor({ id }: { id?: string }) {
     setFromId(transfer?.cashAccountId ?? accounts[0]?.id ?? "")
     setToId(transfer?.counterpartyId ?? accounts[1]?.id ?? "")
     setAmount(transfer ? fromMinorUnits(transfer.amount, transfer.currency) : "")
+    const arrivedIn = accounts.find((a) => a.id === transfer?.counterpartyId)
+    if (transfer?.counterAmount && arrivedIn) setReceived(fromMinorUnits(transfer.counterAmount, arrivedIn.currency))
     setReceivedTyped(!!transfer?.counterAmount)
     setOccurredOn(transfer?.occurredOn ?? todayIso())
     setNote(transfer?.note ?? "")
@@ -59,9 +61,8 @@ export function AccountTransferEditor({ id }: { id?: string }) {
 
   useEffect(() => {
     if (!to || receivedTyped) return
-    if (transfer?.counterAmount && transfer.counterpartyId === to.id) setReceived(fromMinorUnits(transfer.counterAmount, to.currency))
-    else setReceived(atToday === null ? "" : fromMinorUnits(atToday, to.currency))
-  }, [to, atToday, receivedTyped, transfer])
+    setReceived(atToday === null ? "" : fromMinorUnits(atToday, to.currency))
+  }, [to, atToday, receivedTyped])
 
   const fromChoices = useMemo(() => accounts.filter((a) => a.id !== toId), [accounts, toId])
   const toChoices = useMemo(() => accounts.filter((a) => a.id !== fromId), [accounts, fromId])
