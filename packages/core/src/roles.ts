@@ -14,3 +14,8 @@ export function mayWriteRecords(role: string): boolean {
 export function mayWriteShared(role: string): boolean {
   return HOUSEHOLD_VIEW.has(role) && RECORD_WRITE.has(role)
 }
+
+/** Live quotes, their refresh and the dealer list need HOUSEHOLD_VIEW; price history is open to every role. */
+export function mayReadQuotes(role: string): boolean {
+  return HOUSEHOLD_VIEW.has(role)
+}

@@ -94,6 +94,11 @@
 - The sync fix is on main (500d790). On `feat/mobile-reports` (uncommitted): Report a problem on the
   phone (list, new report with up to four images, thread with replies; T-support-reports), a reply
   push opens its report, and the bundled manual includes the support page.
+- Report a problem is on main (ddbe965). On `fix/role-findings` (uncommitted), from a device check of
+  roles, imports and receipts: advisors and dependents no longer show "sync failed" (quotes need
+  HOUSEHOLD_VIEW, `mayReadQuotes` in core), signing out on the phone opens Sign in (not Reset), the
+  join sheet no longer cuts off its button, and a member waiting for the household key is told so
+  (`SyncStatus.awaitingKey`, Home and the advisor report on both apps). Checked on the iPhone.
 - Blocked on the owner (all in `docs/store/release-checklist.md`): `eas init`, EAS environment
   variables, Apple Developer with an APNs key, FCM, Play Console, the policy's contact address. Not logged in to Expo on this Mac. Open owner
   decisions: export compliance (`ITSAppUsesNonExemptEncryption`), the final brand icon.

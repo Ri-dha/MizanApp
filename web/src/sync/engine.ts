@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react"
 
+import { mayReadQuotes } from "@mizan/core/roles"
 import { startSyncEngine as startCoreEngine, subscribeSyncStatus, syncStatus, type SyncStatus } from "@mizan/core/sync/engine"
 import { dropExpiredPhotos, uploadPendingBlobs } from "@/attachments/store"
 import { runBackupIfDue } from "@/backup/store"
@@ -37,7 +38,7 @@ export function startSyncEngine() {
       await dropExpiredPhotos()
     },
     async afterSync(session) {
-      await refreshQuotes()
+      if (mayReadQuotes(session.role)) await refreshQuotes()
       await runBackupIfDue(session)
     },
   })

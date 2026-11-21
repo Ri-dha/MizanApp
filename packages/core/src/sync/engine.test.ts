@@ -88,7 +88,7 @@ describe("sync engine", () => {
     })
     await syncNow()
 
-    expect(syncStatus()).toMatchObject({ phase: "idle", lastError: null })
+    expect(syncStatus()).toMatchObject({ phase: "idle", lastError: null, awaitingKey: false })
     expect(holdsKey("HOUSEHOLD")).toBe(true)
     expect(server.pushed.map((op) => op.table)).toEqual(expect.arrayContaining(["ledger_transaction", "plan", "bucket"]))
     for (const op of server.pushed) {
@@ -101,6 +101,28 @@ describe("sync engine", () => {
     expect(pulled).toMatchObject({ payee: "Bakery", amount: 1500, vaulted: true })
     expect(await table("outbox").count()).toBe(0)
     expect((await rows("plans")).length).toBe(1)
+  })
+
+  it("tells a new viewer their records wait for the household key, and stops once it is granted", async () => {
+    installStore(memoryStore())
+    const deviceKey = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"])
+    installSecretStore(aesSecretStore(async () => deviceKey))
+    const { wrapSecret } = await derivePasswordKeys(session.contact, "a long test passphrase")
+    const { account } = await createAccountKeys(wrapSecret)
+    await setAccount(account)
+    const grants: unknown[] = []
+    installApi(fakeServer(account.publicKey, [], { grants: () => grants }).client)
+    session.role = "VIEWER"
+    try {
+      await syncNow()
+      expect(syncStatus()).toMatchObject({ phase: "idle", awaitingKey: true })
+
+      grants.push({ keyKind: "HOUSEHOLD", keyVersion: 1, wrappedKey: await wrapForMember(await newSharedKey(), account.publicKey, "HOUSEHOLD", 1) })
+      await syncNow()
+      expect(syncStatus().awaitingKey).toBe(false)
+    } finally {
+      session.role = "OWNER"
+    }
   })
 
   it("after a push refused for a rotated key, fetches the new key and seals the outbox with it (ADR e2e-4)", async () => {

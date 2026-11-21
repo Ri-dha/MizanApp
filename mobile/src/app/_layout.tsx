@@ -53,7 +53,8 @@ function Routes() {
   useEffect(() => (signedIn ? openRemindersOnTap() : undefined), [signedIn])
   return (
     <Stack>
-      <Stack.Protected guard={signedIn}>
+      {/* Without a target, signing out fell back to the last signed-out screen (reset password). */}
+      <Stack.Protected guard={signedIn} redirectTo="/sign-in">
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="transaction" options={{ presentation: "formSheet", sheetAllowedDetents: [0.6, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="move-money" options={{ presentation: "formSheet", sheetAllowedDetents: [0.7, 1], sheetGrabberVisible: true }} />
@@ -65,7 +66,8 @@ function Routes() {
         <Stack.Screen name="metal-zakat" options={{ presentation: "formSheet", sheetAllowedDetents: [0.8, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="metal-settings" options={{ presentation: "formSheet", sheetAllowedDetents: [0.8, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="metal-explain" options={{ presentation: "formSheet", sheetAllowedDetents: [0.6, 1], sheetGrabberVisible: true }} />
-        <Stack.Screen name="join/[token]" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
+        {/* The invitation loads after the sheet opens, so a sheet fitted to its first contents would cut off the Join button. */}
+        <Stack.Screen name="join/[token]" options={{ presentation: "formSheet", sheetAllowedDetents: [0.45, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="household-delete" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />
         <Stack.Screen name="asset-edit" options={{ presentation: "formSheet", sheetAllowedDetents: [0.8, 1], sheetGrabberVisible: true }} />
         <Stack.Screen name="asset-action" options={{ presentation: "formSheet", sheetAllowedDetents: "fitToContents", sheetGrabberVisible: true }} />

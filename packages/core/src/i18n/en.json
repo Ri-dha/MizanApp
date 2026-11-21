@@ -443,7 +443,8 @@
       "home_layout": "Home layout",
       "member_contribution": "Household figure",
       "annual_report": "Year report"
-    }
+    },
+    "awaitingKey": "Waiting for access. The household's records open here once the owner or another member opens Mizan on their device, which shares the key with you. You don't need to do anything."
   },
   "settings": {
     "title": "Settings",

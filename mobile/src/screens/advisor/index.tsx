@@ -5,6 +5,7 @@ import { StyleSheet, View } from "react-native"
 
 import { formatMoney } from "@/utils/money"
 import { rowsBy } from "@mizan/core/store/store"
+import { AwaitingKey } from "@/components/awaiting-key"
 import { Button } from "@/components/button"
 import { Group, Row } from "@/components/row"
 import { Screen } from "@/components/screen"
@@ -30,6 +31,7 @@ export function Advisor() {
   return (
     <Screen>
       <Stack.Screen options={{ title: t("advisor.title", { household: session?.householdName ?? "" }) }} />
+      <AwaitingKey />
       <View style={styles.years}>
         <Button testID="advisor-previous" variant="secondary" title={String(year - 1)} onPress={() => setYear(year - 1)} />
         <Button testID="advisor-next" variant="secondary" title={String(year + 1)} onPress={() => setYear(year + 1)} />

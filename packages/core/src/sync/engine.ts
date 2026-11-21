@@ -8,7 +8,7 @@ import { mayHoldHouseholdKey } from "../roles"
 import { SYNC_TABLES, type Syncable, type SyncTableName } from "../schema"
 import type { LocalSession } from "../session"
 import { rows, sorted, store, table, type Table, type TableName } from "../store/store"
-import { KeysReplacedError, refreshGrants, rotateKeysIfDue, shareKeysWithMembers } from "../vault/keyring"
+import { holdsKey, KeysReplacedError, refreshGrants, rotateKeysIfDue, shareKeysWithMembers } from "../vault/keyring"
 import { openFields, openValue, sealFields } from "../vault/records"
 import { completeMigrationIfDrained, runDeviceDuties } from "./duties"
 import { newNodeId, observe, type HlcState } from "./hlc"
@@ -21,6 +21,8 @@ export interface SyncStatus {
   pending: number
   lastSyncAt: number | null
   lastError: string | null
+  /** This member's records stay sealed until a device that holds the key their role needs shares it. */
+  awaitingKey: boolean
 }
 
 /** What each app supplies around the sync loop: its session, its vault, and its own extra steps. */
@@ -50,7 +52,7 @@ const PUSH_BATCH = 200
 const PULL_LIMIT = 500
 const PERIODIC_MS = 5 * 60 * 1000
 
-let status: SyncStatus = { phase: "idle", pending: 0, lastSyncAt: null, lastError: null }
+let status: SyncStatus = { phase: "idle", pending: 0, lastSyncAt: null, lastError: null, awaitingKey: false }
 const listeners = new Set<() => void>()
 let running: Promise<void> | null = null
 let current: SyncHost | null = null
@@ -246,6 +248,12 @@ async function exchangeKeys(session: LocalSession) {
   await shareKeysWithMembers(session.role === "OWNER")
 }
 
+/** A dependent needs no shared key; everyone else needs the household key, or the report key as an advisor. */
+function lacksRoleKey(role: string): boolean {
+  if (mayHoldHouseholdKey(role)) return !holdsKey("HOUSEHOLD")
+  return role === "ADVISOR" && !holdsKey("REPORT")
+}
+
 export async function syncNow(): Promise<void> {
   if (running) return running
   running = (async () => {
@@ -263,6 +271,7 @@ export async function syncNow(): Promise<void> {
       if (!session) return
       const device = await deviceId()
       await exchangeKeys(session)
+      update({ awaitingKey: lacksRoleKey(session.role) })
       await retrySealed()
       await push(device)
       await pull(device)
@@ -316,5 +325,5 @@ function scheduleSoon() {
 export async function resetSyncState() {
   await table("meta").bulkDelete([META_KEYS.deviceId, META_KEYS.pullCursor, META_KEYS.lastSyncAt])
   await table("sealedInbox").clear()
-  update({ phase: current?.lifecycle.isOnline() === false ? "offline" : "idle", pending: 0, lastSyncAt: null, lastError: null })
+  update({ phase: current?.lifecycle.isOnline() === false ? "offline" : "idle", pending: 0, lastSyncAt: null, lastError: null, awaitingKey: false })
 }

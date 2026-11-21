@@ -4,10 +4,12 @@ import { useTranslation } from "react-i18next"
 
 import { RecoveryCodeDialog } from "@/features/vault/VaultScreens"
 import { AnnouncementBanner } from "@/components/AnnouncementBanner"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Link, NavLink, Outlet, useNavigate } from "react-router"
 import { useEffect } from "react"
 
 import { takePendingInvite } from "@/api/household"
+import { mayReadQuotes } from "@mizan/core/roles"
 import { fetchLiveQuotes } from "@/market/store"
 
 import { useSession } from "@/api/auth"
@@ -32,7 +34,7 @@ export function AppShell() {
 
   // Prices are fetched on request only: once when the app loads, and when the user presses Refresh.
   useEffect(() => {
-    if (navigator.onLine && session?.role !== "ADVISOR") void fetchLiveQuotes().catch(() => undefined)
+    if (navigator.onLine && session && mayReadQuotes(session.role)) void fetchLiveQuotes().catch(() => undefined)
   }, [session?.role])
 
   const role = session?.role
@@ -93,6 +95,7 @@ export function AppShell() {
           <span className="text-xl font-semibold">{t("app.name")}</span>
           <SyncBadge />
         </div>
+        <AwaitingKeyBanner />
         <AnnouncementBanner />
         <Suspense fallback={<p className="opacity-70">{t("common.loading")}</p>}>
           <Outlet />
@@ -141,4 +144,11 @@ function SyncBadge() {
       <Badge variant={status.phase === "error" ? "destructive" : "secondary"} className="max-w-40 truncate">{label}</Badge>
     </Link>
   )
+}
+
+/** Without it a new member sees an empty household and no reason why (ADR e2e-1: only a member's device can share the key). */
+function AwaitingKeyBanner() {
+  const { t } = useTranslation()
+  if (!useSyncStatus().awaitingKey) return null
+  return <Alert className="mb-4"><AlertDescription>{t("sync.awaitingKey")}</AlertDescription></Alert>
 }

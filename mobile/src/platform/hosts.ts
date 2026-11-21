@@ -7,6 +7,7 @@ import { resetLock } from "@mizan/core/lock/store"
 import { dropExpiredPhotos, uploadPendingBlobs } from "@mizan/core/attachments/store"
 import { installCompression, runBackupIfDue } from "@mizan/core/backup/store"
 import { refreshQuotes } from "@mizan/core/market/prices"
+import { mayReadQuotes } from "@mizan/core/roles"
 import { startSyncEngine } from "@mizan/core/sync/engine"
 import { onVaultReady, vaultReady } from "@mizan/core/vault/account"
 import { forgetTokens, keepTokens, refreshAccessToken } from "./api-client"
@@ -44,7 +45,7 @@ export function startSync() {
       await dropExpiredPhotos()
     },
     afterSync: async (session) => {
-      await refreshQuotes()
+      if (mayReadQuotes(session.role)) await refreshQuotes()
       await runBackupIfDue(session)
     },
   })
