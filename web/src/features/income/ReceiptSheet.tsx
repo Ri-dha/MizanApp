@@ -85,7 +85,7 @@ export function ReceiptSheet({ draft, onClose }: { draft: ReceiptDraft | null; o
     <Sheet open={draft !== null} onOpenChange={(next) => !next && onClose()}>
       <SheetContent className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{draft?.incomeSourceId ? t("income.markReceived") : t("income.addIrregular")}</SheetTitle>
+          <SheetTitle>{draft?.existing ? t("income.editReceipt") : draft?.incomeSourceId ? t("income.markReceived") : t("income.addIrregular")}</SheetTitle>
         </SheetHeader>
         <form onSubmit={submit} className="flex flex-col gap-4 px-4">
           <div className="grid grid-cols-[1fr_auto] gap-2">

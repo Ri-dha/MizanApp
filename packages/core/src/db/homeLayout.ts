@@ -143,15 +143,24 @@ export function pickedFrom<T extends { id: string }>(widget: HomeWidget, items: 
   return widget.pick && widget.pick.length > 0 ? items.filter((item) => widget.pick!.includes(item.id)) : items
 }
 
-export const liveHomeLayoutRow = () => rows("homeLayouts", (l) => l.deletedAt === null).then((found) => found[0])
+/** Two devices can each create the row before they sync; every device then reads the same one. */
+export const liveHomeLayoutRow = () =>
+  rows("homeLayouts", (l) => l.deletedAt === null).then((found) => [...found].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0])
 
 export async function liveHomeLayout(): Promise<HomeWidget[]> {
   return normaliseLayout((await liveHomeLayoutRow())?.widgets)
 }
 
-async function writeLayoutRow(change: Partial<HomeLayout>) {
-  const existing = await liveHomeLayoutRow()
-  await writeFields<HomeLayout>("home_layout", existing?.id ?? crypto.randomUUID(), { ...(existing ? {} : { visibility: "PRIVATE" as const }), ...change })
+let layoutWrites: Promise<unknown> = Promise.resolve()
+
+/** One write at a time, so two changes made together (a new account seeding its choices) cannot each create a row. */
+function writeLayoutRow(change: Partial<HomeLayout>): Promise<void> {
+  const write = layoutWrites.then(async () => {
+    const existing = await liveHomeLayoutRow()
+    await writeFields<HomeLayout>("home_layout", existing?.id ?? crypto.randomUUID(), { ...(existing ? {} : { visibility: "PRIVATE" as const }), ...change })
+  })
+  layoutWrites = write.catch(() => undefined)
+  return write
 }
 
 export async function saveHomeLayout(widgets: HomeWidget[]) {

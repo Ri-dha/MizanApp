@@ -98,7 +98,7 @@ export function IncomeReceiptSheet({ monthKey, sourceId, date, receiptId }: Prop
   const planned = sourceId ?? existing?.incomeSourceId
   return (
     <Screen sheet>
-      <Stack.Screen options={{ title: planned ? t("income.markReceived") : t("income.addIrregular"), headerRight: () => <Button testID="save-receipt" variant="ghost" title={t("accounts.save")} disabled={!amount || tooMuch} onPress={() => void save()} /> }} />
+      <Stack.Screen options={{ title: receiptId ? t("income.editReceipt") : planned ? t("income.markReceived") : t("income.addIrregular"), headerRight: () => <Button testID="save-receipt" variant="ghost" title={t("accounts.save")} disabled={!amount || tooMuch} onPress={() => void save()} /> }} />
       <View style={styles.pair}>
         <View style={styles.wide}><TextField testID="receipt-amount" label={t("income.amount")} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} autoFocus={!receiptId} /></View>
         <View style={styles.narrow}>

@@ -13,3 +13,6 @@
     worth note and Cash link, no stale-valuation prompt, add transaction without buckets or split, Report from
     `monthFlow`, Settings without Household and privacy. Checked on the simulator in Arabic; registering a new
     account with the choice was not tried by hand.
+  - Follow-up (2026-11-22): registering on the phone with Simple reaches the account (checked on the web); a bucket
+    transfer opened in Simple keeps its full form. Two writes at sign-up could each create a Home layout row, so
+    `writeLayoutRow` now runs one write at a time and every device reads the row with the lowest id.

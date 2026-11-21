@@ -107,6 +107,18 @@ describe("synced reading preferences", () => {
     expect(await table("homeLayouts").count()).toBe(1)
   })
 
+  it("makes one row when a new account saves two choices at once", async () => {
+    await Promise.all([saveSyncedPreferences({ appMode: "simple" }), saveSyncedPreferences({ showHijri: true })])
+    expect(await table("homeLayouts").count()).toBe(1)
+    expect(await liveSyncedPreferences()).toEqual({ appMode: "simple", showHijri: true })
+  })
+
+  it("reads the same row on every device when two were made before syncing", async () => {
+    await table("homeLayouts").put({ id: "b", deletedAt: null, visibility: "PRIVATE", appMode: "advanced" } as unknown as HomeLayout)
+    await table("homeLayouts").put({ id: "a", deletedAt: null, visibility: "PRIVATE", appMode: "simple" } as unknown as HomeLayout)
+    expect(await liveSyncedPreferences()).toEqual({ appMode: "simple" })
+  })
+
   it("keeps only the synced preferences and the values this app understands", async () => {
     expect(pickSynced({ digitStyle: "eastern", language: "ar", theme: "dark" })).toEqual({ digitStyle: "eastern" })
     const row = { digitStyle: "roman", showUsd: "yes", showHijri: false, valuationReminderMonths: 0 } as unknown as HomeLayout

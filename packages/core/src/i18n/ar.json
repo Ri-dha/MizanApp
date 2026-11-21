@@ -578,6 +578,7 @@
     "markReceived": "تم الاستلام",
     "overdue": "لم يُستلم بعد",
     "addIrregular": "إضافة دخل غير منتظم",
+    "editReceipt": "تعديل الدخل المستلم",
     "irregular": "دخل غير منتظم",
     "sources": "مصادر الدخل",
     "addSource": "إضافة مصدر",

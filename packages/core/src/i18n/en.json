@@ -566,6 +566,7 @@
     "markReceived": "Mark received",
     "overdue": "Not received yet",
     "addIrregular": "Add irregular income",
+    "editReceipt": "Edit received income",
     "irregular": "Irregular income",
     "sources": "Income sources",
     "addSource": "Add source",
