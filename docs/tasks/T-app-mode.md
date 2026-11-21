@@ -1,5 +1,5 @@
 # T-app-mode — Let each person choose a simple or an advanced app
-- Status: in review
+- Status: done (5b4da93)
 - Context: user request 2026-11-22 (plan "Simple and Advanced modes"); ADR mode-1. Server half in Ri-dha/mizan
   (`HomeLayoutSyncTable` accepts `appMode`).
 - Notes:
