@@ -333,6 +333,11 @@ export interface PrivacySetting extends Syncable {
 export interface HomeLayout extends Syncable {
   visibility: Visibility
   widgets: HomeWidget[]
+  /** ADR home-2: how this person reads their numbers, on every device they use. */
+  digitStyle?: string
+  showUsd?: boolean
+  showHijri?: boolean
+  valuationReminderMonths?: number
 }
 
 export type WidgetKind = "netWorth" | "dollar" | "plan" | "metals" | "bills" | "cash" | "goals" | "debts"

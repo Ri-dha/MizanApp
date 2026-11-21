@@ -502,6 +502,7 @@
     "display": "Display",
     "digits": "Digits",
     "digitsHint": "Applies to Arabic only.",
+    "followsYou": "Digits, the Hijri date, US dollars and the valuation reminder follow you to every device you sign in to. The display currency stays on this device.",
     "digitStyles": {
       "western": "0 1 2 3 (Western)",
       "eastern": "٠ ١ ٢ ٣ (Eastern Arabic)"

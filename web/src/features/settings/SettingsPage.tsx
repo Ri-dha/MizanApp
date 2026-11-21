@@ -281,6 +281,11 @@ export function SettingsPage() {
             <Switch id="showUsd" checked={prefs.showUsd} onCheckedChange={(on) => setPreferences({ showUsd: on })} />
             <Label htmlFor="showUsd">{t("settings.showUsd")}</Label>
           </div>
+          <Field id="valuationMonths" label={t("settings.valuationReminder")}>
+            <Input id="valuationMonths" type="number" inputMode="numeric" min={1} max={99} className="w-24" value={prefs.valuationReminderMonths}
+              onChange={(e) => setPreferences({ valuationReminderMonths: Math.min(99, Math.max(1, Number(e.target.value) || 1)) })} />
+          </Field>
+          <p className="text-sm opacity-70">{t("settings.followsYou")}</p>
         </CardContent>
       </Card>
 

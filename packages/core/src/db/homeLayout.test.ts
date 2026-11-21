@@ -1,7 +1,12 @@
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 
-import { addWidget, DEFAULT_LAYOUT, moveWidget, normaliseLayout, pickedFrom, placeWidget, removeWidget, shownWidgets, updateWidget, WIDGETS } from "./homeLayout"
-import type { HomeWidget } from "../schema"
+import { memoryStore } from "../store/memoryStore"
+import { installStore, table } from "../store/store"
+import {
+  addWidget, DEFAULT_LAYOUT, liveHomeLayout, liveSyncedPreferences, moveWidget, normaliseLayout, pickedFrom, pickSynced, placeWidget,
+  reconcileSynced, removeWidget, saveHomeLayout, saveSyncedPreferences, shownWidgets, syncedPreferencesOf, updateWidget, WIDGETS,
+} from "./homeLayout"
+import type { HomeLayout, HomeWidget } from "../schema"
 
 const kinds = (widgets: HomeWidget[]) => widgets.map((w) => w.kind)
 
@@ -76,5 +81,49 @@ describe("home layout", () => {
     expect(kinds(placeWidget(DEFAULT_LAYOUT, start[0], 3))).toEqual([start[1], start[2], start[3], start[0], ...start.slice(4)])
     expect(placeWidget(DEFAULT_LAYOUT, start[2], 2)).toBe(DEFAULT_LAYOUT)
     expect(placeWidget(DEFAULT_LAYOUT, start[2], 99)).toBe(DEFAULT_LAYOUT)
+  })
+})
+
+describe("synced reading preferences", () => {
+  beforeEach(() => {
+    installStore(memoryStore())
+  })
+
+  it("creates the private row with just the changed preference", async () => {
+    await saveSyncedPreferences({ showHijri: true })
+    const [row] = await table("homeLayouts").all()
+    expect(row.visibility).toBe("PRIVATE")
+    expect(await liveSyncedPreferences()).toEqual({ showHijri: true })
+    const [op] = await table("outbox").all()
+    expect(Object.keys(op.fields).sort()).toEqual(["showHijri", "visibility"])
+  })
+
+  it("changes one preference without touching the cards or the others", async () => {
+    await saveHomeLayout(DEFAULT_LAYOUT)
+    await saveSyncedPreferences({ digitStyle: "eastern", valuationReminderMonths: 12 })
+    await saveSyncedPreferences({ digitStyle: "western" })
+    expect(await liveSyncedPreferences()).toEqual({ digitStyle: "western", valuationReminderMonths: 12 })
+    expect(await liveHomeLayout()).toEqual(DEFAULT_LAYOUT)
+    expect(await table("homeLayouts").count()).toBe(1)
+  })
+
+  it("keeps only the four preferences and the values this app understands", async () => {
+    expect(pickSynced({ digitStyle: "eastern", language: "ar", theme: "dark" })).toEqual({ digitStyle: "eastern" })
+    const row = { digitStyle: "roman", showUsd: "yes", showHijri: false, valuationReminderMonths: 0 } as unknown as HomeLayout
+    expect(syncedPreferencesOf(row)).toEqual({ showHijri: false })
+  })
+})
+
+describe("reconciling a device with the row", () => {
+  const defaults = { digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6 } as const
+  const local = { ...defaults, digitStyle: "eastern", showHijri: true } as const
+
+  it("takes the row's values over the device's", () => {
+    expect(reconcileSynced({ digitStyle: "western", showUsd: true }, local, defaults, true)).toEqual({ apply: { digitStyle: "western", showUsd: true }, seed: {} })
+  })
+
+  it("seeds an empty row with this device's choices, but only after a sync", () => {
+    expect(reconcileSynced({}, local, defaults, false)).toEqual({ apply: {}, seed: {} })
+    expect(reconcileSynced({}, local, defaults, true)).toEqual({ apply: {}, seed: { digitStyle: "eastern", showHijri: true } })
   })
 })

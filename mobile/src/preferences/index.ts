@@ -1,12 +1,13 @@
 import { useSyncExternalStore } from "react"
 import Storage from "expo-sqlite/kv-store"
 
+import { saveSyncedPreferences } from "@mizan/core/db/homeLayout"
 import type { DigitStyle } from "@mizan/core/domain/money/format"
 
 export type LanguageChoice = "system" | "en" | "ar"
 export type ThemeChoice = "system" | "light" | "dark"
 
-/** Per device, as on the web; read before unlock, so nothing here is sensitive. */
+/** Read before unlock, so nothing here is sensitive. Digits, the dollar line, Hijri and the valuation reminder also follow the person (ADR home-2); this copy is the device's cache of them. */
 export interface Preferences {
   language: LanguageChoice
   theme: ThemeChoice
@@ -24,7 +25,7 @@ export interface Preferences {
 }
 
 const KEY = "mizan.preferences"
-const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [], dismissedAnnouncements: [], displayCurrency: null }
+export const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [], dismissedAnnouncements: [], displayCurrency: null }
 
 function load(): Preferences {
   try {
@@ -40,10 +41,16 @@ const listeners = new Set<() => void>()
 
 export const preferences = (): Preferences => current
 
-export function setPreferences(change: Partial<Preferences>) {
+/** Changes this device only; for values that arrived from the person's other devices. */
+export function applyLocal(change: Partial<Preferences>) {
   current = { ...current, ...change }
   Storage.setItemSync(KEY, JSON.stringify(current))
   listeners.forEach((listener) => listener())
+}
+
+export function setPreferences(change: Partial<Preferences>) {
+  applyLocal(change)
+  void saveSyncedPreferences(change).catch(() => undefined)
 }
 
 /** Re-renders everything that formats with the preferences, e.g. when the rates they depend on arrive. */

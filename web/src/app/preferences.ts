@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from "react"
 
+import { saveSyncedPreferences } from "@mizan/core/db/homeLayout"
+
 export type DigitStyle = "western" | "eastern"
 
 export interface Preferences {
@@ -17,7 +19,7 @@ export interface Preferences {
 
 
 const KEY = "mizan.preferences"
-const DEFAULTS: Preferences = {
+export const DEFAULTS: Preferences = {
   digitStyle: "western",
   showUsd: false,
   toursSeen: [],
@@ -42,7 +44,8 @@ export function preferences(): Preferences {
   return current
 }
 
-export function setPreferences(patch: Partial<Preferences>) {
+/** Changes this browser only; for values that arrived from the person's other devices. */
+export function applyLocal(patch: Partial<Preferences>) {
   current = { ...current, ...patch }
   try {
     localStorage.setItem(KEY, JSON.stringify(current))
@@ -56,6 +59,12 @@ export function setPreferences(patch: Partial<Preferences>) {
 export function refreshPreferences() {
   current = { ...current }
   listeners.forEach((l) => l())
+}
+
+/** Digits, the dollar line, Hijri and the valuation reminder also go to the person's synced row (ADR home-2). */
+export function setPreferences(patch: Partial<Preferences>) {
+  applyLocal(patch)
+  void saveSyncedPreferences(patch).catch(() => undefined)
 }
 
 export function usePreferences(): Preferences {

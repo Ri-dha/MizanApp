@@ -13,6 +13,8 @@ Switch between English and Arabic at any time. In Arabic you can choose Western 
 
 **Show Hijri dates alongside** adds the Umm al-Qura date next to the Gregorian one in the ledger, the month picker and the asset and zakat screens.
 
+Digits, Hijri dates, the net worth in US dollars and the asset revaluation reminder follow you: change one on the phone and the web app picks it up at its next sync. Language, theme and **Show amounts in** stay on each device.
+
 ## Security
 
 Set how long the app may stay in the background before it locks, switch fingerprint or face unlock on or off for this device, lock it now, or remove the PIN.

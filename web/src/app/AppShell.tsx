@@ -21,6 +21,7 @@ import { TourProvider } from "@/tours/TourProvider"
 import { cn } from "@/lib/utils"
 import { useSyncStatus } from "@/sync/engine"
 import { DisplayRatesSync, useShownCurrency } from "@/app/displayRates"
+import { SyncedPreferencesSync } from "@/app/syncedPreferences"
 import { setPreferences } from "@/app/preferences"
 
 export function AppShell() {
@@ -72,6 +73,7 @@ export function AppShell() {
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
       <DisplayRatesSync />
+      <SyncedPreferencesSync />
       <aside className="print:hidden sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-1 overflow-y-auto border-e bg-sidebar p-3 text-sidebar-foreground md:flex">
         <div className="mb-3 flex items-center justify-between px-1 pt-1">
           <span className="text-xl font-semibold">{t("app.name")}</span>

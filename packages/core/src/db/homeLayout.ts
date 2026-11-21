@@ -1,5 +1,6 @@
 import { rows } from "../store/store"
 import type { HomeLayout, HomeWidget, WidgetKind, WidgetSize } from "../schema"
+import type { DigitStyle } from "../domain/digits"
 import { writeFields } from "./write"
 
 export type { HomeWidget, WidgetKind, WidgetSize } from "../schema"
@@ -140,7 +141,58 @@ export async function liveHomeLayout(): Promise<HomeWidget[]> {
   return normaliseLayout((await liveHomeLayoutRow())?.widgets)
 }
 
-export async function saveHomeLayout(widgets: HomeWidget[]) {
+async function writeLayoutRow(change: Partial<HomeLayout>) {
   const existing = await liveHomeLayoutRow()
-  await writeFields<HomeLayout>("home_layout", existing?.id ?? crypto.randomUUID(), { ...(existing ? {} : { visibility: "PRIVATE" as const }), widgets })
+  await writeFields<HomeLayout>("home_layout", existing?.id ?? crypto.randomUUID(), { ...(existing ? {} : { visibility: "PRIVATE" as const }), ...change })
+}
+
+export async function saveHomeLayout(widgets: HomeWidget[]) {
+  await writeLayoutRow({ widgets })
+}
+
+/** ADR home-2: the reading preferences that follow a person; language, theme and display currency stay per device. */
+export interface SyncedPreferences {
+  digitStyle: DigitStyle
+  showUsd: boolean
+  showHijri: boolean
+  valuationReminderMonths: number
+}
+
+export const SYNCED_KEYS = ["digitStyle", "showUsd", "showHijri", "valuationReminderMonths"] as const satisfies readonly (keyof SyncedPreferences)[]
+
+const MAX_REMINDER_MONTHS = 120
+
+/** The values on the row this app understands; anything missing or out of range is left to the device. */
+export function syncedPreferencesOf(row: HomeLayout | undefined): Partial<SyncedPreferences> {
+  if (!row) return {}
+  const found: Partial<SyncedPreferences> = {}
+  if (row.digitStyle === "western" || row.digitStyle === "eastern") found.digitStyle = row.digitStyle
+  if (typeof row.showUsd === "boolean") found.showUsd = row.showUsd
+  if (typeof row.showHijri === "boolean") found.showHijri = row.showHijri
+  const months = row.valuationReminderMonths
+  if (typeof months === "number" && Number.isInteger(months) && months >= 1 && months <= MAX_REMINDER_MONTHS) found.valuationReminderMonths = months
+  return found
+}
+
+export const liveSyncedPreferences = () => liveHomeLayoutRow().then(syncedPreferencesOf)
+
+export function pickSynced(change: Partial<SyncedPreferences> & Record<string, unknown>): Partial<SyncedPreferences> {
+  return Object.fromEntries(SYNCED_KEYS.filter((k) => k in change).map((k) => [k, change[k]])) as Partial<SyncedPreferences>
+}
+
+export async function saveSyncedPreferences(change: Partial<SyncedPreferences>) {
+  const picked = pickSynced(change)
+  if (Object.keys(picked).length > 0) await writeLayoutRow(picked)
+}
+
+/**
+ * What a device does with the row's preferences: take every value the row holds, and when the
+ * row holds none yet (after this device has synced once, so another device's values had their
+ * chance to arrive) seed it with this device's own choices rather than resetting them.
+ */
+export function reconcileSynced(found: Partial<SyncedPreferences>, local: SyncedPreferences, defaults: SyncedPreferences, hasSynced: boolean): { apply: Partial<SyncedPreferences>; seed: Partial<SyncedPreferences> } {
+  const differs = (source: Partial<SyncedPreferences>, against: SyncedPreferences) =>
+    Object.fromEntries(SYNCED_KEYS.filter((k) => source[k] !== undefined && source[k] !== against[k]).map((k) => [k, source[k]])) as Partial<SyncedPreferences>
+  if (Object.keys(found).length > 0) return { apply: differs(found, local), seed: {} }
+  return { apply: {}, seed: hasSynced ? differs(local, defaults) : {} }
 }

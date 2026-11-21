@@ -213,7 +213,7 @@ export function Settings() {
         </Section>
       ) : null}
 
-      <Section title={t("settings.display")}>
+      <Section title={t("settings.display")} body={t("settings.followsYou")}>
         <Group>
           <ChoiceRow label={t("settings.digits")}>
             <Chips testID="settings-digits" options={DIGITS.map((d) => ({ value: d, label: t(`settings.digitStyles.${d}`) }))} value={prefs.digitStyle} onChange={(v) => v && setPreferences({ digitStyle: v as DigitStyle })} />

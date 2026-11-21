@@ -12,6 +12,7 @@ import { installPlatform } from "@/platform/install"
 import { openRemindersOnTap } from "@/platform/push"
 import { spacing } from "@/theme"
 import { DisplayRatesSync } from "@/utils/display-rates"
+import { SyncedPreferencesSync } from "@/utils/synced-preferences"
 import { usePreferences } from "@/preferences"
 
 SplashScreen.preventAutoHideAsync()
@@ -57,7 +58,7 @@ function Routes() {
   const { displayCurrency, digitStyle } = usePreferences()
   return (
     <>
-      {signedIn ? <DisplayRatesSync /> : null}
+      {signedIn ? <><DisplayRatesSync /><SyncedPreferencesSync /></> : null}
       {/* The screen under a pushed page is the tab group, whose name "(tabs)" would show as the back label. */}
       <Stack key={`${displayCurrency ?? ""}|${digitStyle}`} screenOptions={{ headerBackButtonDisplayMode: "minimal" }}>
         {/* Without a target, signing out fell back to the last signed-out screen (reset password). */}
