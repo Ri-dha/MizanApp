@@ -2,6 +2,9 @@ import createClient, { type Middleware } from "openapi-fetch"
 
 import type { paths } from "@mizan/core/api/generated"
 import { installApi } from "@mizan/core/api/client"
+import { currentSession } from "@mizan/core/auth/session"
+import { META_KEYS, readMeta } from "@mizan/core/db/meta"
+import type { LocalSession } from "@mizan/core/session"
 
 export { ApiError, NETWORK_ERROR, unwrap } from "@mizan/core/api/client"
 
@@ -32,6 +35,29 @@ export function setSessionLostHandler(handler: () => void) {
   onSessionLost = handler
 }
 
+function subjectOf(token: string): string | null {
+  try {
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")
+    return (JSON.parse(atob(payload)) as { sub?: string }).sub ?? null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The refresh cookie is shared by every tab on this host, so it may belong to an account signed in
+ * since. Using it here would make this tab's keys look replaced and wipe the device.
+ */
+async function sameAccount(token: string): Promise<boolean> {
+  const stored = await readMeta<LocalSession>(META_KEYS.session)
+  const expected = currentSession()?.userId ?? stored?.userId
+  const subject = subjectOf(token)
+  if (!expected || subject === expected) return true
+  if (stored?.userId === subject) window.location.reload()
+  else onSessionLost()
+  return false
+}
+
 
 /**
  * Refreshes through the httpOnly cookie. Only one refresh runs at a time; concurrent 401s
@@ -48,6 +74,10 @@ export async function refreshAccessToken(): Promise<boolean> {
           return false
         }
         const body = (await response.json()) as { accessToken: string }
+        if (!(await sameAccount(body.accessToken))) {
+          accessToken = null
+          return false
+        }
         accessToken = body.accessToken
         return true
       } catch {
