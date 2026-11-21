@@ -67,6 +67,9 @@ export function GoalsPage() {
                 <p className="text-sm opacity-70">
                   {money(saved, goal.currency)} / {money(goal.targetAmount, goal.currency)} · {projection.percent}%
                 </p>
+                {!goal.backingAssetId && (goal.openingAmount ?? 0) > 0 && (
+                  <p className="text-xs opacity-70">{t("goals.includesSaved", { amount: money(goal.openingAmount ?? 0, goal.currency) })}</p>
+                )}
               </div>
               {goal.status === "COMPLETED" && <Badge>{t("goals.completed")}</Badge>}
             </CardHeader>

@@ -35,6 +35,7 @@ export function GoalEditor({ id }: { id?: string }) {
   const assets = useLiveQuery(liveAssets, [], [])
   const [name, setName] = useState("")
   const [target, setTarget] = useState("")
+  const [alreadySaved, setAlreadySaved] = useState("")
   const [currency, setCurrency] = useState(base)
   const [targetDate, setTargetDate] = useState<string | null>(null)
   const [contribution, setContribution] = useState("")
@@ -48,6 +49,7 @@ export function GoalEditor({ id }: { id?: string }) {
     setName(goal.name)
     setTarget(fromMinorUnits(goal.targetAmount, goal.currency))
     setCurrency(goal.currency)
+    setAlreadySaved(goal.openingAmount ? fromMinorUnits(goal.openingAmount, goal.currency) : "")
     setTargetDate(goal.targetDate)
     setContribution(goal.monthlyContribution ? fromMinorUnits(goal.monthlyContribution, goal.currency) : "")
     setBucketId(goal.bucketId)
@@ -63,6 +65,7 @@ export function GoalEditor({ id }: { id?: string }) {
   async function save() {
     const input = {
       name: name.trim(), targetAmount: toMinorUnits(target, currency), currency, targetDate,
+      openingAmount: alreadySaved ? toMinorUnits(alreadySaved, currency) : 0,
       monthlyContribution: contribution ? toMinorUnits(contribution, currency) : null,
       bucketId, backingAssetId: assetId, note: null,
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
@@ -88,6 +91,12 @@ export function GoalEditor({ id }: { id?: string }) {
           <CurrencyField testID="goal-currency" value={currency} onChange={setCurrency} />
         </View>
       </View>
+      {assetId ? null : (
+        <>
+          <TextField testID="goal-already-saved" label={t("goals.alreadySaved", { currency })} keyboardType="decimal-pad" value={alreadySaved} onChangeText={setAlreadySaved} />
+          <ThemedText variant="caption">{t("goals.alreadySavedHint")}</ThemedText>
+        </>
+      )}
       <DateField label={t("goals.targetDate")} value={targetDate} onChange={setTargetDate} optional />
       <TextField testID="goal-monthly" label={t("goals.monthly")} keyboardType="decimal-pad" value={contribution} onChangeText={setContribution} />
       <ThemedText variant="caption">{t("goals.eitherHint")}</ThemedText>

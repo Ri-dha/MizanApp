@@ -786,7 +786,10 @@
     "archive": "Archive",
     "backingAsset": "Backed by an asset",
     "noBackingAsset": "None",
-    "backingAssetHint": "When set, progress follows the asset's value instead of deposits."
+    "backingAssetHint": "When set, progress follows the asset's value instead of deposits.",
+    "alreadySaved": "Already saved ({{currency}})",
+    "alreadySavedHint": "Money you had set aside before adding this goal. It counts toward the goal without a deposit, so this month's plan is not touched.",
+    "includesSaved": "Includes {{amount}} saved before"
   },
   "metals": {
     "dataCredit": "Data: {{name}}",

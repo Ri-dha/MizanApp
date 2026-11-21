@@ -32,6 +32,7 @@ export function GoalSheet({ open, goal, onClose }: { open: boolean; goal: Goal |
   const buckets = useLiveQuery(async () => liveBucketsOf(planFor(await livePlans(), currentMonthKey(startDay))?.id), [startDay], [])
   const [name, setName] = useState("")
   const [target, setTarget] = useState("0")
+  const [alreadySaved, setAlreadySaved] = useState("")
   const [currency, setCurrency] = useState(base)
   const pickCurrency = setCurrency
   const [targetDate, setTargetDate] = useState("")
@@ -46,6 +47,7 @@ export function GoalSheet({ open, goal, onClose }: { open: boolean; goal: Goal |
     setName(goal?.name ?? "")
     setTarget(goal ? fromMinorUnits(goal.targetAmount, goal.currency) : "0")
     setCurrency(goal?.currency ?? base)
+    setAlreadySaved(goal?.openingAmount ? fromMinorUnits(goal.openingAmount, goal.currency) : "")
     setTargetDate(goal?.targetDate ?? "")
     setContribution(goal?.monthlyContribution ? fromMinorUnits(goal.monthlyContribution, goal.currency) : "")
     setBucketId(goal?.bucketId ?? NONE)
@@ -59,6 +61,7 @@ export function GoalSheet({ open, goal, onClose }: { open: boolean; goal: Goal |
       name: name.trim(),
       targetAmount: toMinorUnits(target, currency),
       currency,
+      openingAmount: alreadySaved ? toMinorUnits(alreadySaved, currency) : 0,
       targetDate: targetDate || null,
       monthlyContribution: contribution ? toMinorUnits(contribution, currency) : null,
       bucketId: bucketId === NONE ? null : bucketId,
@@ -87,6 +90,11 @@ export function GoalSheet({ open, goal, onClose }: { open: boolean; goal: Goal |
               <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="w-24" />
             </Field>
           </div>
+          {assetId === NONE && (
+            <Field id="alreadySaved" label={t("goals.alreadySaved", { currency })} hint={t("goals.alreadySavedHint")}>
+              <Input id="alreadySaved" inputMode="decimal" dir="ltr" placeholder="0" value={alreadySaved} onChange={(e) => setAlreadySaved(e.target.value)} />
+            </Field>
+          )}
           <div className="grid grid-cols-2 gap-2">
             <Field id="targetDate" label={t("goals.targetDate")}>
               <Input id="targetDate" type="date" dir="ltr" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} />

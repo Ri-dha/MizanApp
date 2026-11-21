@@ -3,11 +3,14 @@ import { type Goal, type GoalDeposit, type Visibility } from "../schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
 import { createTransaction, deleteTransaction } from "./transactions"
+import { todayIso } from "../domain/calendar/month"
 
 export interface GoalInput {
   name: string
   targetAmount: number
   currency: string
+  /** Already saved before the goal existed: no transaction, no plan bucket touched. */
+  openingAmount?: number
   targetDate: string | null
   monthlyContribution: number | null
   bucketId: string | null
@@ -19,13 +22,28 @@ export interface GoalInput {
 export async function createGoal(input: GoalInput): Promise<string> {
   const id = crypto.randomUUID()
   const sortOrder = await table("goals").count()
-  await writeFields<Goal>("goal", id, { ...input, backingAssetType: input.backingAssetId ? "ASSET" : null, status: "ACTIVE", completedOn: null, sortOrder })
+  await store().transaction(ALL_TABLES, async () => {
+    await writeFields<Goal>("goal", id, { ...input, backingAssetType: input.backingAssetId ? "ASSET" : null, status: "ACTIVE", completedOn: null, sortOrder })
+    await settleStatus(id)
+  })
   return id
 }
 
 export async function updateGoal(id: string, input: Partial<GoalInput>) {
   const backing = input.backingAssetId === undefined ? {} : { backingAssetType: input.backingAssetId ? "ASSET" : null }
-  await writeFields<Goal>("goal", id, { ...input, ...backing })
+  await store().transaction(ALL_TABLES, async () => {
+    await writeFields<Goal>("goal", id, { ...input, ...backing })
+    await settleStatus(id)
+  })
+}
+
+/** An already-saved amount or a lower target can reach a goal, or un-reach it, without a deposit. */
+async function settleStatus(id: string) {
+  const goal = await table("goals").get(id)
+  if (!goal || goal.backingAssetId) return
+  const reached = savedOf(goal, await liveDeposits()) >= goal.targetAmount
+  if (reached && goal.status === "ACTIVE") await writeFields<Goal>("goal", id, { status: "COMPLETED", completedOn: todayIso() })
+  else if (!reached && goal.status === "COMPLETED") await writeFields<Goal>("goal", id, { status: "ACTIVE", completedOn: null })
 }
 
 export function liveGoals() {
@@ -36,12 +54,12 @@ export function liveDeposits() {
   return sorted(rows("goalDeposits", (d) => d.deletedAt === null), "depositedOn")
 }
 
-/** FR-GOL-02 / BR-07: progress is the deposit ledger, or the backing asset's value when one is set. */
+/** FR-GOL-02 / BR-07: progress is what was already saved plus the deposit ledger, or the backing asset's value when one is set. */
 export function savedOf(goal: Goal, deposits: GoalDeposit[], assetValues: Record<string, number> = {}): number {
   if (goal.backingAssetId && goal.backingAssetId in assetValues) return assetValues[goal.backingAssetId]
   return deposits
     .filter((d) => d.goalId === goal.id)
-    .reduce((sum, d) => sum + (d.direction === "DEPOSIT" ? d.amount : -d.amount), 0)
+    .reduce((sum, d) => sum + (d.direction === "DEPOSIT" ? d.amount : -d.amount), goal.openingAmount ?? 0)
 }
 
 export async function recordDeposit(goal: Goal, deposits: GoalDeposit[], amount: number, direction: GoalDeposit["direction"], on: string, monthKey: string, note: string | null) {

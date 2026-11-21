@@ -59,6 +59,7 @@ export function Goals() {
                 {goal.status === "COMPLETED" ? <ThemedText variant="caption">{t("goals.completed")}</ThemedText> : null}
               </View>
               <ThemedText variant="subhead">{`${money(saved, goal.currency)} / ${money(goal.targetAmount, goal.currency)} · ${percent}%`}</ThemedText>
+              {!goal.backingAssetId && (goal.openingAmount ?? 0) > 0 ? <ThemedText variant="caption">{t("goals.includesSaved", { amount: money(goal.openingAmount ?? 0, goal.currency) })}</ThemedText> : null}
               <ProgressBar percent={percent} />
               <ThemedText variant="subhead">{text}</ThemedText>
               <View style={styles.actions}>

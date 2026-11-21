@@ -798,7 +798,10 @@
     "archive": "أرشفة",
     "backingAsset": "مدعوم بأصل",
     "noBackingAsset": "بلا",
-    "backingAssetHint": "عند تحديده يتبع التقدم قيمة الأصل بدل الإيداعات."
+    "backingAssetHint": "عند تحديده يتبع التقدم قيمة الأصل بدل الإيداعات.",
+    "alreadySaved": "المدّخر مسبقًا ({{currency}})",
+    "alreadySavedHint": "مال جمعته قبل إضافة هذا الهدف. يُحسب ضمن الهدف دون إيداع، فلا تتأثر خطة هذا الشهر.",
+    "includesSaved": "يشمل {{amount}} مدّخرة مسبقًا"
   },
   "metals": {
     "dataCredit": "البيانات: {{name}}",

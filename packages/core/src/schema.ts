@@ -192,6 +192,8 @@ export interface Goal extends Syncable {
   name: string
   targetAmount: number
   currency: string
+  /** Set aside before the goal was added, in its currency; counts toward it without a deposit (absent on older goals). */
+  openingAmount?: number
   targetDate: string | null
   monthlyContribution: number | null
   bucketId: string | null
