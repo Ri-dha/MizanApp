@@ -42,7 +42,7 @@ export function Bills() {
   const shown = new Set(view.bills.map((b) => b.expense.id))
   const thisMonth = [...new Map(view.bills.map((b) => [b.expense.id, b.expense])).values()]
   const others = expenses.filter((e) => !shown.has(e.id))
-  const subscriptions = subscriptionSummary(expenses, today, prices.usdIqdMicros)
+  const subscriptions = subscriptionSummary(expenses, today, prices.usdBaseMicros)
 
   const editHref = (expense: RecurringExpense) => ({ pathname: "/bill-edit" as const, params: { id: expense.id } })
 

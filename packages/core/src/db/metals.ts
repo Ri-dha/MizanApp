@@ -107,11 +107,11 @@ export function valueLots(states: LotState[], prices: ResolvedPrices, setting: M
   })
 }
 
-/** IQD micros per gram at a purity, through the shared BR-08 maths; a user-entered price replaces spot × rate. */
+/** Base minor units per gram at a purity, in micros, through the shared BR-08 maths; a user-entered price replaces spot × rate. */
 export function perGramFor(metal: Metal, purityBasisPoints: number, prices: ResolvedPrices, setting: MarketSetting | undefined): number {
   const spot = prices.spot[metal]
   return metalValuation({
-    spotUsdPerOzMicros: spot.spotUsdPerOzMicros, usdIqdMicros: prices.usdIqdMicros, purityBasisPoints,
+    spotUsdPerOzMicros: spot.spotUsdPerOzMicros, usdBaseMicros: prices.usdBaseMicros, purityBasisPoints,
     premiumBasisPoints: premiumFor(setting, metal), premiumFixedPerGramMicros: 0, weightMg: 0,
     overridePerGram24kMicros: spot.perGram24kOverrideMicros, discountBasisPoints: spot.bidFromFeed ? 0 : discountFor(setting, metal),
   }).perGramMicros
@@ -214,7 +214,7 @@ const MICRO = 1_000_000
 export function priceTable(prices: ResolvedPrices, setting: MarketSetting | undefined): PriceRow[] {
   return Object.values(PURITIES).map((p) => {
     const perGramMicros = perGramFor(p.metal, p.basisPoints, prices, setting)
-    const toUsd = (micros: number) => (prices.usdIqdMicros > 0 ? Math.round((micros / prices.usdIqdMicros) * MICRO) : 0)
+    const toUsd = (micros: number) => (prices.usdBaseMicros > 0 ? Math.round((micros / prices.usdBaseMicros) * MICRO) : 0)
     const perMithqalMicros = Math.round((perGramMicros * MITHQAL_MG) / 1000)
     return { metal: p.metal, purityLabel: p.label, perGramMicros, perGramUsdMicros: toUsd(perGramMicros), perMithqalMicros, perMithqalUsdMicros: toUsd(perMithqalMicros) }
   })

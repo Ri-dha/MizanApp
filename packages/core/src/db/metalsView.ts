@@ -1,5 +1,7 @@
 import { liveDisposalLots, liveDisposals, liveLots, lotStates, portfolio, valueLots, type LotValuation, type PortfolioLine } from "./metals"
 import type { MarketOverride, MarketSetting, MetalDisposal, MetalDisposalLot, MetalLot } from "../schema"
+import { loadSession } from "../auth/session"
+import { cachedWorldRates } from "../market/world"
 import { cachedQuotes, liveOverrides, liveSetting, resolvePrices, type Quote, type ResolvedPrices } from "../market/prices"
 
 export interface MetalsView {
@@ -15,7 +17,7 @@ export interface MetalsView {
 }
 
 const EMPTY_PRICES: ResolvedPrices = {
-  usdIqdMicros: 0, rateKind: "PARALLEL", rateSource: { kind: "none", label: "none", at: null, stale: true },
+  base: "IQD", perUsd: { USD: 1 }, usdBaseMicros: 0, usdIqdMicros: 0, rateKind: "PARALLEL", rateSource: { kind: "none", label: "none", at: null, stale: true },
   spot: {
     GOLD: { spotUsdPerOzMicros: 0, perGram24kOverrideMicros: null, source: { kind: "none", label: "none", at: null, stale: true }, bidFromFeed: false },
     SILVER: { spotUsdPerOzMicros: 0, perGram24kOverrideMicros: null, source: { kind: "none", label: "none", at: null, stale: true }, bidFromFeed: false },
@@ -24,11 +26,12 @@ const EMPTY_PRICES: ResolvedPrices = {
 
 export const EMPTY_METALS_VIEW: MetalsView = { lots: [], valued: [], lines: [], disposals: [], disposalLots: [], quotes: [], overrides: [], setting: undefined, prices: EMPTY_PRICES }
 
-export async function metalsViewFor(): Promise<MetalsView> {
-  const [lots, disposals, disposalLots, quotes, overrides, setting] = await Promise.all([
-    liveLots(), liveDisposals(), liveDisposalLots(), cachedQuotes(), liveOverrides(), liveSetting(),
+/** {@code base} from the caller's session, so the view recomputes when the household currency changes. */
+export async function metalsViewFor(base?: string): Promise<MetalsView> {
+  const [lots, disposals, disposalLots, quotes, overrides, setting, session, world] = await Promise.all([
+    liveLots(), liveDisposals(), liveDisposalLots(), cachedQuotes(), liveOverrides(), liveSetting(), loadSession(), cachedWorldRates(),
   ])
-  const prices = resolvePrices(quotes, overrides, setting)
+  const prices = resolvePrices(quotes, overrides, setting, base ?? session?.baseCurrency ?? "IQD", world?.rates ?? [])
   const valued = valueLots(lotStates(lots, disposalLots), prices, setting)
   return { lots, valued, lines: portfolio(valued), disposals, disposalLots, quotes, overrides, setting, prices }
 }

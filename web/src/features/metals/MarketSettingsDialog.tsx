@@ -10,11 +10,14 @@ import type { DisposalMethod, MarketSetting, PriceSource, RateKind, ValuationBas
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { DEFAULT_SETTING, saveSetting } from "@/market/store"
+import { useSession } from "@/api/auth"
 
 const METHODS: DisposalMethod[] = ["FIFO", "SPECIFIC", "WEIGHTED_AVERAGE"]
 
 export function MarketSettingsDialog({ open, setting, onClose }: { open: boolean; setting: MarketSetting | undefined; onClose: () => void }) {
   const { t } = useTranslation()
+  // The dollar kind and the Baghdad dealer only mean something to a household counting in dinars.
+  const dinar = (useSession()?.baseCurrency ?? "IQD") === "IQD"
   const [rateKind, setRateKind] = useState<RateKind>(DEFAULT_SETTING.rateKind)
   const [goldPremium, setGoldPremium] = useState("0")
   const [silverPremium, setSilverPremium] = useState("0")
@@ -59,6 +62,7 @@ export function MarketSettingsDialog({ open, setting, onClose }: { open: boolean
       <DialogContent>
         <DialogHeader><DialogTitle>{t("metals.settings")}</DialogTitle></DialogHeader>
         <form onSubmit={submit} className="flex flex-col gap-4">
+          {dinar && <>
           <Field id="rateKind" label={t("metals.rateKind")} hint={t("metals.rateKindHint")}>
             <Select value={rateKind} onValueChange={(v) => setRateKind(v as RateKind)}>
               <SelectTrigger id="rateKind"><SelectValue /></SelectTrigger>
@@ -71,6 +75,7 @@ export function MarketSettingsDialog({ open, setting, onClose }: { open: boolean
               <SelectContent>{(["WORLD", "LOCAL"] as const).map((k) => <SelectItem key={k} value={k}>{t(`metals.priceSources.${k}`)}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
+          </>}
           <div className="grid grid-cols-2 gap-2">
             <Field id="goldPremium" label={t("metals.premium", { metal: t("metals.metal.GOLD") })} hint={t("metals.premiumHint")}>
               <Input id="goldPremium" inputMode="decimal" dir="ltr" value={goldPremium} onChange={(e) => setGoldPremium(e.target.value)} />

@@ -8,7 +8,7 @@ import { formatMoney } from "@/app/money"
 import { currentMonthKey } from "@/app/month"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { DollarTodayCard } from "@/features/prices/DollarTodayCard"
+import { RatesTodayCard } from "@/features/prices/RatesTodayCard"
 import { useMonthView } from "@/features/plan/useMonthFigures"
 import { useMetals } from "@/features/metals/useMetals"
 import { useNetWorth } from "@/features/networth/useNetWorth"
@@ -185,7 +185,7 @@ function DebtsWidget({ widget }: WidgetProps) {
 
 const RENDERERS: Record<HomeWidget["kind"], (props: WidgetProps) => ReactNode> = {
   netWorth: NetWorthWidget,
-  dollar: () => <DollarTodayCard />,
+  dollar: () => <RatesTodayCard />,
   plan: PlanWidget,
   metals: MetalsWidget,
   bills: BillsWidget,

@@ -15,12 +15,12 @@ import { ATTRIBUTE_KEYS, DEFAULT_LIQUIDITY, createAsset, updateAsset } from "@mi
 import type { Asset, AssetType } from "@/db/schema"
 import type { DepreciationMethod } from "@mizan/core/domain/asset/depreciation"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
-import { rateToMicros } from "@mizan/core/db/income"
+import { marketFxRateMicros } from "@mizan/core/market/currency"
 import { useMetals } from "@/features/metals/useMetals"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
 
 const TYPES: AssetType[] = ["VEHICLE", "PROPERTY", "ELECTRONICS", "EQUIPMENT", "FURNITURE", "LIVESTOCK", "OTHER"]
 const METHODS: DepreciationMethod[] = ["NONE", "STRAIGHT_LINE", "DECLINING_BALANCE"]
-const CURRENCIES = ["IQD", "USD"]
 const NUMERIC_ATTRIBUTES: ReadonlySet<string> = new Set(["year", "mileageKm", "areaSqm", "headCount"])
 
 interface Props {
@@ -41,6 +41,7 @@ export function AssetSheet({ open, asset, onClose, onDelete }: Props) {
   const [purchaseDate, setPurchaseDate] = useState("")
   const [price, setPrice] = useState("0")
   const [currency, setCurrency] = useState(base)
+  const pickCurrency = setCurrency
   const [illiquid, setIlliquid] = useState(false)
   const [method, setMethod] = useState<DepreciationMethod>("NONE")
   const [rate, setRate] = useState("15")
@@ -79,7 +80,7 @@ export function AssetSheet({ open, asset, onClose, onDelete }: Props) {
       purchaseDate: purchaseDate || null,
       purchasePrice: toMinorUnits(price, currency),
       currency,
-      fxRateMicros: asset?.currency === currency ? asset.fxRateMicros : currency === base ? 1_000_000 : currency === "USD" ? rateToMicros(metals.prices.usdIqdMicros / 1_000_000, "USD") : 1_000_000,
+      fxRateMicros: asset?.currency === currency ? asset.fxRateMicros : marketFxRateMicros(currency, base, metals.prices.perUsd),
       liquidity: illiquid ? ("ILLIQUID" as const) : ("LIQUID" as const),
       depreciationMethod: method,
       annualRateBasisPoints: method === "NONE" ? 0 : Math.round(Number(rate) * 100),
@@ -118,10 +119,7 @@ export function AssetSheet({ open, asset, onClose, onDelete }: Props) {
               <Input id="price" inputMode="decimal" dir="ltr" value={price} onChange={(e) => setPrice(e.target.value)} required />
             </Field>
             <Field id="currency" label={t("accounts.currency")}>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>{CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-              </Select>
+              <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="w-24" />
             </Field>
           </div>
           <Field id="purchaseDate" label={t("assets.purchaseDate")}>

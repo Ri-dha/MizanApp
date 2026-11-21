@@ -38,16 +38,18 @@ export function toBaseAmount(amount: number, fxRateMicros: number): number {
 }
 
 /**
- * People type the rate for one dollar (1470), but amounts are stored in cents, so the stored
- * rate is per cent: 1470 → 14,700,000 micros. This is the only place that conversion lives.
+ * People type how many base units one unit of the currency is worth (1470 dinars for a dollar),
+ * but amounts are stored in minor units, so the stored rate is base minor units per minor unit
+ * of the currency (ADR rates-1): 1470 → 14,700,000 micros for dollars into dinars. This is the
+ * only place that conversion lives.
  */
-export function rateToMicros(rate: string | number, currency: string): number {
-  return Math.round((Number(rate) * RATE_SCALE) / minorUnitsPerMajor(currency))
+export function rateToMicros(rate: string | number, currency: string, base: string): number {
+  return Math.round((Number(rate) * RATE_SCALE * minorUnitsPerMajor(base)) / minorUnitsPerMajor(currency))
 }
 
-export function microsToRate(fxRateMicros: number, currency: string): string {
-  const rate = (fxRateMicros * minorUnitsPerMajor(currency)) / RATE_SCALE
-  return String(Number(rate.toFixed(4)))
+export function microsToRate(fxRateMicros: number, currency: string, base: string): string {
+  const rate = (fxRateMicros * minorUnitsPerMajor(currency)) / (RATE_SCALE * minorUnitsPerMajor(base))
+  return String(Number(rate.toPrecision(8)))
 }
 
 export async function createIncomeSource(input: IncomeSourceInput): Promise<string> {

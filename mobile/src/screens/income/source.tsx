@@ -59,7 +59,7 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
     setName(source.name)
     setAmount(fromMinorUnits(source.amount, source.currency))
     setCurrency(source.currency)
-    setRate(microsToRate(source.fxRateMicros, source.currency))
+    setRate(microsToRate(source.fxRateMicros, source.currency, base))
     setFrequency(source.frequency)
     setPayDay(String(source.payDay ?? DEFAULT_PAY_DAY))
     setAnchorDate(source.anchorDate ?? todayIso())
@@ -78,7 +78,7 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
       name: name.trim(),
       amount: source ? source.amount : toMinorUnits(amount, currency),
       currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       frequency,
       payDay: usesPayDay ? Number(payDay) : null,
       anchorDate: usesPayDay ? null : anchorDate,

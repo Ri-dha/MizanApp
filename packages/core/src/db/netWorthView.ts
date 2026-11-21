@@ -39,6 +39,8 @@ export async function netWorthFiguresFor(baseCurrency: string, prices: ResolvedP
 
 export function rateSetOf(prices: ResolvedPrices): Record<string, unknown> {
   return {
+    baseCurrency: prices.base,
+    usdBaseMicros: prices.usdBaseMicros,
     rateKind: prices.rateKind,
     usdIqdMicros: prices.usdIqdMicros,
     usdIqdSource: prices.rateSource.label,

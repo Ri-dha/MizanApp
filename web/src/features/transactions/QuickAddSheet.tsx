@@ -30,8 +30,9 @@ import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
 import { cn } from "@/lib/utils"
 import { useLiveQuery } from "dexie-react-hooks"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
+import { useTodayRate } from "@/features/currency/useCurrencies"
 
-const CURRENCIES = ["IQD", "USD"]
 const TYPES: TransactionType[] = ["EXPENSE", "TRANSFER", "INCOME"]
 
 interface Props {
@@ -54,6 +55,11 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
   const [amount, setAmount] = useState("")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [occurredOn, setOccurredOn] = useState(todayIso())
   const [bucketId, setBucketId] = useState<string | null>(null)
   const [counterparty, setCounterparty] = useState<string>("")
@@ -83,7 +89,7 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
     setType(transaction?.type ?? "EXPENSE")
     setAmount(transaction ? fromMinorUnits(transaction.amount, transaction.currency) : "")
     setCurrency(transaction?.currency ?? base)
-    setRate(transaction ? microsToRate(transaction.fxRateMicros, transaction.currency) : "1")
+    setRate(transaction ? microsToRate(transaction.fxRateMicros, transaction.currency, base) : "1")
     setOccurredOn(transaction?.occurredOn ?? todayIso())
     setBucketId(transaction?.bucketId ?? null)
     setCounterparty(transaction?.counterpartyType && transaction.counterpartyId ? `${transaction.counterpartyType}:${transaction.counterpartyId}` : "")
@@ -123,7 +129,7 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
       monthKey: monthKeyFor(occurredOn, startDay),
       amount: toMinorUnits(amount, currency),
       currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       bucketId: type === "INCOME" ? null : bucketId,
       category: category.trim() || null,
       payee: payee.trim() || null,
@@ -216,10 +222,7 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
               <Input id="amount" inputMode="decimal" dir="ltr" autoFocus value={amount} onChange={(e) => setAmount(e.target.value)} required className="h-14 text-2xl font-semibold" />
             </Field>
             <Field id="currency" label={t("accounts.currency")}>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="h-14 w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>{CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-              </Select>
+              <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="h-14 w-24" />
             </Field>
           </div>
           {needsRate && (

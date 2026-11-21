@@ -21,11 +21,15 @@ import { formatMoney, toMinorUnits } from "@/app/money"
 import { useScreenTour } from "@/tours/useTour"
 import { useDateFormat } from "@/app/dates"
 import { db } from "@/db/schema"
+import { useMetals } from "@/features/metals/useMetals"
 import { AssetSheet } from "./AssetSheet"
 
 const TYPE_ORDER: AssetType[] = ["VEHICLE", "PROPERTY", "ELECTRONICS", "EQUIPMENT", "FURNITURE", "LIVESTOCK", "OTHER"]
 
 type Action = { kind: "value" | "sell"; asset: Asset } | null
+
+/** The display switch already marks converted amounts; mark the rest the same way, once. */
+const approximately = (text: string) => (text.startsWith("≈") ? text : `≈ ${text}`)
 
 export function AssetsPage() {
   const { t, i18n } = useTranslation()
@@ -47,13 +51,14 @@ export function AssetsPage() {
   const [note, setNote] = useState("")
   const [showSold, setShowSold] = useState(false)
   const today = todayIso()
+  const { prices } = useMetals()
   useScreenTour("assets")
 
   const money = (v: number, currency = base) => formatMoney(v, currency, i18n.language)
   const date = useDateFormat()
   const held = assets.filter((a) => a.status === "HELD")
   const sold = assets.filter((a) => a.status === "SOLD")
-  const totalBase = held.reduce((sum, a) => sum + currentValue(a, valuations, today).baseValue, 0)
+  const totalBase = held.reduce((sum, a) => sum + currentValue(a, valuations, today, prices).baseValue, 0)
 
   async function remove(asset: Asset) {
     await softDelete("asset", asset.id)
@@ -105,7 +110,7 @@ export function AssetsPage() {
         <section key={type} className="flex flex-col gap-2" data-tour={type === held[0]?.type ? "assets-list" : undefined}>
           <h2 className="text-xl">{t(`assets.types.${type}`)}</h2>
           {held.filter((a) => a.type === type).map((asset) => {
-            const value = currentValue(asset, valuations, today)
+            const value = currentValue(asset, valuations, today, prices)
             const history = valuationsOf(asset.id, valuations)
             const stale = value.monthsSinceBaseline >= prefs.valuationReminderMonths
             const change = value.value - asset.purchasePrice
@@ -120,6 +125,7 @@ export function AssetsPage() {
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <span className="text-xl font-semibold tabular-nums">{money(value.value, asset.currency)}</span>
+                    {asset.currency !== base && <span className="text-sm tabular-nums opacity-70">{approximately(money(value.baseValue))}</span>}
                     <span className="flex gap-1">
                       {asset.liquidity === "ILLIQUID" && <Badge variant="secondary">{t("assets.illiquidBadge")}</Badge>}
                       {asset.visibility === "PRIVATE" && <Badge variant="secondary">{t("accounts.private")}</Badge>}

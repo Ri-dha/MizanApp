@@ -5,14 +5,14 @@ import { useSession } from "@/api/auth"
 import { Field } from "@/components/Field"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { microsToRate, RATE_SCALE, rateToMicros, recordReceipt, toBaseAmount } from "@mizan/core/db/income"
 import type { IncomeReceipt } from "@/db/schema"
 import { softDelete, writeFields } from "@mizan/core/db/write"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
+import { useTodayRate } from "@/features/currency/useCurrencies"
 
-const CURRENCIES = ["IQD", "USD"]
 
 export interface ReceiptDraft {
   existing: IncomeReceipt | null
@@ -31,6 +31,11 @@ export function ReceiptSheet({ draft, onClose }: { draft: ReceiptDraft | null; o
   const [amount, setAmount] = useState("0")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [receivedOn, setReceivedOn] = useState("")
   const [note, setNote] = useState("")
 
@@ -38,13 +43,13 @@ export function ReceiptSheet({ draft, onClose }: { draft: ReceiptDraft | null; o
     if (!draft) return
     setAmount(fromMinorUnits(draft.amount, draft.currency))
     setCurrency(draft.currency)
-    setRate(microsToRate(draft.fxRateMicros, draft.currency))
+    setRate(microsToRate(draft.fxRateMicros, draft.currency, base))
     setReceivedOn(draft.receivedOn)
     setNote(draft.existing?.note ?? "")
   }, [draft])
 
   const needsRate = currency !== base
-  const fxRateMicros = needsRate ? rateToMicros(rate, currency) : RATE_SCALE
+  const fxRateMicros = needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE
   const minor = toMinorUnits(amount, currency)
 
   async function submit(event: FormEvent) {
@@ -76,10 +81,7 @@ export function ReceiptSheet({ draft, onClose }: { draft: ReceiptDraft | null; o
               <Input id="amount" inputMode="decimal" dir="ltr" value={amount} onChange={(e) => setAmount(e.target.value)} required />
             </Field>
             <Field id="currency" label={t("accounts.currency")}>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>{CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-              </Select>
+              <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="w-24" />
             </Field>
           </div>
           {needsRate && (

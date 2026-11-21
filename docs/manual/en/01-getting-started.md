@@ -5,7 +5,9 @@ summary: "Create an account, set a PIN, install the app, and understand what wor
 ---
 ## Create an account
 
-Register with an email address. A six-digit code is emailed to confirm it (check the spam folder if it does not arrive); you can skip it for now and confirm later from the banner on the home screen.
+Register with your name, your country, your main currency and an email address. The main currency starts as your country's own; pick another if you count your money in it. Every total, plan and net worth figure is shown in it, and amounts can still be recorded in any currency. People in Iraq also get the Baghdad market and Central Bank dollar.
+
+A six-digit code is emailed to confirm it (check the spam folder if it does not arrive); you can skip it for now and confirm later from the banner on the home screen.
 
 Every account starts its own household with the default plan: Essentials 55%, Guilt-free 5%, Debt & invest 10%, Short-term savings 15%, Investing 15%. You can change all of it on the Plan screen.
 

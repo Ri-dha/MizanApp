@@ -23,12 +23,12 @@ import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { useMetals } from "@/hooks/use-views"
 import { spacing } from "@/theme"
 import { UNITS, wholeFromMicros } from "./format"
+import { inBase } from "@mizan/core/market/currency"
 
 const METALS: Metal[] = ["GOLD", "SILVER"]
 const FORMS: MetalForm[] = ["JEWELLERY", "COIN", "BAR", "SCRAP"]
 const CURRENCIES = ["IQD", "USD"]
 const DEFAULT_PURITY: Record<Metal, string> = { GOLD: "21k", SILVER: "999" }
-const MINOR_PER_WHOLE = 100
 
 export function LotEditor({ id }: { id?: string }) {
   const { t, i18n } = useTranslation()
@@ -67,7 +67,7 @@ export function LotEditor({ id }: { id?: string }) {
     setMaking(fromMinorUnits(lot.makingCharge, lot.currency))
     setFees(fromMinorUnits(lot.fees, lot.currency))
     setCurrency(lot.currency)
-    setRate(microsToRate(lot.fxRateMicros, lot.currency))
+    setRate(microsToRate(lot.fxRateMicros, lot.currency, base))
     setForm(lot.form)
     setDealer(lot.dealer ?? "")
     setLocation(lot.location ?? "")
@@ -86,7 +86,7 @@ export function LotEditor({ id }: { id?: string }) {
   const needsRate = currency !== base
   const perGramMicros = perGramFor(metal, PURITIES[purity]?.basisPoints ?? 0, market.prices, market.setting)
   const todayBase = valueOf(perGramMicros, weightMg)
-  const todayInCurrency = currency === base ? todayBase : market.prices.usdIqdMicros > 0 ? Math.round((todayBase * 1e6 * MINOR_PER_WHOLE) / market.prices.usdIqdMicros) : 0
+  const todayInCurrency = inBase(todayBase, base, currency, market.prices.perUsd) ?? 0
   const hasPrice = perGramMicros > 0 && weightMg > 0
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export function LotEditor({ id }: { id?: string }) {
       makingCharge: toMinorUnits(making || "0", currency),
       fees: toMinorUnits(fees || "0", currency),
       currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       form,
       dealer: dealer.trim() || null,
       location: location.trim() || null,

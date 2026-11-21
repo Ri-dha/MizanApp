@@ -20,6 +20,8 @@ import { QuickAddSheet } from "@/features/transactions/QuickAddSheet"
 import { TourProvider } from "@/tours/TourProvider"
 import { cn } from "@/lib/utils"
 import { useSyncStatus } from "@/sync/engine"
+import { DisplayRatesSync, useShownCurrency } from "@/app/displayRates"
+import { setPreferences } from "@/app/preferences"
 
 export function AppShell() {
   const { t } = useTranslation()
@@ -69,10 +71,11 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
+      <DisplayRatesSync />
       <aside className="print:hidden sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-1 overflow-y-auto border-e bg-sidebar p-3 text-sidebar-foreground md:flex">
         <div className="mb-3 flex items-center justify-between px-1 pt-1">
           <span className="text-xl font-semibold">{t("app.name")}</span>
-          <SyncBadge />
+          <span className="flex items-center gap-1"><ShownCurrencyBadge /><SyncBadge /></span>
         </div>
         {canWrite && <Button onClick={() => setAdding(true)} className="mb-2" data-tour="quick-add-desktop"><Plus /> {t("transactions.add")}</Button>}
         {sidebar.map((item) => (
@@ -93,7 +96,7 @@ export function AppShell() {
       <main className="flex-1 p-4 pb-28 md:p-8 md:pb-8">
         <div className="mb-4 flex items-center justify-between md:hidden">
           <span className="text-xl font-semibold">{t("app.name")}</span>
-          <SyncBadge />
+          <span className="flex items-center gap-1"><ShownCurrencyBadge /><SyncBadge /></span>
         </div>
         <AwaitingKeyBanner />
         <AnnouncementBanner />
@@ -132,6 +135,18 @@ export function AppShell() {
       <TourProvider />
       <RecoveryCodeDialog />
     </div>
+  )
+}
+
+/** While amounts are converted for display, say so, and let one tap turn it off. */
+function ShownCurrencyBadge() {
+  const { t } = useTranslation()
+  const shown = useShownCurrency()
+  if (!shown) return null
+  return (
+    <button type="button" onClick={() => setPreferences({ displayCurrency: null })} title={t("currency.showingOff")}>
+      <Badge variant="outline">{t("currency.showing", { currency: shown })}</Badge>
+    </button>
   )
 }
 

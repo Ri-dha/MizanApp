@@ -11,6 +11,8 @@ export interface Preferences {
   valuationReminderMonths: number
   /** FR-SET-04: Hijri date alongside the Gregorian one. */
   showHijri: boolean
+  /** Shows main-currency amounts in another currency at today's rate; nothing stored changes. Null shows them as they are. */
+  displayCurrency: string | null
 }
 
 
@@ -21,6 +23,7 @@ const DEFAULTS: Preferences = {
   toursSeen: [],
   valuationReminderMonths: 6,
   showHijri: false,
+  displayCurrency: null,
 }
 
 let current: Preferences = load()
@@ -46,6 +49,12 @@ export function setPreferences(patch: Partial<Preferences>) {
   } catch {
     // Per-device convenience only; losing it costs nothing.
   }
+  listeners.forEach((l) => l())
+}
+
+/** Re-renders everything that formats with the preferences, e.g. when the rates they depend on arrive. */
+export function refreshPreferences() {
+  current = { ...current }
   listeners.forEach((l) => l())
 }
 

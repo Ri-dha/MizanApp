@@ -19,8 +19,8 @@ import { liveBucketsOf, livePlans, planFor } from "@mizan/core/db/plan"
 import type { Goal } from "@/db/schema"
 import { writeFields } from "@mizan/core/db/write"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
 
-const CURRENCIES = ["IQD", "USD"]
 const NONE = "__none__"
 
 export function GoalSheet({ open, goal, onClose }: { open: boolean; goal: Goal | null; onClose: () => void }) {
@@ -33,6 +33,7 @@ export function GoalSheet({ open, goal, onClose }: { open: boolean; goal: Goal |
   const [name, setName] = useState("")
   const [target, setTarget] = useState("0")
   const [currency, setCurrency] = useState(base)
+  const pickCurrency = setCurrency
   const [targetDate, setTargetDate] = useState("")
   const [contribution, setContribution] = useState("")
   const [bucketId, setBucketId] = useState(NONE)
@@ -83,10 +84,7 @@ export function GoalSheet({ open, goal, onClose }: { open: boolean; goal: Goal |
               <Input id="target" inputMode="decimal" dir="ltr" value={target} onChange={(e) => setTarget(e.target.value)} required />
             </Field>
             <Field id="currency" label={t("accounts.currency")}>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>{CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-              </Select>
+              <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="w-24" />
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-2">

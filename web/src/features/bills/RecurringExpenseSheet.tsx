@@ -17,9 +17,10 @@ import type { Bucket, ExpenseFrequency, RecurringExpense } from "@/db/schema"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
 import { SUBSCRIPTION_CATEGORY, isSubscription } from "@mizan/core/domain/expense/subscriptions"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
+import { useTodayRate } from "@/features/currency/useCurrencies"
 
 const FREQUENCIES: ExpenseFrequency[] = ["MONTHLY", "QUARTERLY", "ANNUAL", "CUSTOM"]
-const CURRENCIES = ["IQD", "USD"]
 const NONE = "__none__"
 
 interface Props {
@@ -41,6 +42,11 @@ export function RecurringExpenseSheet({ open, expense, buckets, onClose }: Props
   const [reminderDays, setReminderDays] = useState("")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [frequency, setFrequency] = useState<ExpenseFrequency>("MONTHLY")
   const [dueDay, setDueDay] = useState(1)
   const [anchorDate, setAnchorDate] = useState(todayIso())
@@ -58,7 +64,7 @@ export function RecurringExpenseSheet({ open, expense, buckets, onClose }: Props
     setIsEstimate(expense?.isEstimate ?? false)
     setReminderDays(expense?.reminderDays == null ? "" : String(expense.reminderDays))
     setCurrency(expense?.currency ?? base)
-    setRate(expense ? microsToRate(expense.fxRateMicros, expense.currency) : "1")
+    setRate(expense ? microsToRate(expense.fxRateMicros, expense.currency, base) : "1")
     setFrequency(expense?.frequency ?? "MONTHLY")
     setDueDay(expense?.dueDay ?? 1)
     setAnchorDate(expense?.anchorDate ?? todayIso())
@@ -80,7 +86,7 @@ export function RecurringExpenseSheet({ open, expense, buckets, onClose }: Props
       isEstimate,
       reminderDays: reminderDays.trim() === "" ? null : Math.max(0, Math.min(30, Number(reminderDays))),
       currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       frequency,
       dueDay: frequency === "MONTHLY" ? dueDay : null,
       anchorDate: frequency === "MONTHLY" ? null : anchorDate,
@@ -124,10 +130,7 @@ export function RecurringExpenseSheet({ open, expense, buckets, onClose }: Props
               <Input id="amount" inputMode="decimal" dir="ltr" value={amount} onChange={(e) => setAmount(e.target.value)} required />
             </Field>
             <Field id="currency" label={t("accounts.currency")}>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>{CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-              </Select>
+              <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="w-24" />
             </Field>
           </div>
           {needsRate && (

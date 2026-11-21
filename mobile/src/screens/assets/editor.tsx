@@ -5,7 +5,8 @@ import { useTranslation } from "react-i18next"
 import { Alert, StyleSheet, View } from "react-native"
 
 import { ATTRIBUTE_KEYS, createAsset, DEFAULT_LIQUIDITY, updateAsset } from "@mizan/core/db/assets"
-import { RATE_SCALE, rateToMicros } from "@mizan/core/db/income"
+import { RATE_SCALE } from "@mizan/core/db/income"
+import { marketFxRateMicros } from "@mizan/core/market/currency"
 import { defaultsOf, livePrivacySetting } from "@mizan/core/db/privacy"
 import { softDelete } from "@mizan/core/db/write"
 import { fromMinorUnits, toMinorUnits } from "@mizan/core/domain/money/format"
@@ -80,7 +81,7 @@ export function AssetEditor({ id }: { id?: string }) {
   function rateFor(): number {
     if (asset?.currency === currency) return asset.fxRateMicros
     if (currency === base) return RATE_SCALE
-    return currency === "USD" ? rateToMicros(metals.prices.usdIqdMicros / RATE_SCALE, "USD") : RATE_SCALE
+    return marketFxRateMicros(currency, base, metals.prices.perUsd)
   }
 
   async function save() {

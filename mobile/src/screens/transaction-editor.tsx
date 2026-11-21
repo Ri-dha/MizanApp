@@ -86,7 +86,7 @@ export function TransactionEditor({ id }: { id?: string }) {
     setType(existing.type)
     setAmount(fromMinorUnits(existing.amount, existing.currency))
     setCurrency(existing.currency)
-    setRate(microsToRate(existing.fxRateMicros, existing.currency))
+    setRate(microsToRate(existing.fxRateMicros, existing.currency, base))
     setOccurredOn(existing.occurredOn)
     setBucketId(existing.bucketId)
     setCounterparty(existing.counterpartyType && existing.counterpartyId ? `${existing.counterpartyType}:${existing.counterpartyId}` : null)
@@ -136,7 +136,7 @@ export function TransactionEditor({ id }: { id?: string }) {
     const [counterpartyType, counterpartyId] = counterparty ? (counterparty.split(":") as [CounterpartyType, string]) : [null, null]
     const input = {
       type, occurredOn, monthKey, amount: toMinorUnits(amount, currency), currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       bucketId: type === "INCOME" ? null : bucketId,
       category: category.trim() || null, payee: payee.trim() || null, note: note.trim() || null,
       counterpartyType: type === "TRANSFER" ? counterpartyType : null,

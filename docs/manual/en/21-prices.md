@@ -1,7 +1,7 @@
 ---
 title: "Price history"
 screen: /prices
-summary: "Every change of the dollar, gold and silver, as a chart and a list, and where each price comes from."
+summary: "Every change of the dollar, gold and silver, the world's currencies with a converter, and where each price comes from."
 ---
 **Prices** shows how the dollar, gold and silver have moved. Open it from the menu, or from **Dollar today** on the home screen.
 
@@ -19,6 +19,16 @@ summary: "Every change of the dollar, gold and silver, as a chart and a list, an
 Pick a range from a day to everything recorded. A day or a week plots every change; a month or three plot each day's close; a year plots each week's (weeks start on Saturday), and **All** each month's.
 
 Under the chart, **Every change** lists each time the price moved, with what it moved from. A price that is fetched again unchanged is not listed twice.
+
+## World currencies
+
+**World currencies** lists the currencies you follow, with what one unit costs in your main currency and how many make a dollar. Tap a currency's star to follow it or stop; the ones you follow also show on the home screen. To start with, people in Iraq follow those asked about most (euro, Turkish lira, Iranian rial, Saudi riyal, dirham and others) and everyone else the world's main currencies. Search by name or code, or show all of them.
+
+In Iraq the page opens on the Baghdad dollar, with world currencies underneath. Elsewhere it opens on world currencies, and the dinar prices are not shown.
+
+Use the converter to change any amount between two currencies, dinars included. Pick a currency in the list to chart its rate per dollar over the last year.
+
+These rates come from central banks through Frankfurter and change once a working day. The dinar is always worked out with the dollar Mizan already uses for you, the Baghdad market or the Central Bank rate, or a price you entered, so the numbers agree with the rest of the app. The last rates you saw stay on your device and work offline.
 
 ## Where the prices come from
 

@@ -48,20 +48,20 @@ export function IncomeReceiptSheet({ monthKey, sourceId, date, receiptId }: Prop
     if (existing) {
       setAmount(fromMinorUnits(existing.amount, existing.currency))
       setCurrency(existing.currency)
-      setRate(microsToRate(existing.fxRateMicros, existing.currency))
+      setRate(microsToRate(existing.fxRateMicros, existing.currency, base))
       setReceivedOn(existing.receivedOn)
       setNote(existing.note ?? "")
       setLoaded(true)
     } else if (source) {
       setAmount(fromMinorUnits(currentAmount(source, history, date ?? today), source.currency))
       setCurrency(source.currency)
-      setRate(microsToRate(source.fxRateMicros, source.currency))
+      setRate(microsToRate(source.fxRateMicros, source.currency, base))
       setLoaded(true)
     }
   }, [existing, source, history, date, today, loaded])
 
   const needsRate = currency !== base
-  const fxRateMicros = needsRate ? rateToMicros(rate, currency) : RATE_SCALE
+  const fxRateMicros = needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE
   const minor = amount ? toMinorUnits(amount, currency) : 0
 
   async function save() {

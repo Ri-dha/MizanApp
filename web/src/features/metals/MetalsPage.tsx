@@ -35,10 +35,14 @@ export function grams(mg: number, locale: string): string {
   return `${formatCount(mg / 1000, locale, { maximumFractionDigits: 3 })} g`
 }
 
+/** Rates for a household not counting in dinars come from the daily world list (ADR rates-2). */
+const WORLD_SOURCE = { kind: "feed" as const, label: "frankfurter.dev", at: null, stale: false }
+
 export function MetalsPage() {
   const { t, i18n } = useTranslation()
   const session = useSession()
   const base = session?.baseCurrency ?? "IQD"
+  const dinar = base === "IQD"
   const view = useMetals()
   const [editing, setEditing] = useState<MetalLot | null | "new">(null)
   const [selling, setSelling] = useState<Metal | null>(null)
@@ -148,13 +152,13 @@ export function MetalsPage() {
               ))}
             </tbody>
           </table>
-          {prefs.showUsd === false && <p className="mt-2 text-xs opacity-70">{t("metals.usdNote", { rate: money(Math.round(view.prices.usdIqdMicros / 1e6)), kind: t(`metals.rateKinds.${view.prices.rateKind}`) })}</p>}
+          {prefs.showUsd === false && <p className="mt-2 text-xs opacity-70">{t("metals.usdNote", { rate: money(Math.round(view.prices.usdBaseMicros / 1e6)), kind: dinar ? t(`metals.rateKinds.${view.prices.rateKind}`) : WORLD_SOURCE.label })}</p>}
         </CardContent>
       </Card>
 
-      <SellOrHoldCard view={view} currency={base} />
+      {dinar && <SellOrHoldCard view={view} currency={base} />}
 
-      <DealerProductsCard currency={base} />
+      {dinar && <DealerProductsCard currency={base} />}
 
       <Card data-tour="metals-prices">
         <CardHeader className="flex-row items-center justify-between">
@@ -168,7 +172,9 @@ export function MetalsPage() {
         <CardContent className="flex flex-col gap-2 text-sm">
           <PriceLine label={t("metals.metal.GOLD")} source={view.prices.spot.GOLD.source} value={view.prices.spot.GOLD.perGram24kOverrideMicros !== null ? `${money(Math.round(view.prices.spot.GOLD.perGram24kOverrideMicros / 1e6))}/g 24k` : `$${(view.prices.spot.GOLD.spotUsdPerOzMicros / 1e6).toFixed(2)}/oz`} />
           <PriceLine label={t("metals.metal.SILVER")} source={view.prices.spot.SILVER.source} value={view.prices.spot.SILVER.perGram24kOverrideMicros !== null ? `${money(Math.round(view.prices.spot.SILVER.perGram24kOverrideMicros / 1e6))}/g` : `$${(view.prices.spot.SILVER.spotUsdPerOzMicros / 1e6).toFixed(2)}/oz`} />
-          <PriceLine label={`USD → ${base} (${t(`metals.rateKinds.${view.prices.rateKind}`)})`} source={view.prices.rateSource} value={money(Math.round(view.prices.usdIqdMicros / 1e6))} />
+          {dinar
+            ? <PriceLine label={`USD → ${base} (${t(`metals.rateKinds.${view.prices.rateKind}`)})`} source={view.prices.rateSource} value={money(Math.round(view.prices.usdIqdMicros / 1e6))} />
+            : <PriceLine label={`USD → ${base}`} source={WORLD_SOURCE} value={money(Math.round(view.prices.usdBaseMicros / 1e6))} />}
         </CardContent>
       </Card>
 

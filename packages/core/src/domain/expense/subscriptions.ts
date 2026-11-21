@@ -48,7 +48,7 @@ export interface SubscriptionSummary {
 const toBase = (amount: number, fxRateMicros: number) => Math.round((amount * fxRateMicros) / RATE_SCALE)
 
 /** Active subscriptions on a day, with monthly and yearly equivalents in base currency and dollars. */
-export function subscriptionSummary(expenses: RecurringExpense[], today: string, usdIqdMicros: number): SubscriptionSummary {
+export function subscriptionSummary(expenses: RecurringExpense[], today: string, usdBaseMicros: number): SubscriptionSummary {
   const lines = expenses
     .filter((e) => isSubscription(e) && e.activeFrom <= today && (e.activeTo === null || e.activeTo >= today))
     .map((expense) => {
@@ -59,6 +59,6 @@ export function subscriptionSummary(expenses: RecurringExpense[], today: string,
     .sort((a, b) => b.monthlyBase - a.monthlyBase)
   const monthlyBase = lines.reduce((s, l) => s + l.monthlyBase, 0)
   const yearlyBase = lines.reduce((s, l) => s + l.yearlyBase, 0)
-  const toUsd = (base: number) => (usdIqdMicros > 0 ? Math.round((base * RATE_SCALE * CENTS_PER_DOLLAR) / usdIqdMicros) : null)
+  const toUsd = (base: number) => (usdBaseMicros > 0 ? Math.round((base * RATE_SCALE * CENTS_PER_DOLLAR) / usdBaseMicros) : null)
   return { lines, monthlyBase, yearlyBase, monthlyUsd: toUsd(monthlyBase), yearlyUsd: toUsd(yearlyBase) }
 }

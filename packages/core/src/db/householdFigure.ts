@@ -1,4 +1,5 @@
 import { rows, table } from "../store/store"
+import { cachedWorldRates } from "../market/world"
 import type { LocalSession } from "../session"
 import { deterministicId } from "../vault/crypto"
 import { liveAssets, liveValuations, assetTotals } from "./assets"
@@ -22,10 +23,11 @@ export interface Figure {
 
 /** The same figure the net worth page shows, over whichever rows the filter keeps. */
 export async function figureOver(session: LocalSession, keep: RowFilter): Promise<Figure> {
-  const [accounts, debts, payments, assets, valuations, lots, disposalLots, quotes, overrides, setting] = await Promise.all([
+  const [accounts, debts, payments, assets, valuations, lots, disposalLots, quotes, overrides, setting, world] = await Promise.all([
     liveCashAccounts(), liveDebts(), livePayments(), liveAssets(), liveValuations(), liveLots(), liveDisposalLots(), cachedQuotes(), liveOverrides(), liveSetting(),
+    cachedWorldRates(),
   ])
-  const prices = resolvePrices(quotes, overrides, setting)
+  const prices = resolvePrices(quotes, overrides, setting, session.baseCurrency, world?.rates ?? [])
   const keptLots = lots.filter(keep)
   const lotIds = new Set(keptLots.map((lot) => lot.id))
   const metals = portfolio(valueLots(lotStates(keptLots, disposalLots.filter((d) => lotIds.has(d.lotId))), prices, setting))
@@ -35,10 +37,10 @@ export async function figureOver(session: LocalSession, keep: RowFilter): Promis
   const { receivables, liabilities } = debtBalances(keptDebts, payments.filter((p) => debtIds.has(p.debtId)))
   const keptAssets = assets.filter(keep)
   const assetIds = new Set(keptAssets.map((asset) => asset.id))
-  const totals = assetTotals(keptAssets, valuations.filter((v) => assetIds.has(v.assetId)), todayIso())
+  const totals = assetTotals(keptAssets, valuations.filter((v) => assetIds.has(v.assetId)), todayIso(), prices)
   return {
     input: { cash: cashInBase(accounts.filter(keep), session.baseCurrency, prices), metals, receivables, ...totals, liabilities },
-    rateSet: { rateKind: prices.rateKind, usdIqdMicros: prices.usdIqdMicros, usdIqdSource: prices.rateSource.label, xauSource: prices.spot.GOLD.source.label, xagSource: prices.spot.SILVER.source.label },
+    rateSet: { baseCurrency: prices.base, usdBaseMicros: prices.usdBaseMicros, rateKind: prices.rateKind, usdIqdMicros: prices.usdIqdMicros, usdIqdSource: prices.rateSource.label, xauSource: prices.spot.GOLD.source.label, xagSource: prices.spot.SILVER.source.label },
   }
 }
 

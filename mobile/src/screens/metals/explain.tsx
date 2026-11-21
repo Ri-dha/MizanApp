@@ -24,13 +24,13 @@ export function PriceExplainer() {
   const premium = premiumFor(view.setting, "GOLD")
   const purity = PURITIES["21k"]
   const result = metalValuation({
-    spotUsdPerOzMicros: gold.spotUsdPerOzMicros, usdIqdMicros: view.prices.usdIqdMicros, purityBasisPoints: purity.basisPoints,
+    spotUsdPerOzMicros: gold.spotUsdPerOzMicros, usdBaseMicros: view.prices.usdBaseMicros, purityBasisPoints: purity.basisPoints,
     premiumBasisPoints: premium, premiumFixedPerGramMicros: 0, weightMg: EXAMPLE_WEIGHT_MG,
   })
   const money = (micros: number) => formatMoney(wholeFromMicros(micros), base, i18n.language)
   const steps = [
     t("metals.explain.spot", { spot: (gold.spotUsdPerOzMicros / 1e6).toFixed(2), source: gold.source.label }),
-    t("metals.explain.rate", { rate: money(view.prices.usdIqdMicros), kind: t(`metals.rateKinds.${view.prices.rateKind}`), source: view.prices.rateSource.label }),
+    t("metals.explain.rate", { rate: money(view.prices.usdBaseMicros), kind: t(`metals.rateKinds.${view.prices.rateKind}`), source: view.prices.rateSource.label }),
     t("metals.explain.perGram", { ounce: (Number(MICROGRAMS_PER_TROY_OUNCE) / 1e6).toFixed(4), amount: money(result.perGram24kMicros) }),
     t("metals.explain.purity", { purity: purity.label, factor: (purity.basisPoints / PURE_BASIS_POINTS).toFixed(3) }),
     t("metals.explain.premium", { percent: premium / 100, amount: money(result.perGramMicros) }),

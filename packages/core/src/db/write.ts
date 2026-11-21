@@ -58,7 +58,9 @@ export async function writeFields<T extends Syncable>(
       createdAt: Date.now(),
     })
   })
-  localWriteListeners.forEach((listener) => listener())
+  // Outside the caller's transaction: a listener reading the store from inside it would end it
+  // early, and a loop of writes in one transaction (an import, a currency change) would fail.
+  setTimeout(() => localWriteListeners.forEach((listener) => listener()), 0)
 }
 
 /**

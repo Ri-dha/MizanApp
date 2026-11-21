@@ -6,6 +6,9 @@ import { dropExpiredPhotos, uploadPendingBlobs } from "@/attachments/store"
 import { runBackupIfDue } from "@/backup/store"
 import { clearLocalData, loadSession, refreshProfile, rememberFromServer } from "@/api/auth"
 import { refreshQuotes } from "@/market/store"
+import { refreshWorldRates } from "@/market/world"
+import { claimPendingRebase, finishPendingRebase } from "@mizan/core/db/rebase"
+import { syncNow } from "@mizan/core/sync/engine"
 import { browserLifecycle } from "@/platform/browserLifecycle"
 import { onVaultReady, vaultReady } from "@/vault/account"
 
@@ -39,6 +42,11 @@ export function startSyncEngine() {
     },
     async afterSync(session) {
       if (mayReadQuotes(session.role)) await refreshQuotes()
+      await refreshWorldRates().catch(() => undefined)
+      if ((await finishPendingRebase()) || (await claimPendingRebase(session))) {
+        await rememberFromServer(null)
+        void syncNow()
+      }
       await runBackupIfDue(session)
     },
   })

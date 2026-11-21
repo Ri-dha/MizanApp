@@ -15,9 +15,9 @@ import { createCashAccount, liveAdjustmentsOf, updateCashAccount } from "@mizan/
 import { useLiveQuery } from "dexie-react-hooks"
 import type { CashAccount, CashAccountKind } from "@/db/schema"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
 
 const KINDS: CashAccountKind[] = ["WALLET", "BANK", "CASH_AT_HOME", "OTHER"]
-const CURRENCIES = ["IQD", "USD"]
 
 interface Props {
   open: boolean
@@ -36,6 +36,7 @@ export function AccountSheet({ open, account, onClose, onDelete }: Props) {
   const [kind, setKind] = useState<CashAccountKind>("WALLET")
   const [institution, setInstitution] = useState("")
   const [currency, setCurrency] = useState("IQD")
+  const pickCurrency = setCurrency
   const [balance, setBalance] = useState("0")
   const [isPrivate, setIsPrivate] = useState(false)
 
@@ -91,12 +92,7 @@ export function AccountSheet({ open, account, onClose, onDelete }: Props) {
               <Input id="balance" inputMode="decimal" dir="ltr" value={balance} onChange={(e) => setBalance(e.target.value)} />
             </Field>
             <Field id="currency" label={t("accounts.currency")}>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="w-24" />
             </Field>
           </div>
           {account && (

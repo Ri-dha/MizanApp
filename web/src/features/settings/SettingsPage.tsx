@@ -38,6 +38,8 @@ import { useScreenTour } from "@/tours/useTour"
 import { forgetAllTours } from "@/tours/store"
 import { PRIVACY_KINDS, savePrivacyDefault, usePrivacyDefaults } from "@/db/privacy"
 import { DATE, formatWhen } from "@/app/dates"
+import { CurrencyCard } from "./CurrencyCard"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
 
 const LOCK_CHOICES = [0, 30, 60, 300]
 const THEMES: Theme[] = ["system", "light", "dark"]
@@ -230,6 +232,8 @@ export function SettingsPage() {
 
       <RecoveryCodeCard />
 
+      <CurrencyCard />
+
       <Card>
         <CardHeader><CardTitle>{t("settings.household")}</CardTitle></CardHeader>
         <CardContent className="flex flex-col gap-3">
@@ -264,6 +268,10 @@ export function SettingsPage() {
                 <SelectItem value="eastern">{t("settings.digitStyles.eastern")}</SelectItem>
               </SelectContent>
             </Select>
+          </Field>
+          <Field id="displayCurrency" label={t("currency.showIn")} hint={t("currency.showInHint", { base: session?.baseCurrency ?? "IQD" })}>
+            <CurrencySelect id="displayCurrency" value={prefs.displayCurrency ?? session?.baseCurrency ?? "IQD"}
+              onChange={(code) => setPreferences({ displayCurrency: code === session?.baseCurrency ? null : code })} />
           </Field>
           <div className="flex items-center gap-2">
             <Switch id="showHijri" checked={prefs.showHijri} onCheckedChange={(on) => setPreferences({ showHijri: on })} />

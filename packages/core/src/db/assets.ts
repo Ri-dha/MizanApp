@@ -1,4 +1,5 @@
 import { rows, sorted, table } from "../store/store"
+import { inBase } from "../market/currency"
 import { type Asset, type AssetType, type AssetValuation, type Liquidity, type Visibility } from "../schema"
 import { softDelete, writeFields } from "./write"
 import { toBaseAmount } from "./income"
@@ -75,7 +76,7 @@ export function valuationsOf(assetId: string, valuations: AssetValuation[]): Ass
 export interface AssetValue {
   /** In the asset's own currency. */
   value: number
-  /** In the household's base currency at the asset's frozen rate. */
+  /** In the household's base currency at today's rate, or the rate saved with the asset when there is none. */
   baseValue: number
   baselineDate: string
   baselineSource: "VALUATION" | "PURCHASE"
@@ -83,7 +84,12 @@ export interface AssetValue {
 }
 
 /** BR-13: latest manual valuation, else the purchase, depreciated to today. */
-export function currentValue(asset: Asset, valuations: AssetValuation[], today: string): AssetValue {
+export interface TodayRates {
+  base: string
+  perUsd: Record<string, number>
+}
+
+export function currentValue(asset: Asset, valuations: AssetValuation[], today: string, rates?: TodayRates): AssetValue {
   const latest = valuationsOf(asset.id, valuations)[0]
   const baselineDate = latest?.valuedOn ?? asset.purchaseDate ?? today
   const result = depreciate({
@@ -96,7 +102,7 @@ export function currentValue(asset: Asset, valuations: AssetValuation[], today: 
   })
   return {
     value: result.value,
-    baseValue: toBaseAmount(result.value, asset.fxRateMicros),
+    baseValue: (rates && inBase(result.value, asset.currency, rates.base, rates.perUsd)) ?? toBaseAmount(result.value, asset.fxRateMicros),
     baselineDate,
     baselineSource: latest ? "VALUATION" : "PURCHASE",
     monthsSinceBaseline: wholeMonthsBetween(baselineDate, today),
@@ -116,11 +122,11 @@ export interface AssetTotals {
   illiquid: number
 }
 
-export function assetTotals(assets: Asset[], valuations: AssetValuation[], today: string): AssetTotals {
+export function assetTotals(assets: Asset[], valuations: AssetValuation[], today: string, rates?: TodayRates): AssetTotals {
   const totals: AssetTotals = { vehicles: 0, property: 0, otherAssets: 0, illiquid: 0 }
   for (const asset of assets) {
     if (asset.status !== "HELD") continue
-    const { baseValue } = currentValue(asset, valuations, today)
+    const { baseValue } = currentValue(asset, valuations, today, rates)
     const cls = classOf(asset.type)
     if (cls === "VEHICLES") totals.vehicles += baseValue
     else if (cls === "PROPERTY") totals.property += baseValue

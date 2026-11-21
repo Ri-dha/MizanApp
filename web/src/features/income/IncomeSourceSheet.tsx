@@ -17,9 +17,10 @@ import type { Frequency, IncomeSource, IncomeSourceAmount } from "@/db/schema"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 import { formatWhen } from "@/app/dates"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
+import { useTodayRate } from "@/features/currency/useCurrencies"
 
 const FREQUENCIES: Frequency[] = ["MONTHLY", "BIWEEKLY", "WEEKLY", "ONE_OFF"]
-const CURRENCIES = ["IQD", "USD"]
 
 interface Props {
   open: boolean
@@ -37,6 +38,11 @@ export function IncomeSourceSheet({ open, source, history, onClose }: Props) {
   const [amount, setAmount] = useState("0")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [frequency, setFrequency] = useState<Frequency>("MONTHLY")
   const [payDay, setPayDay] = useState(25)
   const [anchorDate, setAnchorDate] = useState(todayIso())
@@ -52,7 +58,7 @@ export function IncomeSourceSheet({ open, source, history, onClose }: Props) {
     setName(source?.name ?? "")
     setAmount(source ? fromMinorUnits(source.amount, source.currency) : "0")
     setCurrency(source?.currency ?? base)
-    setRate(source ? microsToRate(source.fxRateMicros, source.currency) : "1")
+    setRate(source ? microsToRate(source.fxRateMicros, source.currency, base) : "1")
     setFrequency(source?.frequency ?? "MONTHLY")
     setPayDay(source?.payDay ?? 25)
     setAnchorDate(source?.anchorDate ?? todayIso())
@@ -85,7 +91,7 @@ export function IncomeSourceSheet({ open, source, history, onClose }: Props) {
       name: name.trim(),
       amount: source ? source.amount : toMinorUnits(amount, currency),
       currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       frequency,
       payDay: usesPayDay ? payDay : null,
       anchorDate: usesPayDay ? null : anchorDate,
@@ -120,10 +126,7 @@ export function IncomeSourceSheet({ open, source, history, onClose }: Props) {
               <Input id="amount" inputMode="decimal" dir="ltr" value={amount} onChange={(e) => setAmount(e.target.value)} required disabled={source !== null} />
             </Field>
             <Field id="currency" label={t("accounts.currency")}>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>{CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-              </Select>
+              <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="w-24" />
             </Field>
           </div>
           {needsRate && (

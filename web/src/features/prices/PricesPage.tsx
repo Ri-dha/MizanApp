@@ -11,6 +11,10 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { formatMoney } from "@/app/money"
 import { cn } from "@/lib/utils"
 import { RANGES, SERIES, SERIES_KEYS, usePriceSeries, type Range, type SeriesKey } from "@/market/prices"
+import { useIraqi } from "@/app/region"
+import { WorldRatesCard } from "./WorldRatesCard"
+
+const WORLD_SERIES: SeriesKey[] = ["goldSpot"]
 import { DATE, DATE_TIME, formatWhen } from "@/app/dates"
 
 const SHORT_RANGES: ReadonlySet<Range> = new Set(["1D", "1W"])
@@ -25,7 +29,11 @@ function axisNumber(value: number): string {
 export function PricesPage() {
   const { t, i18n } = useTranslation()
   usePreferences()
-  const [key, setKey] = useState<SeriesKey>("usdMarket")
+  // The dinar series are the Baghdad market's; elsewhere only the world gold price applies (ADR currency-1).
+  const iraqi = useIraqi()
+  const keys = iraqi ? SERIES_KEYS : WORLD_SERIES
+  const [chosen, setKey] = useState<SeriesKey>(iraqi ? "usdMarket" : "goldSpot")
+  const key = keys.includes(chosen) ? chosen : keys[0]
   const [range, setRange] = useState<Range>("1M")
   const series = usePriceSeries(key, range)
   const official = usePriceSeries("usdOfficial", "1D")
@@ -54,10 +62,12 @@ export function PricesPage() {
         <Select value={key} onValueChange={(value) => setKey(value as SeriesKey)}>
           <SelectTrigger className="w-60" aria-label={t("prices.pick")}><SelectValue /></SelectTrigger>
           <SelectContent>
-            {SERIES_KEYS.map((k) => <SelectItem key={k} value={k}>{t(`prices.series.${k}`)}</SelectItem>)}
+            {keys.map((k) => <SelectItem key={k} value={k}>{t(`prices.series.${k}`)}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
+
+      {!iraqi && <WorldRatesCard />}
 
       <Card>
         <CardHeader>
@@ -140,6 +150,8 @@ export function PricesPage() {
           )}
         </CardContent>
       </Card>
+
+      {iraqi && <WorldRatesCard />}
     </div>
   )
 }

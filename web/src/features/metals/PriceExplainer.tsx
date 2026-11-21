@@ -18,7 +18,7 @@ export function PriceExplainer({ open, view, onClose }: { open: boolean; view: M
   const premium = premiumFor(view.setting, "GOLD")
   const purity = PURITIES["21k"]
   const result = metalValuation({
-    spotUsdPerOzMicros: gold.spotUsdPerOzMicros, usdIqdMicros: view.prices.usdIqdMicros, purityBasisPoints: purity.basisPoints,
+    spotUsdPerOzMicros: gold.spotUsdPerOzMicros, usdBaseMicros: view.prices.usdBaseMicros, purityBasisPoints: purity.basisPoints,
     premiumBasisPoints: premium, premiumFixedPerGramMicros: 0, weightMg: 5000,
   })
   const money = (micros: number) => formatMoney(Math.round(micros / 1e6), base, i18n.language)
@@ -29,7 +29,7 @@ export function PriceExplainer({ open, view, onClose }: { open: boolean; view: M
         <DialogHeader><DialogTitle>{t("metals.howCalculated")}</DialogTitle></DialogHeader>
         <ol className="flex list-decimal flex-col gap-2 ps-5 text-sm">
           <li>{t("metals.explain.spot", { spot: (gold.spotUsdPerOzMicros / 1e6).toFixed(2), source: gold.source.label })}</li>
-          <li>{t("metals.explain.rate", { rate: money(view.prices.usdIqdMicros), kind: t(`metals.rateKinds.${view.prices.rateKind}`), source: view.prices.rateSource.label })} <SourceCredit source={view.prices.rateSource.label} /></li>
+          <li>{t("metals.explain.rate", { rate: money(view.prices.usdBaseMicros), kind: t(`metals.rateKinds.${view.prices.rateKind}`), source: view.prices.rateSource.label })} <SourceCredit source={view.prices.rateSource.label} /></li>
           <li>{t("metals.explain.perGram", { ounce: (Number(MICROGRAMS_PER_TROY_OUNCE) / 1e6).toFixed(4), amount: money(result.perGram24kMicros) })}</li>
           <li>{t("metals.explain.purity", { purity: purity.label, factor: (purity.basisPoints / 10000).toFixed(3) })}</li>
           <li>{t("metals.explain.premium", { percent: premium / 100, amount: money(result.perGramMicros) })}</li>

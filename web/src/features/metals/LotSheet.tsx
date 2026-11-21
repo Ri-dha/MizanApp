@@ -20,10 +20,12 @@ import { perGramFor } from "@mizan/core/db/metals"
 import { useMetals } from "./useMetals"
 import { formatMoney } from "@/app/money"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
+import { useTodayRate } from "@/features/currency/useCurrencies"
+import { inBase } from "@mizan/core/market/currency"
 
 const UNITS: WeightUnit[] = ["GRAM", "MITHQAL", "TOLA", "TROY_OUNCE", "KILOGRAM"]
 const FORMS: MetalForm[] = ["JEWELLERY", "COIN", "BAR", "SCRAP"]
-const CURRENCIES = ["IQD", "USD"]
 
 export function LotSheet({ open, lot, onClose }: { open: boolean; lot: MetalLot | null; onClose: () => void }) {
   const { t, i18n } = useTranslation()
@@ -40,6 +42,11 @@ export function LotSheet({ open, lot, onClose }: { open: boolean; lot: MetalLot 
   const [fees, setFees] = useState("0")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [form, setForm] = useState<MetalForm>("JEWELLERY")
   const [dealer, setDealer] = useState("")
   const [location, setLocation] = useState("")
@@ -61,7 +68,7 @@ export function LotSheet({ open, lot, onClose }: { open: boolean; lot: MetalLot 
     setMaking(lot ? fromMinorUnits(lot.makingCharge, lot.currency) : "0")
     setFees(lot ? fromMinorUnits(lot.fees, lot.currency) : "0")
     setCurrency(lot?.currency ?? base)
-    setRate(lot ? microsToRate(lot.fxRateMicros, lot.currency) : "1")
+    setRate(lot ? microsToRate(lot.fxRateMicros, lot.currency, base) : "1")
     setForm(lot?.form ?? "JEWELLERY")
     setDealer(lot?.dealer ?? "")
     setLocation(lot?.location ?? "")
@@ -77,7 +84,7 @@ export function LotSheet({ open, lot, onClose }: { open: boolean; lot: MetalLot 
   // Today's price for what is being entered, in the lot's currency; a cost the user has not typed follows it.
   const perGramMicros = perGramFor(metal, PURITIES[purity]?.basisPoints ?? 0, market.prices, market.setting)
   const todayBase = valueOf(perGramMicros, weightMg)
-  const todayInCurrency = currency === base ? todayBase : market.prices.usdIqdMicros > 0 ? Math.round((todayBase * 1e6 * 100) / market.prices.usdIqdMicros) : 0
+  const todayInCurrency = inBase(todayBase, base, currency, market.prices.perUsd) ?? 0
   const hasPrice = perGramMicros > 0 && weightMg > 0
   useEffect(() => {
     if (!open || lot || costTouched || !hasPrice) return
@@ -98,7 +105,7 @@ export function LotSheet({ open, lot, onClose }: { open: boolean; lot: MetalLot 
       makingCharge: toMinorUnits(making, currency),
       fees: toMinorUnits(fees, currency),
       currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       form,
       dealer: dealer.trim() || null,
       location: location.trim() || null,
@@ -154,10 +161,7 @@ export function LotSheet({ open, lot, onClose }: { open: boolean; lot: MetalLot 
               {hasPrice && costTouched && <Button type="button" size="sm" variant="outline" className="mt-1" onClick={() => { setMetalCost(fromMinorUnits(todayInCurrency, currency)); setCostTouched(false) }}>{t("metals.useToday")}</Button>}
             </Field>
             <Field id="currency" label={t("accounts.currency")}>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>{CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-              </Select>
+              <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="w-24" />
             </Field>
           </div>
           {needsRate && (

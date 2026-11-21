@@ -6,16 +6,14 @@ import { toBaseAmount } from "./income"
 import { assetTotals } from "./assets"
 import { netWorth, type NetWorthResult } from "../domain/networth/networth"
 import type { ResolvedPrices } from "../market/prices"
+import { inBase } from "../market/currency"
 
-const CENTS_PER_DOLLAR = 100
-
-/** Cash in base currency: dollars convert at the rate valuation uses, other currencies at par. */
+/**
+ * Cash in base currency at today's rates, the dinar at the household's dollar (ADR rates-2). An
+ * account in a currency without a rate yet counts nothing rather than a wrong amount.
+ */
 export function cashInBase(accounts: CashAccount[], base: string, prices: ResolvedPrices): number {
-  return accounts.reduce((sum, account) => {
-    if (account.currency === base) return sum + account.balance
-    if (account.currency === "USD") return sum + Math.round((account.balance * prices.usdIqdMicros) / 1_000_000 / CENTS_PER_DOLLAR)
-    return sum + account.balance
-  }, 0)
+  return accounts.reduce((sum, account) => sum + (inBase(account.balance, account.currency, base, prices.perUsd) ?? 0), 0)
 }
 
 export function debtBalances(debts: Debt[], payments: DebtPayment[]) {
@@ -35,7 +33,7 @@ export function liveNetWorth(
   assets: Asset[], valuations: AssetValuation[], today: string,
 ): NetWorthResult {
   const { receivables, liabilities } = debtBalances(debts, payments)
-  return netWorth({ cash: cashInBase(accounts, base, prices), metals: metalsValue, receivables, ...assetTotals(assets, valuations, today), liabilities })
+  return netWorth({ cash: cashInBase(accounts, base, prices), metals: metalsValue, receivables, ...assetTotals(assets, valuations, today, prices), liabilities })
 }
 
 export const liveSnapshots = () => sorted(rows("netWorthSnapshots", (s) => s.deletedAt === null), "takenAt")

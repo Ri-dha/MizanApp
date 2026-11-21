@@ -63,7 +63,7 @@ export function BillEditor({ id }: { id?: string }) {
     setIsEstimate(expense.isEstimate)
     setReminderDays(expense.reminderDays == null ? "" : String(expense.reminderDays))
     setCurrency(expense.currency)
-    setRate(microsToRate(expense.fxRateMicros, expense.currency))
+    setRate(microsToRate(expense.fxRateMicros, expense.currency, base))
     setFrequency(expense.frequency)
     setDueDay(String(expense.dueDay ?? 1))
     setAnchorDate(expense.anchorDate ?? todayIso())
@@ -91,7 +91,7 @@ export function BillEditor({ id }: { id?: string }) {
       isEstimate,
       reminderDays: reminderDays.trim() === "" ? null : Math.max(0, Math.min(MAX_REMINDER_DAYS, Number(reminderDays))),
       currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       frequency,
       dueDay: frequency === "MONTHLY" ? Number(dueDay) : null,
       anchorDate: frequency === "MONTHLY" ? null : anchorDate,

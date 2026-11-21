@@ -95,6 +95,10 @@ export async function rememberFromServer(tokens: Tokens | null) {
     verified: me.verified,
     role: me.household.role,
     baseCurrency: me.household.baseCurrency,
+    baseGeneration: me.household.baseGeneration,
+    rebasedGeneration: me.household.rebasedGeneration,
+    country: me.country,
+    trackedCurrencies: me.trackedCurrencies,
     monthStartDay: me.household.monthStartDay,
     deletionRequestedAt: me.deletionRequestedAt ?? null,
     householdDeletionRequestedAt: me.household.deletionRequestedAt ?? null,
@@ -103,10 +107,10 @@ export async function rememberFromServer(tokens: Tokens | null) {
 }
 
 /** ADR e2e-1: the password never leaves the device; the server gets an auth key derived from it. */
-export async function register(identifier: string, password: string, displayName: string, locale: string) {
+export async function register(identifier: string, password: string, displayName: string, locale: string, country?: string, baseCurrency?: string) {
   const { authKey, wrapSecret } = await derivePasswordKeys(identifier, password)
   const keys = await newAccountKeys(wrapSecret)
-  const tokens = await unwrap(api().POST("/api/v1/auth/register", { body: { identifier, authKey, displayName, locale, keys: keys.material } }))
+  const tokens = await unwrap(api().POST("/api/v1/auth/register", { body: { identifier, authKey, displayName, locale, country, baseCurrency, keys: keys.material } }))
   await clearLocalData()
   await rememberFromServer(tokens)
   await keys.finish()

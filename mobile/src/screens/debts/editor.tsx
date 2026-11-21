@@ -57,7 +57,7 @@ export function DebtEditor({ id }: { id?: string }) {
     setCounterparty(debt.counterparty ?? "")
     setPrincipal(fromMinorUnits(debt.principal, debt.currency))
     setCurrency(debt.currency)
-    setRate(microsToRate(debt.fxRateMicros, debt.currency))
+    setRate(microsToRate(debt.fxRateMicros, debt.currency, base))
     setAnnualPercent(String(debt.annualRateBasisPoints / 100))
     setTermMonths(debt.termMonths ? String(debt.termMonths) : "")
     setMonthlyPayment(fromMinorUnits(debt.monthlyPayment, debt.currency))
@@ -78,7 +78,7 @@ export function DebtEditor({ id }: { id?: string }) {
       direction,
       principal: toMinorUnits(principal, currency),
       currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       annualRateBasisPoints: Math.round(Number(annualPercent || "0") * 100),
       termMonths: termMonths ? Number(termMonths) : null,
       monthlyPayment: toMinorUnits(monthlyPayment || "0", currency),

@@ -44,7 +44,10 @@
     "resetCode": "Reset code",
     "newPassword": "New password",
     "resetDone": "Password changed. Sign in again.",
-    "offlineNeedsSession": "Sign in once while online; after that Mizan works offline."
+    "offlineNeedsSession": "Sign in once while online; after that Mizan works offline.",
+    "country": "Country",
+    "baseCurrency": "Main currency",
+    "baseCurrencyHint": "Totals, plans and net worth are counted in it. You can still record amounts in any currency."
   },
   "admin": {
     "nav": "Admin",
@@ -292,6 +295,38 @@
     "dollarToday": "Dollar today",
     "sinceYesterday": "since yesterday",
     "open": "Price history"
+  },
+  "worldRates": {
+    "title": "World currencies",
+    "body": "Rates for {{count}} currencies from central banks, updated every working day.",
+    "dinarMarket": "The dinar uses the Baghdad market dollar: {{rate}} dinars.",
+    "dinarOfficial": "The dinar uses the Central Bank dollar: {{rate}} dinars.",
+    "noDinar": "No dinar rate yet, so amounts in dinars are not shown.",
+    "none": "No world rates yet. They appear after the server's first daily fetch.",
+    "convert": "Converter",
+    "amount": "Amount",
+    "from": "From",
+    "to": "To",
+    "swap": "Swap currencies",
+    "asOf": "Rates of {{day}}.",
+    "chartTitle": "{{currency}} per US dollar, last year",
+    "perUsd": "{{currency}} per dollar",
+    "list": "Currency list",
+    "search": "Search a currency, e.g. euro or TRY",
+    "noMatch": "No currency matches.",
+    "currency": "Currency",
+    "perDollar": "Per dollar",
+    "showAll": "Show all {{count}} currencies",
+    "today": "Rates in {{base}}",
+    "inBase": "In {{base}}",
+    "allTitle": "All currencies",
+    "followedTitle": "Currencies you follow",
+    "followHint": "Tap the star to follow a currency; followed ones show here and on the home screen.",
+    "noneFollowed": "You follow no currencies yet. Search for one and tap its star.",
+    "follow": "Follow",
+    "followOne": "Follow {{currency}}",
+    "unfollow": "Stop following {{currency}}",
+    "showFollowed": "Show only followed"
   },
   "vault": {
     "otherDevice": "Still signed in on another phone or computer? Open Mizan there: Settings can make a new recovery code without losing anything.",
@@ -1589,5 +1624,21 @@
     "operator": "Operator",
     "reporter": "Reporter",
     "closeImage": "Close image"
+  },
+  "currency": {
+    "all": "All currencies",
+    "title": "Country and currency",
+    "body": "Your country decides which market prices you see; the household's main currency is what every total is counted in.",
+    "ownerHint": "Changing it re-expresses every amount for the whole household at today's rate.",
+    "notOwner": "Only the household owner can change the main currency.",
+    "change": "Change",
+    "changed": "The household now counts in {{currency}}.",
+    "confirmTitle": "Count in {{to}} instead of {{from}}?",
+    "confirmBody": "Every total, plan, past snapshot and record rate for the household is converted at today's rate, 1 {{from}} = {{rate}} {{to}}. Amounts you entered in a currency keep that currency. Changing back later uses that day's rate, so the numbers will not return exactly.",
+    "noRate": "There is no rate between {{from}} and {{to}} yet; try again after the next update.",
+    "showIn": "Show amounts in",
+    "showInHint": "Totals in {{base}} are shown converted at today's rate on this device, marked ≈. Nothing you saved changes, and amounts are still entered in their own currency.",
+    "showing": "In {{currency}}",
+    "showingOff": "Show amounts in the main currency again"
   }
 }

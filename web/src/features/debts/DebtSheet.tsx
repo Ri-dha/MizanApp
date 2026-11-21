@@ -20,8 +20,9 @@ import type { Debt, DebtDirection } from "@/db/schema"
 import { softDelete } from "@mizan/core/db/write"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { fromMinorUnits, toMinorUnits } from "@/app/money"
+import { CurrencySelect } from "@/features/currency/CurrencySelect"
+import { useTodayRate } from "@/features/currency/useCurrencies"
 
-const CURRENCIES = ["IQD", "USD"]
 const NONE = "__none__"
 
 export function DebtSheet({ open, debt, onClose }: { open: boolean; debt: Debt | null; onClose: () => void }) {
@@ -37,6 +38,11 @@ export function DebtSheet({ open, debt, onClose }: { open: boolean; debt: Debt |
   const [principal, setPrincipal] = useState("0")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
+  const todayRate = useTodayRate(base)
+  const pickCurrency = (code: string) => {
+    setCurrency(code)
+    setRate(todayRate(code))
+  }
   const [annualPercent, setAnnualPercent] = useState("0")
   const [termMonths, setTermMonths] = useState("")
   const [monthlyPayment, setMonthlyPayment] = useState("0")
@@ -51,7 +57,7 @@ export function DebtSheet({ open, debt, onClose }: { open: boolean; debt: Debt |
     setDirection(debt?.direction ?? "OWING")
     setPrincipal(debt ? fromMinorUnits(debt.principal, debt.currency) : "0")
     setCurrency(debt?.currency ?? base)
-    setRate(debt ? microsToRate(debt.fxRateMicros, debt.currency) : "1")
+    setRate(debt ? microsToRate(debt.fxRateMicros, debt.currency, base) : "1")
     setAnnualPercent(debt ? String(debt.annualRateBasisPoints / 100) : "0")
     setTermMonths(debt?.termMonths ? String(debt.termMonths) : "")
     setMonthlyPayment(debt ? fromMinorUnits(debt.monthlyPayment, debt.currency) : "0")
@@ -70,7 +76,7 @@ export function DebtSheet({ open, debt, onClose }: { open: boolean; debt: Debt |
       direction,
       principal: toMinorUnits(principal, currency),
       currency,
-      fxRateMicros: needsRate ? rateToMicros(rate, currency) : RATE_SCALE,
+      fxRateMicros: needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE,
       annualRateBasisPoints: Math.round(Number(annualPercent) * 100),
       termMonths: termMonths ? Number(termMonths) : null,
       monthlyPayment: toMinorUnits(monthlyPayment, currency),
@@ -105,10 +111,7 @@ export function DebtSheet({ open, debt, onClose }: { open: boolean; debt: Debt |
               <Input id="principal" inputMode="decimal" dir="ltr" value={principal} onChange={(e) => setPrincipal(e.target.value)} required />
             </Field>
             <Field id="currency" label={t("accounts.currency")}>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="w-24"><SelectValue /></SelectTrigger>
-                <SelectContent>{CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-              </Select>
+              <CurrencySelect id="currency" value={currency} onChange={pickCurrency} className="w-24" />
             </Field>
           </div>
           {needsRate && (

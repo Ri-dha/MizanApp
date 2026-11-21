@@ -9,7 +9,7 @@ Anything you own that is worth real money and is not cash, gold or a debt: a car
 
 ## Recording an asset
 
-Choose a type and Mizan asks for the details that matter for it: make, model, year and plate for a vehicle; address and area for property; brand and serial for electronics. Enter what you paid, when, and in which currency. A dollar purchase is converted at the rate on that day and the rate is kept with the asset.
+Choose a type and Mizan asks for the details that matter for it: make, model, year and plate for a vehicle; address and area for property; brand and serial for electronics. Enter what you paid, when, and in which currency: any of about 160. An asset in another currency is shown in its own currency with its value in your main currency beside it, at today's rate, so a house abroad follows the exchange rate as well as its price.
 
 ## Current value
 

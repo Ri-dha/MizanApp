@@ -5,12 +5,13 @@ const MICRO = 1_000_000n
 
 export interface ValuationInput {
   spotUsdPerOzMicros: number
-  usdIqdMicros: number
+  /** Base minor units per US dollar, in micros. */
+  usdBaseMicros: number
   purityBasisPoints: number
   premiumBasisPoints: number
   premiumFixedPerGramMicros: number
   weightMg: number
-  /** A user-entered IQD price per gram of pure metal that replaces spot × rate (FR-MTL-09). */
+  /** A user-entered base price per gram of pure metal that replaces spot × rate (FR-MTL-09). */
   overridePerGram24kMicros?: number | null
   /** FR-MTL-11: the dealer buy-back spread below the market price; 0 values at market. */
   discountBasisPoints?: number
@@ -34,7 +35,7 @@ function halfUp(numerator: bigint, divisor: bigint): bigint {
 export function metalValuation(input: ValuationInput): ValuationResult {
   const perGram24k = input.overridePerGram24kMicros != null
     ? BigInt(input.overridePerGram24kMicros)
-    : halfUp(BigInt(input.spotUsdPerOzMicros) * BigInt(input.usdIqdMicros), MICROGRAMS_PER_TROY_OUNCE)
+    : halfUp(BigInt(input.spotUsdPerOzMicros) * BigInt(input.usdBaseMicros), MICROGRAMS_PER_TROY_OUNCE)
   const perGramPurity = halfUp(perGram24k * BigInt(input.purityBasisPoints), BASIS_POINTS)
   const perGramMarket = halfUp(perGramPurity * (BASIS_POINTS + BigInt(input.premiumBasisPoints)), BASIS_POINTS) + BigInt(input.premiumFixedPerGramMicros)
   const discount = BigInt(input.discountBasisPoints ?? 0)

@@ -4,6 +4,7 @@ import { readMeta, writeMeta } from "../db/meta"
 import { type MarketInstrument, type MarketOverride, type MarketSetting, type Metal, type RateKind } from "../schema"
 import { writeFields } from "../db/write"
 import { todayIso } from "../domain/calendar/month"
+import { perUsdTable, usdToBaseMicros } from "./currency"
 
 export interface Quote {
   instrument: "XAU" | "XAG" | "USDIQD_OFFICIAL" | "USDIQD_PARALLEL" | "XAU_LOCAL" | "XAG_LOCAL" | "XAU_LOCAL_BID" | "XAG_LOCAL_BID"
@@ -84,6 +85,13 @@ export interface PriceSource {
 }
 
 export interface ResolvedPrices {
+  /** The household's currency; every base figure is in its minor units. */
+  base: string
+  /** Whole units of each currency per US dollar (the dinar at the household's dollar rate). */
+  perUsd: Record<string, number>
+  /** Base minor units per US dollar, in micros: what turns a dollar price into a base one. */
+  usdBaseMicros: number
+  /** The household's dinars per dollar (market, Central Bank or its own), shown to Iraqis. */
   usdIqdMicros: number
   rateKind: RateKind
   rateSource: PriceSource
@@ -94,7 +102,9 @@ export interface ResolvedPrices {
  * What valuation actually uses (BR-10): a user override beats the feed, the chosen dollar
  * rate governs conversion, and every number remembers where it came from.
  */
-export function resolvePrices(quotes: Quote[], overrides: MarketOverride[], setting: MarketSetting | undefined): ResolvedPrices {
+export function resolvePrices(
+  quotes: Quote[], overrides: MarketOverride[], setting: MarketSetting | undefined, base: string, world: { currency: string; perUsd: number }[],
+): ResolvedPrices {
   const rateKind = setting?.rateKind ?? DEFAULT_SETTING.rateKind
   const rateQuote = quotes.find((q) => q.instrument === (rateKind === "OFFICIAL" ? "USDIQD_OFFICIAL" : "USDIQD_PARALLEL"))
   const rateOverride = activeOverride(overrides, "USDIQD")
@@ -104,7 +114,8 @@ export function resolvePrices(quotes: Quote[], overrides: MarketOverride[], sett
     const quote = quotes.find((q) => q.instrument === (m === "GOLD" ? "XAU" : "XAG"))
     const override = activeOverride(overrides, m === "GOLD" ? "XAU" : "XAG")
     // Phase 4: the local market's quote per gram of pure metal stands in for spot × rate when chosen; a user's price still wins.
-    const useLocal = (setting?.priceSource ?? DEFAULT_SETTING.priceSource) === "LOCAL"
+    // The Baghdad dealer quotes dinars, so only a dinar household can value with it.
+    const useLocal = base === "IQD" && (setting?.priceSource ?? DEFAULT_SETTING.priceSource) === "LOCAL"
     const local = useLocal ? quotes.find((q) => q.instrument === (m === "GOLD" ? "XAU_LOCAL" : "XAG_LOCAL")) : undefined
     // A real buy-back price from the dealer beats a configured spread (FR-MTL-11).
     const bid = useLocal && setting?.valuationBasis === "BUYBACK" ? quotes.find((q) => q.instrument === (m === "GOLD" ? "XAU_LOCAL_BID" : "XAG_LOCAL_BID")) : undefined
@@ -116,7 +127,11 @@ export function resolvePrices(quotes: Quote[], overrides: MarketOverride[], sett
       source: override ? describe(override, quote) : chosen ? { kind: "local" as const, label: `${bid ? "bid " : ""}${chosen.source}`, at: chosen.fetchedAt, stale: isStale(chosen) } : describe(undefined, quote),
     }
   }
-  return { usdIqdMicros, rateKind, rateSource: describe(rateOverride, rateQuote), spot: { GOLD: metal("GOLD"), SILVER: metal("SILVER") } }
+  const perUsd = perUsdTable(world, usdIqdMicros)
+  return {
+    base, perUsd, usdBaseMicros: usdToBaseMicros(base, perUsd), usdIqdMicros, rateKind, rateSource: describe(rateOverride, rateQuote),
+    spot: { GOLD: metal("GOLD"), SILVER: metal("SILVER") },
+  }
 }
 
 function describe(override: MarketOverride | undefined, quote: Quote | undefined): PriceSource {

@@ -40,6 +40,23 @@ export interface paths {
         patch: operations["rewrap"];
         trace?: never;
     };
+    "/api/v1/households/current/base-currency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change the household's currency (owner); this device then converts the shared records by the factor */
+        put: operations["changeBaseCurrency"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/support/reports/{id}/status": {
         parameters: {
             query?: never;
@@ -348,6 +365,23 @@ export interface paths {
         put?: never;
         /** Hand ownership to another member; the caller becomes a Member */
         post: operations["transferOwnership"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/households/current/rebase-claims": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Claim converting the caller's private records after a currency change; one device per member wins */
+        post: operations["claimRebase"];
         delete?: never;
         options?: never;
         head?: never;
@@ -740,6 +774,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The signed-in account and its household */
+        get: operations["me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change the account's country or the currencies followed on the Prices screen */
+        patch: operations["update"];
+        trace?: never;
+    };
     "/api/v1/households/current": {
         parameters: {
             query?: never;
@@ -755,7 +807,7 @@ export interface paths {
         options?: never;
         head?: never;
         /** Rename the household or change its month start day (FR-SET-05) */
-        patch: operations["update"];
+        patch: operations["update_1"];
         trace?: never;
     };
     "/api/v1/households/current/members/{userId}": {
@@ -878,15 +930,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/me": {
+    "/api/v1/market/world-rates": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** The signed-in account and its household */
-        get: operations["me"];
+        /** The latest rate per US dollar of every currency but the dinar, updated daily */
+        get: operations["worldRates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/world-rates/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One currency's daily rate per US dollar; the last year unless a range is given */
+        get: operations["worldRateHistory"];
         put?: never;
         post?: never;
         delete?: never;
@@ -921,6 +990,23 @@ export interface paths {
         };
         /** Price history by day, week (from Saturday) or month: open, high, low and close of each period */
         get: operations["history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/market/currencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Currencies a household may count in and the countries offered; open before sign-in for registration */
+        get: operations["currencyCatalogue"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1326,6 +1412,26 @@ export interface components {
             account?: components["schemas"]["AccountKeysResponse"];
             grants: components["schemas"]["GrantResponse"][];
         };
+        ChangeBaseCurrencyRequest: {
+            currency: string;
+            factor: number;
+        };
+        HouseholdResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            baseCurrency: string;
+            /** Format: int32 */
+            baseGeneration: number;
+            /** Format: int32 */
+            rebasedGeneration: number;
+            /** Format: int32 */
+            monthStartDay: number;
+            /** @enum {string} */
+            role: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
+            /** Format: date-time */
+            deletionRequestedAt?: string;
+        };
         ReportStatusRequest: {
             /** @enum {string} */
             status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
@@ -1483,23 +1589,13 @@ export interface components {
             phone?: string;
             displayName: string;
             locale: string;
+            country: string;
+            trackedCurrencies: string[];
             verified: boolean;
             /** Format: date-time */
             deletionRequestedAt?: string;
             operator: boolean;
             household: components["schemas"]["HouseholdResponse"];
-        };
-        HouseholdResponse: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            baseCurrency: string;
-            /** Format: int32 */
-            monthStartDay: number;
-            /** @enum {string} */
-            role: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
-            /** Format: date-time */
-            deletionRequestedAt?: string;
         };
         QuoteResponse: {
             /** @enum {string} */
@@ -1580,6 +1676,14 @@ export interface components {
             /** Format: uuid */
             userId: string;
         };
+        RebaseClaimResponse: {
+            claimed: boolean;
+            /** Format: int32 */
+            generation: number;
+            fromCurrency: string;
+            baseCurrency: string;
+            factor: number;
+        };
         CreateInvitationRequest: {
             /** @enum {string} */
             role: "OWNER" | "MEMBER" | "VIEWER" | "DEPENDENT" | "ADVISOR";
@@ -1608,6 +1712,8 @@ export interface components {
             authKey: string;
             displayName: string;
             locale?: string;
+            country?: string;
+            baseCurrency?: string;
             keys: components["schemas"]["AccountKeysRequest"];
         };
         TokenResponse: {
@@ -1754,6 +1860,10 @@ export interface components {
             /** Format: date-time */
             deletionRequestedAt?: string;
         };
+        UpdateProfileRequest: {
+            country?: string;
+            trackedCurrencies?: string[];
+        };
         RewrapRequest: {
             wrappedByPassword?: string;
             wrappedByRecovery?: string;
@@ -1820,6 +1930,21 @@ export interface components {
         VapidKeyResponse: {
             publicKey: string;
         };
+        WorldRate: {
+            currency: string;
+            perUsd: number;
+            /** Format: date */
+            day: string;
+        };
+        WorldRatesResponse: {
+            source: string;
+            rates: components["schemas"]["WorldRate"][];
+        };
+        WorldRatePointResponse: {
+            /** Format: date */
+            day: string;
+            perUsd: number;
+        };
         HistoryPointResponse: {
             /** Format: date */
             day: string;
@@ -1832,6 +1957,14 @@ export interface components {
             /** Format: int64 */
             priceMicros: number;
             source: string;
+        };
+        Country: {
+            code: string;
+            currency: string;
+        };
+        CurrencyCatalogueResponse: {
+            currencies: string[];
+            countries: components["schemas"]["Country"][];
         };
         PriceChangeResponse: {
             /** Format: int64 */
@@ -2020,6 +2153,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MyKeysResponse"];
+                };
+            };
+        };
+    };
+    changeBaseCurrency: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeBaseCurrencyRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HouseholdResponse"];
                 };
             };
         };
@@ -2569,6 +2726,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    claimRebase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RebaseClaimResponse"];
+                };
             };
         };
     };
@@ -3176,6 +3353,50 @@ export interface operations {
             };
         };
     };
+    me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CurrentUserResponse"];
+                };
+            };
+        };
+    };
+    update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CurrentUserResponse"];
+                };
+            };
+        };
+    };
     current: {
         parameters: {
             query?: never;
@@ -3196,7 +3417,7 @@ export interface operations {
             };
         };
     };
-    update: {
+    update_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -3397,7 +3618,7 @@ export interface operations {
             };
         };
     };
-    me: {
+    worldRates: {
         parameters: {
             query?: never;
             header?: never;
@@ -3412,7 +3633,31 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["CurrentUserResponse"];
+                    "*/*": components["schemas"]["WorldRatesResponse"];
+                };
+            };
+        };
+    };
+    worldRateHistory: {
+        parameters: {
+            query: {
+                currency: string;
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WorldRatePointResponse"][];
                 };
             };
         };
@@ -3458,6 +3703,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["HistoryPointResponse"][];
+                };
+            };
+        };
+    };
+    currencyCatalogue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CurrencyCatalogueResponse"];
                 };
             };
         };
