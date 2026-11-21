@@ -8,7 +8,8 @@ import { MonthPicker } from "@/components/MonthPicker"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatMoney } from "@/app/money"
-import { useMonthView } from "@/features/plan/useMonthFigures"
+import { monthFlow, useMonthView } from "@/features/plan/useMonthFigures"
+import { useAppMode } from "@/app/appMode"
 
 const TOP_CATEGORIES = 5
 
@@ -24,7 +25,10 @@ export function ReportPage() {
   const money = (v: number) => formatMoney(v, base, i18n.language)
   const signed = (v: number) => (v > 0 ? "+" : "") + money(v)
 
-  const spent = (view: typeof month) => view.figures.buckets.reduce((s, b) => s + b.spent, 0)
+  const simple = useAppMode() === "simple"
+  // Simple mode has no buckets, so its month is everything that came in and went out (ADR mode-1).
+  const spent = (view: typeof month) => (simple ? monthFlow(view).spent : view.figures.buckets.reduce((s, b) => s + b.spent, 0))
+  const received = simple ? monthFlow(month).received : month.income.received
   const categories = Object.entries(
     month.transactions.filter((tx) => tx.type === "EXPENSE").reduce<Record<string, number>>((acc, tx) => {
       const key = tx.category ?? t("report.uncategorised")
@@ -32,7 +36,7 @@ export function ReportPage() {
       return acc
     }, {}),
   ).sort((a, b) => b[1] - a[1]).slice(0, TOP_CATEGORIES)
-  const savingRate = month.income.received > 0 ? Math.round(((month.income.received - spent(month)) * 1000) / month.income.received) / 10 : null
+  const savingRate = received > 0 ? Math.round(((received - spent(month)) * 1000) / received) / 10 : null
 
   return (
     <div className="flex flex-col gap-4">
@@ -42,7 +46,7 @@ export function ReportPage() {
           <MonthPicker value={monthKey} onChange={setMonthKey} />
           <span className="flex gap-2 print:hidden">
             <Button variant="outline" size="sm" onClick={() => window.print()}><Printer /> {t("report.savePdf")}</Button>
-            <Button variant="outline" size="sm" asChild><Link to="/report/year">{t("report.year")}</Link></Button>
+            {!simple && <Button variant="outline" size="sm" asChild><Link to="/report/year">{t("report.year")}</Link></Button>}
           </span>
         </div>
       </div>
@@ -51,7 +55,7 @@ export function ReportPage() {
         <CardHeader>
           <CardTitle>{t("report.summary")}</CardTitle>
           <CardDescription>
-            {t("income.received")}: {money(month.income.received)} · {t("plan.spent")}: {money(spent(month))}
+            {t("income.received")}: {money(received)} · {t("plan.spent")}: {money(spent(month))}
             {savingRate !== null ? ` · ${t("report.savingRate", { rate: savingRate })}` : ""}
           </CardDescription>
         </CardHeader>
@@ -60,7 +64,7 @@ export function ReportPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      {!simple && <Card>
         <CardHeader><CardTitle>{t("report.plannedVsActual")}</CardTitle></CardHeader>
         <CardContent className="flex flex-col gap-2">
           {month.figures.buckets.map((figure) => {
@@ -81,7 +85,7 @@ export function ReportPage() {
           })}
           {month.figures.buckets.length === 0 && <p className="opacity-70">{t("plan.noBuckets")}</p>}
         </CardContent>
-      </Card>
+      </Card>}
 
       <Card>
         <CardHeader><CardTitle>{t("report.topCategories")}</CardTitle></CardHeader>

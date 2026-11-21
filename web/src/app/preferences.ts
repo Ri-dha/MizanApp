@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react"
 
 import { saveSyncedPreferences } from "@mizan/core/db/homeLayout"
+import type { AppMode } from "@mizan/core/domain/appMode"
 
 export type DigitStyle = "western" | "eastern"
 
@@ -15,6 +16,8 @@ export interface Preferences {
   showHijri: boolean
   /** Shows main-currency amounts in another currency at today's rate; nothing stored changes. Null shows them as they are. */
   displayCurrency: string | null
+  /** ADR mode-1: simple hides the planning and wealth screens; nothing stored changes. */
+  appMode: AppMode
 }
 
 
@@ -26,6 +29,8 @@ export const DEFAULTS: Preferences = {
   valuationReminderMonths: 6,
   showHijri: false,
   displayCurrency: null,
+  // Advanced, so a person from before the choice existed sees no change.
+  appMode: "advanced",
 }
 
 let current: Preferences = load()

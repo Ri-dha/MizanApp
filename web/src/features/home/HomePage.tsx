@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { staleAssets } from "@mizan/core/db/assets"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { usePreferences } from "@/app/preferences"
+import { useAppMode } from "@/app/appMode"
 import { useNetWorth } from "@/features/networth/useNetWorth"
 import { HelpButton } from "@/components/HelpButton"
 import { InstallButton } from "@/components/InstallButton"
@@ -24,6 +25,7 @@ export function HomePage() {
   const stale = staleAssets(worth.assets, worth.valuations, todayIso(), prefs.valuationReminderMonths)
   useScreenTour("welcome", session !== undefined)
   const layout = useHomeLayout()
+  const simple = useAppMode() === "simple"
 
   if (session?.role === "ADVISOR") return <Navigate to="/advisor" replace />
   if (session?.role === "DEPENDENT") {
@@ -64,7 +66,7 @@ export function HomePage() {
         </Alert>
       )}
 
-      {stale.length > 0 && (
+      {stale.length > 0 && !simple && (
         <Alert>
           <AlertDescription className="flex items-center justify-between gap-2">
             <span>{t("assets.stalePrompt", { count: stale.length, name: stale[0].name, months: prefs.valuationReminderMonths })}</span>

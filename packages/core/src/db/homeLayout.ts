@@ -1,5 +1,6 @@
 import { rows } from "../store/store"
 import type { HomeLayout, HomeWidget, WidgetKind, WidgetSize } from "../schema"
+import { isAppMode, shows, type AdvancedArea, type AppMode } from "../domain/appMode"
 import type { DigitStyle } from "../domain/digits"
 import { writeFields } from "./write"
 
@@ -18,17 +19,20 @@ export interface WidgetDefinition {
   options: readonly WidgetOption[]
   /** What a card of this kind can be limited to (T-home-templates). */
   picks?: "accounts" | "goals" | "debts"
+  /** Set for cards simple mode leaves out (ADR mode-1). */
+  area?: AdvancedArea
 }
 
 /** ADR home-1: every template Home can make a card from, in the order a new account sees them. */
 export const WIDGETS: readonly WidgetDefinition[] = [
   { kind: "netWorth", shownByDefault: true, options: [{ key: "breakdown", values: ["totals", "classes"] }] },
+  { kind: "month", shownByDefault: true, options: [] },
   { kind: "dollar", shownByDefault: true, options: [] },
-  { kind: "plan", shownByDefault: true, options: [{ key: "figure", values: ["free", "spent", "allocated"] }] },
-  { kind: "metals", shownByDefault: true, options: [{ key: "show", values: ["gain", "value"] }] },
-  { kind: "bills", shownByDefault: true, options: [{ key: "count", values: ["5", "3", "10"] }] },
+  { kind: "plan", shownByDefault: true, options: [{ key: "figure", values: ["free", "spent", "allocated"] }], area: "plan" },
+  { kind: "metals", shownByDefault: true, options: [{ key: "show", values: ["gain", "value"] }], area: "metals" },
+  { kind: "bills", shownByDefault: true, options: [{ key: "count", values: ["5", "3", "10"] }], area: "bills" },
   { kind: "cash", shownByDefault: true, options: [{ key: "currency", values: ["all", "IQD", "USD"] }], picks: "accounts" },
-  { kind: "goals", shownByDefault: false, options: [{ key: "count", values: ["3", "5"] }], picks: "goals" },
+  { kind: "goals", shownByDefault: false, options: [{ key: "count", values: ["3", "5"] }], picks: "goals", area: "goals" },
   { kind: "debts", shownByDefault: false, options: [{ key: "direction", values: ["OWING", "OWED"] }], picks: "debts" },
 ]
 
@@ -37,6 +41,10 @@ export const MAX_TITLE = 40
 const MAX_PICKS = 50
 
 export const definitionOf = (kind: WidgetKind): WidgetDefinition | undefined => WIDGETS.find((w) => w.kind === kind)
+
+/** The templates and cards a mode shows; the stored layout keeps the others for when the person switches back. */
+export const templatesFor = (mode: AppMode): WidgetDefinition[] => WIDGETS.filter((w) => shows(mode, w.area))
+export const widgetsFor = (mode: AppMode, widgets: HomeWidget[]): HomeWidget[] => widgets.filter((w) => shows(mode, definitionOf(w.kind)?.area))
 
 function freshWidget(definition: WidgetDefinition, id: string = definition.kind): HomeWidget {
   return {
@@ -156,9 +164,11 @@ export interface SyncedPreferences {
   showUsd: boolean
   showHijri: boolean
   valuationReminderMonths: number
+  /** ADR mode-1. */
+  appMode: AppMode
 }
 
-export const SYNCED_KEYS = ["digitStyle", "showUsd", "showHijri", "valuationReminderMonths"] as const satisfies readonly (keyof SyncedPreferences)[]
+export const SYNCED_KEYS = ["digitStyle", "showUsd", "showHijri", "valuationReminderMonths", "appMode"] as const satisfies readonly (keyof SyncedPreferences)[]
 
 const MAX_REMINDER_MONTHS = 120
 
@@ -171,6 +181,7 @@ export function syncedPreferencesOf(row: HomeLayout | undefined): Partial<Synced
   if (typeof row.showHijri === "boolean") found.showHijri = row.showHijri
   const months = row.valuationReminderMonths
   if (typeof months === "number" && Number.isInteger(months) && months >= 1 && months <= MAX_REMINDER_MONTHS) found.valuationReminderMonths = months
+  if (isAppMode(row.appMode)) found.appMode = row.appMode
   return found
 }
 

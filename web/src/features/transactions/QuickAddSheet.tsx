@@ -6,6 +6,7 @@ import { usePrivacyDefaults } from "@/db/privacy"
 import { toast } from "sonner"
 
 import { useSession } from "@/api/auth"
+import { useAppMode } from "@/app/appMode"
 import { attachImage, attachmentObjectUrl, photoExpired, RECEIPT_RETENTION_DAYS, removeAttachment } from "@/attachments/store"
 import { Field } from "@/components/Field"
 import { Button } from "@/components/ui/button"
@@ -64,6 +65,9 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
   }
   const [occurredOn, setOccurredOn] = useState(todayIso())
   const [bucketId, setBucketId] = useState<string | null>(null)
+  // ADR mode-1: simple mode records money in and out with no bucket. A bucket transfer opened for editing keeps its form.
+  const bucketless = useAppMode() === "simple" && type !== "TRANSFER"
+  const types = bucketless ? TYPES.filter((choice) => choice !== "TRANSFER") : TYPES
   const [counterparty, setCounterparty] = useState<string>("")
   const [payee, setPayee] = useState("")
   const [category, setCategory] = useState("")
@@ -217,8 +221,8 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
           <SheetTitle>{transaction ? t("transactions.edit") : t("transactions.add")}</SheetTitle>
         </SheetHeader>
         <form onSubmit={submit} className="flex flex-col gap-4 px-4">
-          <div className="grid grid-cols-3 gap-2">
-            {TYPES.map((choice) => (
+          <div className={cn("grid gap-2", types.length === 2 ? "grid-cols-2" : "grid-cols-3")}>
+            {types.map((choice) => (
               <Button key={choice} type="button" variant={type === choice ? "default" : "outline"} size="sm" onClick={() => setType(choice)}>
                 {t(`transactions.types.${choice}`)}
               </Button>
@@ -239,7 +243,7 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
             </Field>
           )}
 
-          {type === "EXPENSE" && !transaction && (
+          {type === "EXPENSE" && !transaction && !bucketless && (
             <div className="flex items-center gap-2">
               <Switch id="split" checked={split} onCheckedChange={(on) => { setSplit(on); if (on && parts.length === 0) setParts([{ bucketId: bucketId ?? "", amount: "" }, { bucketId: "", amount: "" }]) }} />
               <Label htmlFor="split">{t("transactions.split")}</Label>
@@ -262,7 +266,7 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
                 <span className={splitRemainder === 0 ? "opacity-70" : "text-destructive"}>{t("transactions.splitRemainder", { amount: fromMinorUnits(splitRemainder, currency) })}</span>
               </div>
             </div>
-          ) : type !== "INCOME" && (
+          ) : type !== "INCOME" && !bucketless && (
             <div className="flex flex-col gap-1.5">
               <Label>{type === "TRANSFER" ? t("transactions.fromBucket") : t("transactions.bucket")}</Label>
               <div className="flex flex-wrap gap-2">
@@ -364,7 +368,7 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
 
           <SheetFooter className="flex-row justify-between px-0">
             {transaction && <Button type="button" variant="outline" onClick={() => void remove()}>{t("accounts.delete")}</Button>}
-            <Button type="submit" disabled={!amount || (type !== "INCOME" && !split && !bucketId && buckets.length > 0) || (split && (parts.length < 2 || splitRemainder !== 0))}>{t("accounts.save")}</Button>
+            <Button type="submit" disabled={!amount || (type !== "INCOME" && !split && !bucketId && buckets.length > 0 && !bucketless) || (split && (parts.length < 2 || splitRemainder !== 0))}>{t("accounts.save")}</Button>
           </SheetFooter>
         </form>
       </SheetContent>

@@ -3,6 +3,7 @@ import Storage from "expo-sqlite/kv-store"
 
 import { saveSyncedPreferences } from "@mizan/core/db/homeLayout"
 import type { DigitStyle } from "@mizan/core/domain/money/format"
+import type { AppMode } from "@mizan/core/domain/appMode"
 
 export type LanguageChoice = "system" | "en" | "ar"
 export type ThemeChoice = "system" | "light" | "dark"
@@ -22,10 +23,12 @@ export interface Preferences {
   dismissedAnnouncements: string[]
   /** Shows main-currency amounts in another currency at today's rate; nothing stored changes. Null shows them as they are. */
   displayCurrency: string | null
+  /** ADR mode-1: simple hides the planning and wealth screens; nothing stored changes. */
+  appMode: AppMode
 }
 
 const KEY = "mizan.preferences"
-export const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [], dismissedAnnouncements: [], displayCurrency: null }
+export const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [], dismissedAnnouncements: [], displayCurrency: null, appMode: "advanced" }
 
 function load(): Preferences {
   try {

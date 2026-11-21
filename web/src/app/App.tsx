@@ -10,6 +10,7 @@ import { directionFor } from "@/i18n"
 import { initialiseLock, startLockWatcher } from "@/lock/store"
 import { initialiseVault } from "@/vault/account"
 import { AppShell } from "./AppShell"
+import { AreaGate } from "./AreaGate"
 import { RequireSession, RedirectIfSession } from "./guards"
 import { LoginPage } from "@/features/auth/LoginPage"
 import { RegisterPage } from "@/features/auth/RegisterPage"
@@ -67,26 +68,26 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "verify", element: <VerifyPage /> },
       { path: "transactions", element: <TransactionsPage /> },
-      { path: "plan", element: <PlanPage /> },
-      { path: "bills", element: <BillsPage /> },
+      { path: "plan", element: <AreaGate area="plan"><PlanPage /></AreaGate> },
+      { path: "bills", element: <AreaGate area="bills"><BillsPage /></AreaGate> },
       { path: "debts", element: <DebtsPage /> },
-      { path: "goals", element: <GoalsPage /> },
-      { path: "metals", element: <MetalsPage /> },
-      { path: "networth", element: <NetWorthPage /> },
+      { path: "goals", element: <AreaGate area="goals"><GoalsPage /></AreaGate> },
+      { path: "metals", element: <AreaGate area="metals"><MetalsPage /></AreaGate> },
+      { path: "networth", element: <AreaGate area="networth"><NetWorthPage /></AreaGate> },
       { path: "report", element: <ReportPage /> },
-      { path: "report/year", element: <YearReportPage /> },
+      { path: "report/year", element: <AreaGate area="yearReport"><YearReportPage /></AreaGate> },
       { path: "help", element: <HelpPage /> },
       { path: "help/:slug", element: <HelpPage /> },
       { path: "support", element: <SupportPage /> },
       { path: "support/new", element: <NewReportPage /> },
       { path: "support/:id", element: <SupportThreadPage /> },
       { path: "more", element: <MorePage /> },
-      { path: "income", element: <IncomePage /> },
+      { path: "income", element: <AreaGate area="income"><IncomePage /></AreaGate> },
       { path: "accounts", element: <AccountsPage /> },
-      { path: "assets", element: <AssetsPage /> },
+      { path: "assets", element: <AreaGate area="assets"><AssetsPage /></AreaGate> },
       { path: "sync", element: <SyncPage /> },
       { path: "settings", element: <SettingsPage /> },
-      { path: "household", element: <HouseholdPage /> },
+      { path: "household", element: <AreaGate area="household"><HouseholdPage /></AreaGate> },
       { path: "advisor", element: <AdvisorPage /> },
       { path: "prices", element: <PricesPage /> },
       { path: "admin", element: <AdminPage /> },

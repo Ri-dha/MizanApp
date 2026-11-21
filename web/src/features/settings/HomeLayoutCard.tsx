@@ -17,8 +17,9 @@ import { cn } from "@/lib/utils"
 import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { liveDebts } from "@mizan/core/db/debts"
 import { liveGoals } from "@mizan/core/db/goals"
+import { useAppMode } from "@/app/appMode"
 import {
-  addWidget, DEFAULT_LAYOUT, definitionOf, moveWidget, placeWidget, removeWidget, saveHomeLayout, shownWidgets, updateWidget, WIDGETS,
+  addWidget, DEFAULT_LAYOUT, definitionOf, moveWidget, placeWidget, removeWidget, saveHomeLayout, shownWidgets, templatesFor, updateWidget, widgetsFor,
   type HomeWidget, type WidgetDefinition, type WidgetSize, MAX_TITLE } from "@mizan/core/db/homeLayout"
 
 const SIZES: WidgetSize[] = ["full", "compact"]
@@ -62,7 +63,9 @@ export function HomeLayoutCard() {
     setItems(next)
     void saveHomeLayout(next)
   }
-  const shown = shownWidgets(items)
+  const mode = useAppMode()
+  // Cards simple mode leaves out stay in the saved layout, in place, for when the person switches back.
+  const shown = widgetsFor(mode, shownWidgets(items))
   // A short move or a held touch starts a drag, so the controls still take a tap and the page still scrolls.
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -118,7 +121,7 @@ export function HomeLayoutCard() {
             <DropdownMenuContent align="start">
               <DropdownMenuLabel>{t("homeLayout.templates")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {WIDGETS.map((template) => (
+              {templatesFor(mode).map((template) => (
                 <DropdownMenuItem key={template.kind} onSelect={() => save(addWidget(items, template.kind))}>
                   {t(`homeLayout.kinds.${template.kind}`)}
                 </DropdownMenuItem>

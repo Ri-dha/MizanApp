@@ -399,7 +399,11 @@
     "metalsNone": "No metal recorded.",
     "netWorth": "Net worth",
     "openNetWorth": "Breakdown",
-    "dependentBody": "You are a dependent in {{household}}: your goals and your spending are yours alone; the household's records stay with its members."
+    "dependentBody": "You are a dependent in {{household}}: your goals and your spending are yours alone; the household's records stay with its members.",
+    "monthTitle": "Money in and out",
+    "monthLeft": "left",
+    "monthReceived": "Came in",
+    "monthSpent": "Went out"
   },
   "accounts": {
     "title": "Cash accounts",
@@ -1545,7 +1549,8 @@
       "bills": "Upcoming bills",
       "cash": "Cash on hand",
       "goals": "Goals",
-      "debts": "Debts"
+      "debts": "Debts",
+      "month": "Money in and out"
     },
     "options": {
       "breakdown": {
@@ -1714,5 +1719,22 @@
     "receivedHint": "What actually arrived; the exchange office's rate is often not the market's.",
     "transferHint": "Moving your own money is not income or spending, so the plan and the report are not touched.",
     "needTwoAccounts": "Add a second cash account to move money between them."
+  },
+  "appMode": {
+    "title": "Simple or advanced",
+    "body": "Simple keeps to your accounts, what comes in and goes out, and debts. Advanced adds the plan, bills, goals, gold and silver, other assets and the household. Nothing is deleted when you switch.",
+    "label": "How much of Mizan to show",
+    "modes": {
+      "simple": "Simple",
+      "advanced": "Advanced"
+    },
+    "hints": {
+      "simple": "Accounts, money in and out, debts",
+      "advanced": "Everything: plan, bills, goals, gold, assets, household"
+    },
+    "gateTitle": "This is part of advanced mode",
+    "gateBody": "You are using simple mode, which leaves this screen out. Switching shows it again, with everything you recorded.",
+    "switchToAdvanced": "Switch to advanced",
+    "includesAdvanced": "Includes gold or other assets recorded in advanced mode."
   }
 }

@@ -33,6 +33,17 @@ export const EMPTY_MONTH_VIEW: MonthView = {
   figures: { buckets: [], totalShareBasisPoints: 0, fixedTotal: 0, unallocatedPlanned: 0, unallocatedReceived: 0 },
 }
 
+/**
+ * ADR mode-1: a month's money in and out however it was recorded, with no plan needed. Income
+ * receipts and income transactions come in; every expense goes out, bucket or not.
+ */
+export function monthFlow(view: Pick<MonthView, "receipts" | "transactions">): { received: number; spent: number; left: number } {
+  const received = view.receipts.reduce((sum, r) => sum + r.baseAmount, 0)
+    + view.transactions.filter((t) => t.type === "INCOME").reduce((sum, t) => sum + t.baseAmount, 0)
+  const spent = view.transactions.filter((t) => t.type === "EXPENSE").reduce((sum, t) => sum + t.baseAmount, 0)
+  return { received, spent, left: received - spent }
+}
+
 /** FR-PLN-08: carry-over follows the chain back at most this far within one plan version. */
 const CARRY_OVER_DEPTH = 12
 

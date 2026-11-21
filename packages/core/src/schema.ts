@@ -340,9 +340,11 @@ export interface HomeLayout extends Syncable {
   showUsd?: boolean
   showHijri?: boolean
   valuationReminderMonths?: number
+  /** ADR mode-1: "simple" or "advanced". */
+  appMode?: string
 }
 
-export type WidgetKind = "netWorth" | "dollar" | "plan" | "metals" | "bills" | "cash" | "goals" | "debts"
+export type WidgetKind = "netWorth" | "month" | "dollar" | "plan" | "metals" | "bills" | "cash" | "goals" | "debts"
 export type WidgetSize = "compact" | "full"
 
 export interface HomeWidget {

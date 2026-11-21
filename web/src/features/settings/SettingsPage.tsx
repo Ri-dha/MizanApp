@@ -39,6 +39,8 @@ import { forgetAllTours } from "@/tours/store"
 import { PRIVACY_KINDS, savePrivacyDefault, usePrivacyDefaults } from "@/db/privacy"
 import { DATE, formatWhen } from "@/app/dates"
 import { CurrencyCard } from "./CurrencyCard"
+import { AppModeChoice } from "./AppModeChoice"
+import { useAppMode } from "@/app/appMode"
 import { CurrencySelect } from "@/features/currency/CurrencySelect"
 
 const LOCK_CHOICES = [0, 30, 60, 300]
@@ -51,6 +53,8 @@ export function SettingsPage() {
   const advisor = session?.role === "ADVISOR"
   const writes = mayWriteRecords(session?.role ?? "OWNER")
   const theme = useTheme()
+  const mode = useAppMode()
+  const restricted = advisor || session?.role === "DEPENDENT"
   const lockState = useLockState()
   const [lockAfter, setLockAfter] = useState(DEFAULT_LOCK_AFTER_SECONDS)
   const [biometricsAvailable, setBiometricsAvailable] = useState(false)
@@ -234,15 +238,23 @@ export function SettingsPage() {
 
       <CurrencyCard />
 
-      <Card>
+      {!restricted && <Card>
+        <CardHeader><CardTitle>{t("appMode.title")}</CardTitle></CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <p className="text-sm opacity-70">{t("appMode.body")}</p>
+          <AppModeChoice value={mode} onChange={(next) => setPreferences({ appMode: next })} />
+        </CardContent>
+      </Card>}
+
+      {mode === "advanced" && <Card>
         <CardHeader><CardTitle>{t("settings.household")}</CardTitle></CardHeader>
         <CardContent className="flex flex-col gap-3">
           <p className="text-sm opacity-70">{t("settings.householdBody", { name: session?.householdName ?? "", role: t(`household.roles.${session?.role ?? "OWNER"}`) })}</p>
           <Button variant="outline" className="self-start" asChild><Link to="/household">{t("household.manage")}</Link></Button>
         </CardContent>
-      </Card>
+      </Card>}
 
-      {writes && <Card data-tour="settings-privacy">
+      {writes && mode === "advanced" && <Card data-tour="settings-privacy">
         <CardHeader><CardTitle>{t("privacy.title")}</CardTitle></CardHeader>
         <CardContent className="flex flex-col gap-3">
           <p className="text-sm opacity-70">{t("privacy.body")}</p>

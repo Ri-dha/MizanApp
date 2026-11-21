@@ -9,7 +9,8 @@ import { currentMonthKey } from "@/app/month"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { RatesTodayCard } from "@/features/prices/RatesTodayCard"
-import { useMonthView } from "@/features/plan/useMonthFigures"
+import { monthFlow, useMonthView } from "@/features/plan/useMonthFigures"
+import { useAppMode } from "@/app/appMode"
 import { useMetals } from "@/features/metals/useMetals"
 import { useNetWorth } from "@/features/networth/useNetWorth"
 import { cn } from "@/lib/utils"
@@ -20,7 +21,7 @@ import { liveDeposits, liveGoals, savedOf } from "@mizan/core/db/goals"
 import type { HomeWidget } from "@mizan/core/db/homeLayout"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { goalProjection } from "@mizan/core/domain/goal/projection"
-import { pickedFrom, shownWidgets } from "@mizan/core/db/homeLayout"
+import { pickedFrom, shownWidgets, widgetsFor } from "@mizan/core/db/homeLayout"
 
 interface WidgetProps {
   widget: HomeWidget
@@ -76,11 +77,29 @@ function NetWorthWidget({ widget }: WidgetProps) {
   const { money } = useMoney()
   const worth = useNetWorth()
   const byClass = widget.options.breakdown === "classes"
+  const simple = useAppMode() === "simple"
+  // Simple mode still counts what was recorded in advanced mode, and says so, so the total never changes with the mode.
+  const hiddenCounted = simple && worth.current.composition.some((c) => c.amount !== 0 && c.assetClass !== "CASH" && c.assetClass !== "RECEIVABLES")
   return (
-    <WidgetCard tour="home-networth" compact={widget.size === "compact"} title={widget.title || t("home.netWorth")} to="/networth" action={t("home.openNetWorth")}
+    <WidgetCard tour="home-networth" compact={widget.size === "compact"} title={widget.title || t("home.netWorth")} to={simple ? "/accounts" : "/networth"} action={simple ? t("nav.accounts") : t("home.openNetWorth")}
       figure={money(worth.current.netWorth)} negative={worth.current.netWorth < 0}
       description={byClass ? undefined : `${t("networth.assets")}: ${money(worth.current.totalAssets)} · ${t("networth.liabilities")}: ${money(worth.current.totalLiabilities)}`}>
       {byClass && worth.current.composition.filter((c) => c.amount !== 0).map((c) => <Line key={c.assetClass} label={t(`networth.classes.${c.assetClass}`)} value={money(c.amount)} />)}
+      {hiddenCounted && <p className="text-sm opacity-70">{t("appMode.includesAdvanced")}</p>}
+    </WidgetCard>
+  )
+}
+
+function MonthWidget({ widget }: WidgetProps) {
+  const { t } = useTranslation()
+  const { money } = useMoney()
+  const startDay = useSession()?.monthStartDay ?? 1
+  const flow = monthFlow(useMonthView(currentMonthKey(startDay), startDay))
+  return (
+    <WidgetCard compact={widget.size === "compact"} title={widget.title || t("home.monthTitle")} to="/report" action={t("nav.report")}
+      figure={`${money(flow.left)} ${t("home.monthLeft")}`} negative={flow.left < 0}>
+      <Line label={t("home.monthReceived")} value={money(flow.received)} />
+      <Line label={t("home.monthSpent")} value={money(flow.spent)} />
     </WidgetCard>
   )
 }
@@ -187,6 +206,7 @@ function DebtsWidget({ widget }: WidgetProps) {
 
 const RENDERERS: Record<HomeWidget["kind"], (props: WidgetProps) => ReactNode> = {
   netWorth: NetWorthWidget,
+  month: MonthWidget,
   dollar: ({ widget }) => <RatesTodayCard title={widget.title} />,
   plan: PlanWidget,
   metals: MetalsWidget,
@@ -197,9 +217,10 @@ const RENDERERS: Record<HomeWidget["kind"], (props: WidgetProps) => ReactNode> =
 }
 
 export function HomeWidgets({ layout }: { layout: HomeWidget[] }) {
+  const mode = useAppMode()
   return (
     <>
-      {shownWidgets(layout).map((widget) => {
+      {widgetsFor(mode, shownWidgets(layout)).map((widget) => {
         const Widget = RENDERERS[widget.kind]
         return <Widget key={widget.id} widget={widget} />
       })}

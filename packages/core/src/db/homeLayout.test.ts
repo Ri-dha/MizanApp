@@ -4,7 +4,7 @@ import { memoryStore } from "../store/memoryStore"
 import { installStore, table } from "../store/store"
 import {
   addWidget, DEFAULT_LAYOUT, liveHomeLayout, liveSyncedPreferences, moveWidget, normaliseLayout, pickedFrom, pickSynced, placeWidget,
-  reconcileSynced, removeWidget, saveHomeLayout, saveSyncedPreferences, shownWidgets, syncedPreferencesOf, updateWidget, WIDGETS,
+  reconcileSynced, removeWidget, saveHomeLayout, saveSyncedPreferences, shownWidgets, syncedPreferencesOf, templatesFor, updateWidget, WIDGETS, widgetsFor,
 } from "./homeLayout"
 import type { HomeLayout, HomeWidget } from "../schema"
 
@@ -63,9 +63,9 @@ describe("home layout", () => {
   })
 
   it("moves a card past hidden ones and stops at either end", () => {
-    const moved = moveWidget(DEFAULT_LAYOUT, "dollar", -1)
-    expect(kinds(moved).slice(0, 2)).toEqual(["dollar", "netWorth"])
-    expect(moveWidget(moved, "dollar", -1)).toBe(moved)
+    const moved = moveWidget(DEFAULT_LAYOUT, "month", -1)
+    expect(kinds(moved).slice(0, 2)).toEqual(["month", "netWorth"])
+    expect(moveWidget(moved, "month", -1)).toBe(moved)
     const added = addWidget(DEFAULT_LAYOUT, "plan", "plan-2")
     expect(kinds(shownWidgets(moveWidget(added, "plan-2", -1))).slice(-2)).toEqual(["plan", "cash"])
   })
@@ -107,15 +107,28 @@ describe("synced reading preferences", () => {
     expect(await table("homeLayouts").count()).toBe(1)
   })
 
-  it("keeps only the four preferences and the values this app understands", async () => {
+  it("keeps only the synced preferences and the values this app understands", async () => {
     expect(pickSynced({ digitStyle: "eastern", language: "ar", theme: "dark" })).toEqual({ digitStyle: "eastern" })
     const row = { digitStyle: "roman", showUsd: "yes", showHijri: false, valuationReminderMonths: 0 } as unknown as HomeLayout
     expect(syncedPreferencesOf(row)).toEqual({ showHijri: false })
   })
 })
 
+describe("simple and advanced modes (ADR mode-1)", () => {
+  it("leaves planning and wealth cards out of simple mode without touching the layout", () => {
+    expect(kinds(widgetsFor("simple", DEFAULT_LAYOUT))).toEqual(["netWorth", "month", "dollar", "cash", "debts"])
+    expect(widgetsFor("advanced", DEFAULT_LAYOUT)).toEqual(DEFAULT_LAYOUT)
+    expect(templatesFor("simple").map((w) => w.kind)).not.toContain("plan")
+  })
+
+  it("reads the mode from the row and ignores a value it does not know", () => {
+    expect(syncedPreferencesOf({ appMode: "simple" } as unknown as HomeLayout)).toEqual({ appMode: "simple" })
+    expect(syncedPreferencesOf({ appMode: "expert" } as unknown as HomeLayout)).toEqual({})
+  })
+})
+
 describe("reconciling a device with the row", () => {
-  const defaults = { digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6 } as const
+  const defaults = { digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, appMode: "advanced" } as const
   const local = { ...defaults, digitStyle: "eastern", showHijri: true } as const
 
   it("takes the row's values over the device's", () => {
@@ -125,5 +138,10 @@ describe("reconciling a device with the row", () => {
   it("seeds an empty row with this device's choices, but only after a sync", () => {
     expect(reconcileSynced({}, local, defaults, false)).toEqual({ apply: {}, seed: {} })
     expect(reconcileSynced({}, local, defaults, true)).toEqual({ apply: {}, seed: { digitStyle: "eastern", showHijri: true } })
+  })
+
+  it("carries a new account's choice of simple mode to the row, and leaves a device's mode alone when the row has none", () => {
+    expect(reconcileSynced({}, { ...defaults, appMode: "simple" }, defaults, true)).toEqual({ apply: {}, seed: { appMode: "simple" } })
+    expect(reconcileSynced({ digitStyle: "western" }, { ...defaults, appMode: "simple" }, defaults, true)).toEqual({ apply: {}, seed: {} })
   })
 })

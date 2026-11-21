@@ -22,6 +22,7 @@ import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { currentMonthKey, useMonthView, useNetWorth } from "@/hooks/use-views"
 import { colors, radius, spacing, type, useBrandColors } from "@/theme"
 import { pickedFrom, shownWidgets } from "@mizan/core/db/homeLayout"
+import { monthFlow } from "@mizan/core/db/monthView"
 
 const MICROS = 1_000_000
 
@@ -148,6 +149,20 @@ function FollowedRatesCard({ widget }: WidgetProps) {
   )
 }
 
+function MonthCard({ widget }: WidgetProps) {
+  const { t } = useTranslation()
+  const { money } = useMoney()
+  const startDay = useSession()?.monthStartDay ?? 1
+  const flow = monthFlow(useMonthView(currentMonthKey(startDay), startDay))
+  return (
+    <Card testID="home-month" compact={widget.size === "compact"} title={widget.title || t("home.monthTitle")} href="/report"
+      figure={`${money(flow.left)} ${t("home.monthLeft")}`}>
+      <Line label={t("home.monthReceived")} value={money(flow.received)} />
+      <Line label={t("home.monthSpent")} value={money(flow.spent)} last />
+    </Card>
+  )
+}
+
 function PlanCard({ widget }: WidgetProps) {
   const { t } = useTranslation()
   const { money } = useMoney()
@@ -248,7 +263,7 @@ function DebtsCard({ widget }: WidgetProps) {
 }
 
 const CARDS: Record<HomeWidget["kind"], (props: WidgetProps) => ReactNode> = {
-  netWorth: NetWorthCard, dollar: DollarCard, plan: PlanCard, metals: MetalsCard,
+  netWorth: NetWorthCard, month: MonthCard, dollar: DollarCard, plan: PlanCard, metals: MetalsCard,
   bills: BillsCard, cash: CashCard, goals: GoalsCard, debts: DebtsCard,
 }
 

@@ -1,4 +1,4 @@
-import { BarChart3, ChartLine, House, ListOrdered, MoreHorizontal, PieChart, PiggyBank, Plus, Receipt, Settings, ShieldCheck } from "lucide-react"
+import { Banknote, BarChart3, ChartLine, HandCoins, House, ListOrdered, MoreHorizontal, PieChart, PiggyBank, Plus, Receipt, Settings, ShieldCheck } from "lucide-react"
 import { Suspense, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -23,6 +23,8 @@ import { useSyncStatus } from "@/sync/engine"
 import { DisplayRatesSync, useShownCurrency } from "@/app/displayRates"
 import { SyncedPreferencesSync } from "@/app/syncedPreferences"
 import { setPreferences } from "@/app/preferences"
+import { useAppMode } from "@/app/appMode"
+import { shows } from "@mizan/core/domain/appMode"
 
 export function AppShell() {
   const { t } = useTranslation()
@@ -41,6 +43,7 @@ export function AppShell() {
   }, [session?.role])
 
   const role = session?.role
+  const mode = useAppMode()
   // §4.2: a dependent gets their own ledger and goals; an advisor gets the report and nothing else.
   const primary = role === "DEPENDENT"
     ? [
@@ -58,14 +61,21 @@ export function AppShell() {
         { to: "/prices", label: t("nav.prices"), icon: ChartLine },
         { to: "/settings", label: t("nav.settings"), icon: Settings },
       ]
-      : [
-        { to: "/", label: t("nav.home"), icon: House, end: true },
-        { to: "/transactions", label: t("nav.transactions"), icon: ListOrdered },
-        { to: "/plan", label: t("nav.plan"), icon: PieChart },
-        { to: "/bills", label: t("nav.bills"), icon: Receipt },
-      ]
+      : mode === "simple"
+        ? [
+          { to: "/", label: t("nav.home"), icon: House, end: true },
+          { to: "/transactions", label: t("nav.transactions"), icon: ListOrdered },
+          { to: "/accounts", label: t("nav.accounts"), icon: Banknote },
+          { to: "/debts", label: t("nav.debts"), icon: HandCoins },
+        ]
+        : [
+          { to: "/", label: t("nav.home"), icon: House, end: true },
+          { to: "/transactions", label: t("nav.transactions"), icon: ListOrdered },
+          { to: "/plan", label: t("nav.plan"), icon: PieChart },
+          { to: "/bills", label: t("nav.bills"), icon: Receipt },
+        ]
   const restricted = role === "DEPENDENT" || role === "ADVISOR"
-  const sidebar = restricted ? primary : [...primary, ...MORE_LINKS.filter((l) => l.to !== "/bills").map((l) => ({ to: l.to, label: t(l.key), icon: l.icon, end: false }))]
+  const sidebar = restricted ? primary : [...primary, ...MORE_LINKS.filter((l) => shows(mode, l.area) && !primary.some((p) => p.to === l.to)).map((l) => ({ to: l.to, label: t(l.key), icon: l.icon, end: false }))]
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
       isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")
