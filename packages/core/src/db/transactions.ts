@@ -20,6 +20,10 @@ export interface TransactionInput {
   visibility: Visibility
   splitGroupId?: string | null
   assetId?: string | null
+  /** T-cash-movements: the account paid from (an expense) or paid into (an income). */
+  cashAccountId?: string | null
+  /** T-cash-movements: what reached the other account of a transfer, in its currency. */
+  counterAmount?: number | null
 }
 
 export async function createTransaction(input: TransactionInput): Promise<string> {

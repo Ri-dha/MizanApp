@@ -13,7 +13,8 @@ import { useMonthView } from "@/features/plan/useMonthFigures"
 import { useMetals } from "@/features/metals/useMetals"
 import { useNetWorth } from "@/features/networth/useNetWorth"
 import { cn } from "@/lib/utils"
-import { liveCashAccounts, totalsByCurrency } from "@mizan/core/db/cashAccounts"
+import { totalsByCurrency } from "@mizan/core/db/cashAccounts"
+import { useAccountsNow } from "@/features/accounts/useAccountsNow"
 import { balanceOf, liveDebts, livePayments } from "@mizan/core/db/debts"
 import { liveDeposits, liveGoals, savedOf } from "@mizan/core/db/goals"
 import type { HomeWidget } from "@mizan/core/db/homeLayout"
@@ -139,7 +140,7 @@ function BillsWidget({ widget }: WidgetProps) {
 function CashWidget({ widget }: WidgetProps) {
   const { t } = useTranslation()
   const { money } = useMoney()
-  const accounts = useLiveQuery(liveCashAccounts, [], [])
+  const accounts = useAccountsNow()
   const wanted = widget.options.currency
   const totals = Object.entries(totalsByCurrency(accounts)).filter(([currency]) => wanted === "all" || currency === wanted)
   return (

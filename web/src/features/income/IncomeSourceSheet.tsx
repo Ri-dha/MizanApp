@@ -19,6 +19,9 @@ import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 import { formatWhen } from "@/app/dates"
 import { CurrencySelect } from "@/features/currency/CurrencySelect"
 import { useTodayRate } from "@/features/currency/useCurrencies"
+import { AccountSharesEditor } from "@/features/accounts/AccountSharesEditor"
+import { overAssigned, rowsFrom, sharesFrom, type ShareRow } from "@/features/accounts/shareRows"
+import { useAccountsNow } from "@/features/accounts/useAccountsNow"
 
 const FREQUENCIES: Frequency[] = ["MONTHLY", "BIWEEKLY", "WEEKLY", "ONE_OFF"]
 
@@ -49,6 +52,8 @@ export function IncomeSourceSheet({ open, source, history, onClose }: Props) {
   const [activeFrom, setActiveFrom] = useState(todayIso())
   const [activeTo, setActiveTo] = useState("")
   const [isPrivate, setIsPrivate] = useState(false)
+  const [shares, setShares] = useState<ShareRow[]>([])
+  const accounts = useAccountsNow()
   const [raiseAmount, setRaiseAmount] = useState("")
   const [raiseFrom, setRaiseFrom] = useState(todayIso())
   const [raiseNote, setRaiseNote] = useState("")
@@ -65,6 +70,7 @@ export function IncomeSourceSheet({ open, source, history, onClose }: Props) {
     setActiveFrom(source?.activeFrom ?? todayIso())
     setActiveTo(source?.activeTo ?? "")
     setIsPrivate(source ? source.visibility === "PRIVATE" : privacy.accounts === "PRIVATE")
+    setShares(rowsFrom(source?.intoAccounts, source?.currency ?? base))
     setRaiseAmount("")
     setRaiseFrom(todayIso())
     setRaiseNote("")
@@ -84,10 +90,13 @@ export function IncomeSourceSheet({ open, source, history, onClose }: Props) {
 
   const needsRate = currency !== base
   const usesPayDay = frequency === "MONTHLY"
+  const sourceAmount = source ? source.amount : toMinorUnits(amount, currency)
 
   async function submit(event: FormEvent) {
     event.preventDefault()
+    if (overAssigned(shares, sourceAmount, currency)) return
     const input = {
+      intoAccounts: sharesFrom(shares, currency),
       name: name.trim(),
       amount: source ? source.amount : toMinorUnits(amount, currency),
       currency,
@@ -159,13 +168,15 @@ export function IncomeSourceSheet({ open, source, history, onClose }: Props) {
               </Field>
             </div>
           )}
+          <AccountSharesEditor rows={shares} onChange={setShares} accounts={accounts} amount={sourceAmount} currency={currency}
+            label={t("cashMovements.usualSplit")} hint={t("cashMovements.usualSplitHint")} />
           <div className="flex items-center gap-2">
             <Switch id="private" checked={isPrivate} onCheckedChange={setIsPrivate} />
             <Label htmlFor="private">{t("accounts.private")}</Label>
           </div>
           <SheetFooter className="flex-row justify-between px-0">
             {source && <Button type="button" variant="outline" onClick={() => void endSource()}>{t("income.endSource")}</Button>}
-            <Button type="submit">{t("accounts.save")}</Button>
+            <Button type="submit" disabled={overAssigned(shares, sourceAmount, currency)}>{t("accounts.save")}</Button>
           </SheetFooter>
         </form>
 

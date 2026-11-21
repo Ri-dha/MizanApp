@@ -69,7 +69,7 @@ export function billsDue(expenses: RecurringExpense[], occurrences: ExpenseOccur
 }
 
 /** BR-03: paying records the transaction and settles the obligation in one step. */
-export async function markBillPaid(bill: BillDue, monthKey: string, actualAmount: number, paidOn: string): Promise<void> {
+export async function markBillPaid(bill: BillDue, monthKey: string, actualAmount: number, paidOn: string, cashAccountId: string | null = null): Promise<void> {
   await store().transaction(ALL_TABLES, async () => {
     const transactionId = await createTransaction({
       type: "EXPENSE",
@@ -86,6 +86,7 @@ export async function markBillPaid(bill: BillDue, monthKey: string, actualAmount
       counterpartyId: null,
       attachmentId: null,
       visibility: bill.expense.visibility,
+      cashAccountId,
     })
     await writeFields<ExpenseOccurrence>("expense_occurrence", crypto.randomUUID(), {
       visibility: bill.expense.visibility,

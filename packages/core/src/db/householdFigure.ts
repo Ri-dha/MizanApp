@@ -4,6 +4,7 @@ import type { LocalSession } from "../session"
 import { deterministicId } from "../vault/crypto"
 import { liveAssets, liveValuations, assetTotals } from "./assets"
 import { liveCashAccounts } from "./cashAccounts"
+import { liveMovementSources, movementsOf, withMovements } from "./cashMovements"
 import { liveDebts, livePayments } from "./debts"
 import { liveDisposalLots, liveLots, lotStates, portfolio, valueLots } from "./metals"
 import { cashInBase, debtBalances, liveMonthCloses } from "./networth"
@@ -23,11 +24,12 @@ export interface Figure {
 
 /** The same figure the net worth page shows, over whichever rows the filter keeps. */
 export async function figureOver(session: LocalSession, keep: RowFilter): Promise<Figure> {
-  const [accounts, debts, payments, assets, valuations, lots, disposalLots, quotes, overrides, setting, world] = await Promise.all([
+  const [setAccounts, debts, payments, assets, valuations, lots, disposalLots, quotes, overrides, setting, world, movementSources] = await Promise.all([
     liveCashAccounts(), liveDebts(), livePayments(), liveAssets(), liveValuations(), liveLots(), liveDisposalLots(), cachedQuotes(), liveOverrides(), liveSetting(),
-    cachedWorldRates(),
+    cachedWorldRates(), liveMovementSources(),
   ])
   const prices = resolvePrices(quotes, overrides, setting, session.baseCurrency, world?.rates ?? [])
+  const accounts = withMovements(setAccounts, movementsOf(setAccounts, movementSources, prices.perUsd))
   const keptLots = lots.filter(keep)
   const lotIds = new Set(keptLots.map((lot) => lot.id))
   const metals = portfolio(valueLots(lotStates(keptLots, disposalLots.filter((d) => lotIds.has(d.lotId))), prices, setting))

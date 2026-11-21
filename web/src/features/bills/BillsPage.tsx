@@ -20,6 +20,10 @@ import { RecurringExpenseSheet } from "./RecurringExpenseSheet"
 import { SubscriptionsCard } from "./SubscriptionsCard"
 import { HelpButton } from "@/components/HelpButton"
 import { useScreenTour } from "@/tours/useTour"
+import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const NO_ACCOUNT = "none"
 
 export function BillsPage() {
   const { t, i18n } = useTranslation()
@@ -41,6 +45,9 @@ export function BillsPage() {
   const committed = view.bills.filter((b) => !b.occurrence).reduce((sum, b) => sum + b.expectedAmount, 0)
   const paid = view.bills.filter((b) => b.occurrence).reduce((sum, b) => sum + (b.occurrence?.actualAmount ?? 0), 0)
 
+  const accounts = useLiveQuery(liveCashAccounts, [], [])
+  const [paidFrom, setPaidFrom] = useState(NO_ACCOUNT)
+
   function startPaying(bill: BillDue) {
     setPaying(bill)
     setActual(fromMinorUnits(bill.expense.amount, bill.expense.currency))
@@ -50,7 +57,7 @@ export function BillsPage() {
   async function confirmPaid(event: FormEvent) {
     event.preventDefault()
     if (!paying) return
-    await markBillPaid(paying, monthKey, toMinorUnits(actual, paying.expense.currency), paidOn)
+    await markBillPaid(paying, monthKey, toMinorUnits(actual, paying.expense.currency), paidOn, accounts.some((a) => a.id === paidFrom) ? paidFrom : null)
     setPaying(null)
   }
 
@@ -128,6 +135,17 @@ export function BillsPage() {
             <Field id="actual" label={t("bills.actualAmount")} hint={paying?.expense.isEstimate ? t("bills.estimateHint", { amount: money(paying.expectedAmount) }) : undefined}>
               <Input id="actual" inputMode="decimal" dir="ltr" value={actual} onChange={(e) => setActual(e.target.value)} required />
             </Field>
+            {accounts.length > 0 && (
+              <Field id="paidFrom" label={t("cashMovements.paidFrom")} hint={t("cashMovements.accountHint")}>
+                <Select value={accounts.some((a) => a.id === paidFrom) ? paidFrom : NO_ACCOUNT} onValueChange={setPaidFrom}>
+                  <SelectTrigger id="paidFrom"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_ACCOUNT}>{t("cashMovements.noAccount")}</SelectItem>
+                    {accounts.map((a) => <SelectItem key={a.id} value={a.id}>{a.name} ({a.currency})</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
             <Field id="paidOn" label={t("bills.paidOnLabel")}>
               <Input id="paidOn" type="date" dir="ltr" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} required />
             </Field>

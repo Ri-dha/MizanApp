@@ -12,6 +12,10 @@ import { softDelete, writeFields } from "@mizan/core/db/write"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 import { CurrencySelect } from "@/features/currency/CurrencySelect"
 import { useTodayRate } from "@/features/currency/useCurrencies"
+import { AccountSharesEditor } from "@/features/accounts/AccountSharesEditor"
+import { overAssigned, rowsFrom, sharesFrom, type ShareRow } from "@/features/accounts/shareRows"
+import { useAccountsNow } from "@/features/accounts/useAccountsNow"
+import type { AccountShare } from "@mizan/core/schema"
 
 
 export interface ReceiptDraft {
@@ -22,6 +26,8 @@ export interface ReceiptDraft {
   amount: number
   currency: string
   fxRateMicros: number
+  /** The income source's usual split, or the receipt's own when editing. */
+  intoAccounts?: AccountShare[]
 }
 
 export function ReceiptSheet({ draft, onClose }: { draft: ReceiptDraft | null; onClose: () => void }) {
@@ -38,6 +44,8 @@ export function ReceiptSheet({ draft, onClose }: { draft: ReceiptDraft | null; o
   }
   const [receivedOn, setReceivedOn] = useState("")
   const [note, setNote] = useState("")
+  const [shares, setShares] = useState<ShareRow[]>([])
+  const accounts = useAccountsNow()
 
   useEffect(() => {
     if (!draft) return
@@ -46,6 +54,7 @@ export function ReceiptSheet({ draft, onClose }: { draft: ReceiptDraft | null; o
     setRate(microsToRate(draft.fxRateMicros, draft.currency, base))
     setReceivedOn(draft.receivedOn)
     setNote(draft.existing?.note ?? "")
+    setShares(rowsFrom(draft.intoAccounts, draft.currency))
   }, [draft])
 
   const needsRate = currency !== base
@@ -54,8 +63,11 @@ export function ReceiptSheet({ draft, onClose }: { draft: ReceiptDraft | null; o
 
   async function submit(event: FormEvent) {
     event.preventDefault()
-    if (!draft) return
-    const fields = { receivedOn, amount: minor, currency, fxRateMicros, note: note.trim() || null }
+    if (!draft || overAssigned(shares, minor, currency)) return
+    const intoAccounts = sharesFrom(shares, currency)
+    const unchanged = JSON.stringify(intoAccounts) === JSON.stringify(draft.existing?.intoAccounts ?? [])
+    // Rewriting an unchanged split would count it again after a balance the person set by hand (ADR cash-1).
+    const fields = { receivedOn, amount: minor, currency, fxRateMicros, note: note.trim() || null, ...(draft.existing && unchanged ? {} : { intoAccounts }) }
     if (draft.existing) {
       await writeFields<IncomeReceipt>("income_receipt", draft.existing.id, { ...fields, baseAmount: toBaseAmount(minor, fxRateMicros) })
     } else {
@@ -92,12 +104,14 @@ export function ReceiptSheet({ draft, onClose }: { draft: ReceiptDraft | null; o
           <Field id="receivedOn" label={t("income.receivedOnLabel")}>
             <Input id="receivedOn" type="date" dir="ltr" value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} required />
           </Field>
+          <AccountSharesEditor rows={shares} onChange={setShares} accounts={accounts} amount={minor} currency={currency}
+            label={t("cashMovements.intoAccounts")} hint={t("cashMovements.intoAccountsHint")} />
           <Field id="note" label={t("income.note")}>
             <Input id="note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={120} />
           </Field>
           <SheetFooter className="flex-row justify-between px-0">
             {draft?.existing && <Button type="button" variant="outline" onClick={() => void remove()}>{t("accounts.delete")}</Button>}
-            <Button type="submit">{t("accounts.save")}</Button>
+            <Button type="submit" disabled={overAssigned(shares, minor, currency)}>{t("accounts.save")}</Button>
           </SheetFooter>
         </form>
       </SheetContent>

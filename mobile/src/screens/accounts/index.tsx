@@ -1,7 +1,7 @@
+import { useCashAccounts } from "@/hooks/use-views"
 import { router, Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
 
-import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { formatMoney } from "@/utils/money"
 import { Button } from "@/components/button"
 import { LinkRow } from "@/components/link-row"
@@ -12,7 +12,7 @@ import { useLiveQuery } from "@/hooks/use-core"
 
 export function Accounts() {
   const { t, i18n } = useTranslation()
-  const accounts = useLiveQuery(liveCashAccounts, [], [])
+  const accounts = useCashAccounts()
   return (
     <Screen>
       <Stack.Screen options={{ title: t("accounts.title"), headerRight: () => <Button testID="add-account" variant="ghost" title={t("accounts.add")} onPress={() => router.push("/account-edit")} /> }} />

@@ -1,4 +1,4 @@
-import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
+import { liveAccountsNow } from "@mizan/core/db/cashMovements"
 import { EMPTY_METALS_VIEW, metalsViewFor, type MetalsView } from "@mizan/core/db/metalsView"
 import { EMPTY_MONTH_VIEW, monthViewFor, type MonthView } from "@mizan/core/db/monthView"
 import { EMPTY_NET_WORTH, metalsValueOf, netWorthFiguresFor, rateSetOf, type NetWorthView } from "@mizan/core/db/netWorthView"
@@ -29,6 +29,8 @@ export function useNetWorth(): NetWorthView & { metals: MetalsView } {
   return { ...figures, rateSet: rateSetOf(metals.prices), metals }
 }
 
+/** Today's balances: the balance last set, plus linked income and minus linked spending since (ADR cash-1). */
 export function useCashAccounts(): CashAccount[] {
-  return useLiveQuery(liveCashAccounts, [], NO_ACCOUNTS)
+  const { prices } = useMetals()
+  return useLiveQuery(() => liveAccountsNow(prices.perUsd), [prices.perUsd], NO_ACCOUNTS)
 }

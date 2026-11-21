@@ -21,6 +21,16 @@ export interface CashAccount extends Syncable {
   sortOrder: number
 }
 
+/**
+ * T-cash-movements: part of an income that goes into a cash account, either a fixed amount (minor
+ * units of the income's currency) or a percentage of it (basis points).
+ */
+export interface AccountShare {
+  cashAccountId: string
+  kind: "AMOUNT" | "PERCENT"
+  value: number
+}
+
 export type Frequency = "MONTHLY" | "BIWEEKLY" | "WEEKLY" | "ONE_OFF"
 
 export interface IncomeSource extends Syncable {
@@ -36,6 +46,8 @@ export interface IncomeSource extends Syncable {
   activeTo: string | null
   note: string | null
   sortOrder: number
+  /** The usual split into cash accounts, offered when a payment is marked received. */
+  intoAccounts?: AccountShare[]
 }
 
 /** One entry of a source's amount history: what it paid from a given date. */
@@ -59,6 +71,8 @@ export interface IncomeReceipt extends Syncable {
   fxRateMicros: number
   baseAmount: number
   note: string | null
+  /** Where the money went; each share adds to that account's balance. */
+  intoAccounts?: AccountShare[]
 }
 
 export interface Plan extends Syncable {
@@ -135,6 +149,10 @@ export interface LedgerTransaction extends Syncable {
   splitGroupId: string | null
   /** FR-AST-07: a running cost of an asset (fuel, repairs, insurance). */
   assetId: string | null
+  /** The account an expense was paid from or an income went into; moves that account's balance. */
+  cashAccountId?: string | null
+  /** A transfer between accounts: what reached the other account, in its currency (an exchange). */
+  counterAmount?: number | null
 }
 
 export interface Attachment extends Syncable {

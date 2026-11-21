@@ -1,3 +1,4 @@
+import { useCashAccounts } from "@/hooks/use-views"
 import { router, Stack } from "expo-router"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -8,7 +9,6 @@ import { defaultsOf, livePrivacySetting } from "@mizan/core/db/privacy"
 import { softDelete } from "@mizan/core/db/write"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
 import type { CashAccountKind } from "@mizan/core/schema"
-import { table } from "@mizan/core/store/store"
 import { Button } from "@/components/button"
 import { Chips } from "@/components/chips"
 import { Group, Row } from "@/components/row"
@@ -25,7 +25,8 @@ const KINDS: CashAccountKind[] = ["WALLET", "BANK", "CASH_AT_HOME", "OTHER"]
 export function AccountEditor({ id }: { id?: string }) {
   const { t, i18n } = useTranslation()
   const session = useSession()
-  const account = useLiveQuery(() => (id ? table("cashAccounts").get(id) : Promise.resolve(undefined)), [id], undefined)
+  // Today's balance, linked income and spending included, is what the person sees and edits (ADR cash-1).
+  const account = useCashAccounts().find((a) => a.id === id)
   const adjustments = useLiveQuery(() => (id ? liveAdjustmentsOf(id) : Promise.resolve([])), [id], [])
   const privacy = useLiveQuery(async () => defaultsOf(await livePrivacySetting()), [], defaultsOf(undefined))
   const [name, setName] = useState("")
@@ -61,7 +62,7 @@ export function AccountEditor({ id }: { id?: string }) {
       balance: toMinorUnits(balance || "0", currency),
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
     }
-    if (id) await updateCashAccount(id, input, adjustmentNote.trim() || null)
+    if (id) await updateCashAccount(id, input, adjustmentNote.trim() || null, account?.balance)
     else await createCashAccount(input)
     router.back()
   }

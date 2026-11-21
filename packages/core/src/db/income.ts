@@ -1,6 +1,6 @@
 import { ALL_TABLES, rows, rowsBy, sorted, store, table } from "../store/store"
 import { minorUnitsPerMajor } from "../domain/money/format"
-import { type IncomeReceipt, type IncomeSource, type IncomeSourceAmount, type Visibility } from "../schema"
+import { type AccountShare, type IncomeReceipt, type IncomeSource, type IncomeSourceAmount, type Visibility } from "../schema"
 import { softDelete, writeFields } from "./write"
 import { monthWindow } from "../domain/calendar/month"
 import { amountOn, plannedIncome, type Occurrence } from "../domain/income/planned"
@@ -19,6 +19,8 @@ export interface IncomeSourceInput {
   activeTo: string | null
   note: string | null
   visibility: Visibility
+  /** T-cash-movements: the usual split into cash accounts. */
+  intoAccounts?: AccountShare[]
 }
 
 export interface ReceiptInput {
@@ -30,6 +32,8 @@ export interface ReceiptInput {
   fxRateMicros: number
   note: string | null
   visibility: Visibility
+  /** T-cash-movements: where this payment went, by amount or percentage. */
+  intoAccounts?: AccountShare[]
 }
 
 /** Base minor units for an amount in another currency's minor units; the rate is per minor unit (see rateToMicros). */

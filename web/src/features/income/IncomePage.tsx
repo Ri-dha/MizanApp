@@ -44,11 +44,12 @@ export function IncomePage() {
       amount: source.amount,
       currency: source.currency,
       fxRateMicros: source.fxRateMicros,
+      intoAccounts: source.intoAccounts,
     })
   }
 
   function editReceipt(existing: IncomeReceipt) {
-    setReceipt({ existing, incomeSourceId: existing.incomeSourceId, monthKey, receivedOn: existing.receivedOn, amount: existing.amount, currency: existing.currency, fxRateMicros: existing.fxRateMicros })
+    setReceipt({ existing, incomeSourceId: existing.incomeSourceId, monthKey, receivedOn: existing.receivedOn, amount: existing.amount, currency: existing.currency, fxRateMicros: existing.fxRateMicros, intoAccounts: existing.intoAccounts })
   }
 
   return (

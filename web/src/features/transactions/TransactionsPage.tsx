@@ -16,6 +16,9 @@ import { EMPTY_FILTER, filterTransactions, liveRecentlyDeleted, restoreTransacti
 import { formatMoney, toMinorUnits } from "@/app/money"
 import { useMonthView } from "@/features/plan/useMonthFigures"
 import { QuickAddSheet } from "./QuickAddSheet"
+import { TransferSheet } from "@/features/accounts/TransferSheet"
+import { isAccountTransfer } from "@mizan/core/db/cashMovements"
+import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { HelpButton } from "@/components/HelpButton"
 import { useDateFormat } from "@/app/dates"
 import { useScreenTour } from "@/tours/useTour"
@@ -32,6 +35,8 @@ export function TransactionsPage() {
   const view = useMonthView(monthKey, startDay)
   const deleted = useLiveQuery(liveRecentlyDeleted, [], [])
   const [filter, setFilter] = useState<TransactionFilter>(EMPTY_FILTER)
+  const cashAccounts = useLiveQuery(liveCashAccounts, [], [])
+  const accountName = (id: string | null | undefined) => cashAccounts.find((a) => a.id === id)?.name ?? "?"
   const [editing, setEditing] = useState<LedgerTransaction | null | "new">(null)
   const [limit, setLimit] = useState(PAGE_SIZE)
   useScreenTour("ledger")
@@ -84,7 +89,7 @@ export function TransactionsPage() {
             {items.map((row) => (
               <div key={row.id} className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border p-3" onClick={() => setEditing(row)}>
                 <div className="flex min-w-0 flex-col">
-                  <span className="truncate font-semibold">{row.payee || row.category || t(`transactions.types.${row.type}`)}</span>
+                  <span className="truncate font-semibold">{isAccountTransfer(row) ? `${accountName(row.cashAccountId)} → ${accountName(row.counterpartyId)}` : row.payee || row.category || t(`transactions.types.${row.type}`)}</span>
                   <span className="truncate text-sm opacity-70">
                     {[bucketName(row.bucketId), row.category, row.note].filter(Boolean).join(" · ")}
                   </span>
@@ -122,7 +127,8 @@ export function TransactionsPage() {
         </Card>
       )}
 
-      <QuickAddSheet open={editing !== null} transaction={editing === "new" ? null : editing} onClose={() => setEditing(null)} />
+      <QuickAddSheet open={editing !== null && !(editing !== "new" && isAccountTransfer(editing))} transaction={editing === "new" ? null : editing} onClose={() => setEditing(null)} />
+      <TransferSheet open={editing !== null && editing !== "new" && isAccountTransfer(editing)} transfer={editing !== null && editing !== "new" && isAccountTransfer(editing) ? editing : null} onClose={() => setEditing(null)} />
     </div>
   )
 }

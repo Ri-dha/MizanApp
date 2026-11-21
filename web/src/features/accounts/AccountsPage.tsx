@@ -1,5 +1,4 @@
-import { useLiveQuery } from "dexie-react-hooks"
-import { Plus } from "lucide-react"
+import { ArrowLeftRight, Plus } from "lucide-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -7,16 +6,19 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
+import { useAccountsWithMovements } from "./useAccountsNow"
+import type { Movement } from "@mizan/core/db/cashMovements"
 import type { CashAccount } from "@/db/schema"
 import { restore, softDelete } from "@mizan/core/db/write"
 import { formatMoney } from "@/app/money"
 import { AccountSheet } from "./AccountSheet"
+import { TransferSheet } from "./TransferSheet"
 
 export function AccountsPage() {
   const { t, i18n } = useTranslation()
-  const accounts = useLiveQuery(liveCashAccounts, [], [])
+  const { accounts, movements } = useAccountsWithMovements()
   const [editing, setEditing] = useState<CashAccount | null | "new">(null)
+  const [transferring, setTransferring] = useState(false)
 
   async function remove(account: CashAccount) {
     await softDelete("cash_account", account.id)
@@ -28,7 +30,10 @@ export function AccountsPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl">{t("accounts.title")}</h1>
-        <Button onClick={() => setEditing("new")}><Plus /> {t("accounts.add")}</Button>
+        <div className="flex gap-2">
+          {accounts.length > 1 && <Button variant="outline" onClick={() => setTransferring(true)}><ArrowLeftRight /> {t("cashMovements.transfer")}</Button>}
+          <Button onClick={() => setEditing("new")}><Plus /> {t("accounts.add")}</Button>
+        </div>
       </div>
 
       {accounts.map((account) => (
@@ -39,6 +44,7 @@ export function AccountsPage() {
               <span className="text-sm opacity-70">
                 {t(`accounts.kinds.${account.kind}`)}{account.institution ? ` · ${account.institution}` : ""}
               </span>
+              <MovedSince account={account} movements={movements} />
             </div>
             <div className="flex items-center gap-2">
               {account.visibility === "PRIVATE" && <Badge variant="secondary">{t("accounts.private")}</Badge>}
@@ -50,6 +56,7 @@ export function AccountsPage() {
 
       {accounts.length === 0 && <p className="opacity-70">{t("home.noAccounts")}</p>}
 
+      <TransferSheet open={transferring} transfer={null} onClose={() => setTransferring(false)} />
       <AccountSheet
         open={editing !== null}
         account={editing === "new" ? null : editing}
@@ -59,3 +66,19 @@ export function AccountsPage() {
     </div>
   )
 }
+
+/** Why the balance differs from the one last set: the linked income and spending recorded since. */
+function MovedSince({ account, movements }: { account: CashAccount; movements: Movement[] }) {
+  const { t, i18n } = useTranslation()
+  const mine = movements.filter((m) => m.cashAccountId === account.id)
+  if (mine.length === 0) return null
+  const money = (v: number) => formatMoney(v, account.currency, i18n.language)
+  const income = mine.filter((m) => m.amount > 0).reduce((s, m) => s + m.amount, 0)
+  const spending = mine.filter((m) => m.amount < 0).reduce((s, m) => s - m.amount, 0)
+  const changes = [
+    income > 0 ? t("cashMovements.movedIn", { amount: money(income) }) : null,
+    spending > 0 ? t("cashMovements.movedOut", { amount: money(spending) }) : null,
+  ].filter(Boolean).join(" · ")
+  return <span className="text-xs opacity-70">{t("cashMovements.since", { changes })}</span>
+}
+

@@ -45,6 +45,26 @@ interface Props {
  * FR-TRX-01: amount, a bucket chip and Save are the only required taps; the date defaults to
  * today and everything else is optional. Doubles as the editor for an existing row.
  */
+const NO_ACCOUNT = "none"
+const LAST_ACCOUNT_KEY = "mizan.lastCashAccount"
+
+/** The account last used on this device, so a run of purchases from one wallet needs no picking. */
+function lastAccount(): string {
+  try {
+    return localStorage.getItem(LAST_ACCOUNT_KEY) ?? NO_ACCOUNT
+  } catch {
+    return NO_ACCOUNT
+  }
+}
+
+function rememberAccount(id: string) {
+  try {
+    localStorage.setItem(LAST_ACCOUNT_KEY, id)
+  } catch {
+    // A per-device convenience; losing it costs one extra pick.
+  }
+}
+
 export function QuickAddSheet({ open, transaction, onClose }: Props) {
   const { t, i18n } = useTranslation()
   const privacy = usePrivacyDefaults()
@@ -52,6 +72,7 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
   const base = session?.baseCurrency ?? "IQD"
   const startDay = session?.monthStartDay ?? 1
   const [type, setType] = useState<TransactionType>("EXPENSE")
+  const [accountId, setAccountId] = useState(NO_ACCOUNT)
   const [amount, setAmount] = useState("")
   const [currency, setCurrency] = useState(base)
   const [rate, setRate] = useState("1")
@@ -87,6 +108,7 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
   useEffect(() => {
     if (!open) return
     setType(transaction?.type ?? "EXPENSE")
+    setAccountId(transaction ? transaction.cashAccountId ?? NO_ACCOUNT : lastAccount())
     setAmount(transaction ? fromMinorUnits(transaction.amount, transaction.currency) : "")
     setCurrency(transaction?.currency ?? base)
     setRate(transaction ? microsToRate(transaction.fxRateMicros, transaction.currency, base) : "1")
@@ -139,7 +161,12 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
       attachmentId,
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
     }
-    const withAsset = { ...input, assetId: type === "EXPENSE" && assetId ? assetId : null }
+    const moves = type === "EXPENSE" || type === "INCOME"
+    const cashAccountId = moves && cashAccounts.some((c) => c.id === accountId) ? accountId : null
+    // Rewriting an unchanged account would count the record again after a balance set by hand (ADR cash-1).
+    const account = !moves || (transaction && (transaction.cashAccountId ?? null) === cashAccountId) ? {} : { cashAccountId }
+    if (moves) rememberAccount(accountId)
+    const withAsset = { ...input, ...account, assetId: type === "EXPENSE" && assetId ? assetId : null }
     if (transaction) await updateTransaction(transaction.id, withAsset)
     else if (split && type === "EXPENSE") {
       const splitParts = parts.filter((p) => p.bucketId && p.amount).map((p) => ({ bucketId: p.bucketId, amount: toMinorUnits(p.amount, currency) }))
@@ -275,6 +302,18 @@ export function QuickAddSheet({ open, transaction, onClose }: Props) {
                 {buckets.length === 0 && <span className="text-sm opacity-70">{t("plan.noBuckets")}</span>}
               </div>
             </div>
+          )}
+
+          {(type === "EXPENSE" || type === "INCOME") && cashAccounts.length > 0 && (
+            <Field id="cashAccount" label={type === "EXPENSE" ? t("cashMovements.paidFrom") : t("cashMovements.intoAccount")} hint={t("cashMovements.accountHint")}>
+              <Select value={cashAccounts.some((c) => c.id === accountId) ? accountId : NO_ACCOUNT} onValueChange={setAccountId}>
+                <SelectTrigger id="cashAccount"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_ACCOUNT}>{t("cashMovements.noAccount")}</SelectItem>
+                  {cashAccounts.map((c) => <SelectItem key={c.id} value={c.id}>{c.name} ({c.currency})</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
           )}
 
           {type === "TRANSFER" && (

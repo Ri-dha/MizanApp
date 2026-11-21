@@ -13,6 +13,10 @@ The **+** button is available on every screen. Enter the amount, tap a bucket, p
 - **Transfer** moves money from a bucket to a goal, a debt, a cash account or another bucket. It leaves the bucket but is not spending.
 - **Income** records money in without a source.
 
+## Which account
+
+An expense can say which cash account it was **paid from**, and an income which account it went **into**; that account's balance moves with it. The last account you used is picked for the next one. Transfers do not move cash balances.
+
 ## Reading a receipt
 
 After attaching a photo, press **Read the receipt**. Mizan reads it on the device itself, in Arabic and English, and fills in the total, the date and the shop when it can find them. Check the numbers before saving; a crumpled receipt reads badly. The first read downloads the reader once; after that it works offline. The photo never leaves your phone for this.

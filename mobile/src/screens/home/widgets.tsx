@@ -1,9 +1,10 @@
+import { useCashAccounts } from "@/hooks/use-views"
 import { Link, type Href } from "expo-router"
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 import { Pressable, StyleSheet, View, type ColorValue } from "react-native"
 
-import { liveCashAccounts, totalsByCurrency } from "@mizan/core/db/cashAccounts"
+import { totalsByCurrency } from "@mizan/core/db/cashAccounts"
 import { balanceOf, liveDebts, livePayments } from "@mizan/core/db/debts"
 import { liveDeposits, liveGoals, savedOf } from "@mizan/core/db/goals"
 import type { HomeWidget } from "@mizan/core/db/homeLayout"
@@ -202,7 +203,7 @@ function BillsCard({ widget }: WidgetProps) {
 function CashCard({ widget }: WidgetProps) {
   const { t } = useTranslation()
   const { money } = useMoney()
-  const accounts = useLiveQuery(liveCashAccounts, [], [])
+  const accounts = useCashAccounts()
   const wanted = widget.options.currency
   const totals = Object.entries(totalsByCurrency(accounts)).filter(([currency]) => wanted === "all" || currency === wanted)
   return (

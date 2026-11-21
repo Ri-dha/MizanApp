@@ -61,7 +61,7 @@ export function AccountSheet({ open, account, onClose, onDelete }: Props) {
       balance: toMinorUnits(balance, currency),
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
     }
-    if (account) await updateCashAccount(account.id, input, adjustmentNote.trim() || null)
+    if (account) await updateCashAccount(account.id, input, adjustmentNote.trim() || null, account.balance)
     else await createCashAccount(input)
     onClose()
   }

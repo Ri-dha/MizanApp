@@ -66,8 +66,10 @@ export function unitRate(from: string, to: string, perUsd: Record<string, number
 
 /** An amount in any currency's minor units, in base minor units at today's rates; null without a rate. */
 export function inBase(amount: number, currency: string, base: string, perUsd: Record<string, number>): number | null {
-  const rate = marketFxRateMicros(currency, base, perUsd)
-  return rate ? Math.round((amount * rate) / MICROS) : null
+  if (currency === base) return amount
+  const rate = unitRate(currency, base, perUsd)
+  // Rounded once at the end: a rate rounded to micros first is a unit off on large amounts.
+  return rate === null ? null : Math.round(amount * rate * (minorUnitsPerMajor(base) / minorUnitsPerMajor(currency)))
 }
 
 /** Those Iraqis ask about most, listed first for them; others start from the world's main currencies. */

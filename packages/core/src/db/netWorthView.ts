@@ -1,5 +1,5 @@
 import { liveAssets, liveValuations } from "./assets"
-import { liveCashAccounts } from "./cashAccounts"
+import { liveAccountsNow } from "./cashMovements"
 import { liveDebts, livePayments } from "./debts"
 import { toBaseAmount } from "./income"
 import { liveMonthCloses, liveNetWorth, liveSnapshots, trendPoints } from "./networth"
@@ -32,7 +32,7 @@ export function metalsValueOf(metals: MetalsView): number {
 /** FR-NET-01: the live figure reconciles to its components by construction; snapshots come from the server. */
 export async function netWorthFiguresFor(baseCurrency: string, prices: ResolvedPrices, metalsValue: number): Promise<NetWorthFigures> {
   const [accounts, debts, payments, closes, snapshots, assets, valuations] = await Promise.all([
-    liveCashAccounts(), liveDebts(), livePayments(), liveMonthCloses(), liveSnapshots(), liveAssets(), liveValuations(),
+    liveAccountsNow(prices.perUsd), liveDebts(), livePayments(), liveMonthCloses(), liveSnapshots(), liveAssets(), liveValuations(),
   ])
   return { current: liveNetWorth(accounts, baseCurrency, prices, metalsValue, debts, payments, assets, valuations, todayIso()), closes, snapshots, assets, valuations }
 }

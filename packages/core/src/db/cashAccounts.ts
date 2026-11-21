@@ -20,11 +20,16 @@ export async function createCashAccount(input: CashAccountInput): Promise<string
   return id
 }
 
-export async function updateCashAccount(id: string, input: Partial<CashAccountInput>, adjustmentNote: string | null = null) {
+/**
+ * {@code shownBalance}: the balance the person saw, linked income and spending included
+ * (ADR cash-1); the adjustment log records the change from that, not from the last balance set.
+ */
+export async function updateCashAccount(id: string, input: Partial<CashAccountInput>, adjustmentNote: string | null = null, shownBalance?: number) {
   const existing = await table("cashAccounts").get(id)
   await store().transaction(ALL_TABLES, async () => {
-    if (existing && input.balance !== undefined && input.balance !== existing.balance) {
-      await recordCashAdjustment(existing, input.balance, todayIso(), adjustmentNote)
+    const before = existing ? { ...existing, balance: shownBalance ?? existing.balance } : undefined
+    if (before && input.balance !== undefined && input.balance !== before.balance) {
+      await recordCashAdjustment(before, input.balance, todayIso(), adjustmentNote)
     }
     await writeFields<CashAccount>("cash_account", id, input)
   })
