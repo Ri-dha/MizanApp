@@ -1,5 +1,5 @@
 # T-home-templates — Home cards from templates
-- Status: in review
+- Status: done (2026-11-21, 1734718 on develop and main)
 - Context: user request 2026-11-21: add and remove cards from templates, more than one of a kind, rename them, and
   limit a cash card to some accounts. Extends ADR home-1.
 - Notes: `HomeWidget` gains `id`, `title` and `pick`; cards saved before take their kind as id. `addWidget`,
