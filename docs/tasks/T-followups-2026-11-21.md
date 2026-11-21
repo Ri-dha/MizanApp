@@ -1,5 +1,5 @@
 # T-followups-2026-11-21 — Debt accounts, card name, report photo display, instant sync (clients)
-- Status: in review
+- Status: done (0806f2a)
 - Context: user request 2026-11-21 (plan "five follow-ups"); server half in Ri-dha/mizan (same task id,
   ADR sync-4, ADR support-2). ADR cash-2 here.
 - Notes:
