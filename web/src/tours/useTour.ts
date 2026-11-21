@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 
-import { hasSeen, startTour } from "./store"
+import { cancelWaitingTour, hasSeen, startTour } from "./store"
 
 const SETTLE_MS = 400
 
@@ -9,6 +9,9 @@ export function useScreenTour(id: string, ready = true) {
   useEffect(() => {
     if (!ready || hasSeen(id)) return
     const timer = setTimeout(() => startTour(id), SETTLE_MS)
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+      cancelWaitingTour()
+    }
   }, [id, ready])
 }

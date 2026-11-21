@@ -1,16 +1,19 @@
+import { useSyncExternalStore } from "react"
 import { EVENTS, Joyride, type EventData } from "react-joyride"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router"
 
 import { directionFor } from "@/i18n"
-import { endTour, useActiveTour } from "./store"
+import { dialogOpen, endTour, subscribeDialogs, useActiveTour } from "./store"
 
 /** One Joyride for the whole app, themed with the shadcn tokens and mirrored for Arabic. */
 export function TourProvider() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const tour = useActiveTour()
-  if (!tour) return null
+  // A dialog that opens mid-tour takes every click; the tour waits behind it and starts again after.
+  const blocked = useSyncExternalStore(subscribeDialogs, dialogOpen, () => false)
+  if (!tour || blocked) return null
 
   const rtl = directionFor(i18n.language) === "rtl"
   // A card the person hid from Home has no element to point at, so its step is left out.
