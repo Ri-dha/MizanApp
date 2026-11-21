@@ -1,4 +1,3 @@
-import { DateTimePicker } from "@expo/ui/community/datetime-picker"
 import { SegmentedControl } from "@expo/ui/community/segmented-control"
 import { router, Stack } from "expo-router"
 import { useEffect, useMemo, useState } from "react"
@@ -26,12 +25,12 @@ import { Notice } from "@/components/notice"
 import { Group } from "@/components/row"
 import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
+import { DatePicker } from "@/components/date-picker"
 import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
 import { useAppMode } from "@/hooks/use-app-mode"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing, useBrandColors } from "@/theme"
-import { dateOf, isoOf } from "@/utils/dates"
 import { ReceiptField } from "@/components/receipt-field"
 import { CurrencyField } from "@/components/currency-field"
 import { useTodayRate } from "@/hooks/use-currency"
@@ -49,7 +48,7 @@ const NO_ROWS: LedgerTransaction[] = []
  * The same sheet edits an existing row when given its id.
  */
 export function TransactionEditor({ id }: { id?: string }) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const brand = useBrandColors()
   const session = useSession()
   const base = session?.baseCurrency ?? "IQD"
@@ -210,7 +209,7 @@ export function TransactionEditor({ id }: { id?: string }) {
       {needsRate ? <TextField testID="fx-rate" label={t("income.fxRate")} keyboardType="decimal-pad" value={rate} onChangeText={setRate} /> : null}
       <View style={styles.dateRow}>
         <ThemedText>{t("transactions.date")}</ThemedText>
-        <DateTimePicker value={dateOf(occurredOn)} mode="date" display="compact" accentColor={brand.primary} locale={i18n.language} onChange={(_, date) => date && setOccurredOn(isoOf(date))} />
+        <DatePicker testID="transaction-date" value={occurredOn} onChange={setOccurredOn} />
       </View>
 
       {type !== "INCOME" && !split && !bucketless ? (

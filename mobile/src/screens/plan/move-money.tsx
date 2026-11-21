@@ -1,4 +1,3 @@
-import { DateTimePicker } from "@expo/ui/community/datetime-picker"
 import { router, Stack } from "expo-router"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,17 +10,16 @@ import { Button } from "@/components/button"
 import { Chips } from "@/components/chips"
 import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
+import { DatePicker } from "@/components/date-picker"
 import { ThemedText } from "@/components/themed-text"
 import { useSession } from "@/hooks/use-core"
 import { useMonthView } from "@/hooks/use-views"
 import { spacing, useBrandColors } from "@/theme"
-import { dateOf, isoOf } from "@/utils/dates"
 
 
 /** A move is a transfer between two buckets, not spending, and stays in the month's audit trail. */
 export function MoveMoney({ monthKey }: { monthKey: string }) {
   const { t, i18n } = useTranslation()
-  const brand = useBrandColors()
   const session = useSession()
   const startDay = session?.monthStartDay ?? 1
   const currency = session?.baseCurrency ?? "IQD"
@@ -64,7 +62,7 @@ export function MoveMoney({ monthKey }: { monthKey: string }) {
       <TextField testID="move-amount" label={t("transactions.amount")} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} />
       <View style={styles.dateRow}>
         <ThemedText>{t("transactions.date")}</ThemedText>
-        <DateTimePicker value={dateOf(on)} mode="date" display="compact" accentColor={brand.primary} locale={i18n.language} onChange={(_, date) => date && setOn(isoOf(date))} />
+        <DatePicker testID="move-date" value={on} onChange={setOn} />
       </View>
       <TextField testID="move-reason" label={t("plan.reason")} placeholder={t("plan.reasonHint")} maxLength={120} value={reason} onChangeText={setReason} />
       <ThemedText variant="caption">{t("plan.moveHint")}</ThemedText>
