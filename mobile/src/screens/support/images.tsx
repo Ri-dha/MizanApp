@@ -67,14 +67,25 @@ export function ReportImage({ reportId, image, number }: { reportId: string; ima
   const [open, setOpen] = useState(false)
   const label = t("support.imageAlt", { number })
 
+  const removed = !!image.removedAt
+
   useEffect(() => {
+    // The server deletes photos six months after a report is resolved and answers 410 for them.
+    if (removed) return
     let live = true
     reportImageUri(reportId, image).then((loaded) => live && setUri(loaded)).catch(() => live && setFailed(true))
     return () => {
       live = false
     }
-  }, [reportId, image])
+  }, [reportId, image, removed])
 
+  if (removed) {
+    return (
+      <View testID={`report-image-removed-${image.id}`} accessible accessibilityLabel={t("support.imageRemoved")} style={[styles.thumb, styles.placeholder, styles.removed]}>
+        <ThemedText variant="caption" style={styles.centred}>{t("support.imageRemovedShort")}</ThemedText>
+      </View>
+    )
+  }
   if (failed) return <View style={[styles.thumb, styles.placeholder]}><ThemedText variant="caption">{t("support.imageFailed")}</ThemedText></View>
   if (!uri) return <View style={[styles.thumb, styles.placeholder]} />
   return (
@@ -97,6 +108,8 @@ const styles = StyleSheet.create({
   thumb: { width: THUMB, height: THUMB, borderRadius: radius.md, borderCurve: "continuous", overflow: "hidden", backgroundColor: colors.fill },
   placeholder: { alignItems: "center", justifyContent: "center", padding: spacing.xs },
   fill: { width: "100%", height: "100%" },
+  removed: { borderWidth: StyleSheet.hairlineWidth, borderStyle: "dashed", borderColor: colors.separator },
+  centred: { textAlign: "center" },
   remove: { position: "absolute", top: spacing.xs, end: spacing.xs, width: spacing.lg, height: spacing.lg, borderRadius: radius.full, alignItems: "center", justifyContent: "center", backgroundColor: colors.surface },
   removeMark: { color: colors.label },
   add: { alignSelf: "flex-start" },

@@ -3,18 +3,21 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
+import { overAssigned, rowsFrom, sharesFrom, type ShareRow } from "@mizan/core/db/accountChoice"
 import { currentAmount, liveAmountHistory, microsToRate, RATE_SCALE, rateToMicros, recordReceipt, toBaseAmount } from "@mizan/core/db/income"
 import { softDelete, writeFields } from "@mizan/core/db/write"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
 import type { IncomeReceipt } from "@mizan/core/schema"
 import { table } from "@mizan/core/store/store"
+import { AccountShares } from "@/components/account-shares"
 import { Button } from "@/components/button"
 import { DateField } from "@/components/date-field"
 import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
+import { useCashAccounts } from "@/hooks/use-views"
 import { spacing } from "@/theme"
 import { CurrencyField } from "@/components/currency-field"
 import { useTodayRate } from "@/hooks/use-currency"
@@ -47,6 +50,8 @@ export function IncomeReceiptSheet({ monthKey, sourceId, date, receiptId }: Prop
   const [receivedOn, setReceivedOn] = useState(date && date <= today ? date : today)
   const [note, setNote] = useState("")
   const [loaded, setLoaded] = useState(!receiptId && !sourceId)
+  const [shares, setShares] = useState<ShareRow[]>([])
+  const accounts = useCashAccounts()
 
   useEffect(() => {
     if (loaded) return
@@ -56,11 +61,13 @@ export function IncomeReceiptSheet({ monthKey, sourceId, date, receiptId }: Prop
       setRate(microsToRate(existing.fxRateMicros, existing.currency, base))
       setReceivedOn(existing.receivedOn)
       setNote(existing.note ?? "")
+      setShares(rowsFrom(existing.intoAccounts, existing.currency))
       setLoaded(true)
     } else if (source) {
       setAmount(fromMinorUnits(currentAmount(source, history, date ?? today), source.currency))
       setCurrency(source.currency)
       setRate(microsToRate(source.fxRateMicros, source.currency, base))
+      setShares(rowsFrom(source.intoAccounts, source.currency))
       setLoaded(true)
     }
   }, [existing, source, history, date, today, loaded])
@@ -69,8 +76,14 @@ export function IncomeReceiptSheet({ monthKey, sourceId, date, receiptId }: Prop
   const fxRateMicros = needsRate ? rateToMicros(rate, currency, base) : RATE_SCALE
   const minor = amount ? toMinorUnits(amount, currency) : 0
 
+  const tooMuch = overAssigned(shares, minor, currency)
+
   async function save() {
-    const fields = { receivedOn, amount: minor, currency, fxRateMicros, note: note.trim() || null }
+    if (tooMuch) return
+    const intoAccounts = sharesFrom(shares, currency)
+    const unchanged = JSON.stringify(intoAccounts) === JSON.stringify(existing?.intoAccounts ?? [])
+    // Rewriting an unchanged split would count it again after a balance the person set by hand (ADR cash-1).
+    const fields = { receivedOn, amount: minor, currency, fxRateMicros, note: note.trim() || null, ...(existing && unchanged ? {} : { intoAccounts }) }
     if (existing) await writeFields<IncomeReceipt>("income_receipt", existing.id, { ...fields, baseAmount: toBaseAmount(minor, fxRateMicros) })
     else await recordReceipt({ ...fields, incomeSourceId: sourceId ?? null, monthKey, visibility: "SHARED" })
     router.back()
@@ -85,7 +98,7 @@ export function IncomeReceiptSheet({ monthKey, sourceId, date, receiptId }: Prop
   const planned = sourceId ?? existing?.incomeSourceId
   return (
     <Screen sheet>
-      <Stack.Screen options={{ title: planned ? t("income.markReceived") : t("income.addIrregular"), headerRight: () => <Button testID="save-receipt" variant="ghost" title={t("accounts.save")} disabled={!amount} onPress={() => void save()} /> }} />
+      <Stack.Screen options={{ title: planned ? t("income.markReceived") : t("income.addIrregular"), headerRight: () => <Button testID="save-receipt" variant="ghost" title={t("accounts.save")} disabled={!amount || tooMuch} onPress={() => void save()} /> }} />
       <View style={styles.pair}>
         <View style={styles.wide}><TextField testID="receipt-amount" label={t("income.amount")} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} autoFocus={!receiptId} /></View>
         <View style={styles.narrow}>
@@ -100,6 +113,8 @@ export function IncomeReceiptSheet({ monthKey, sourceId, date, receiptId }: Prop
       ) : null}
       <DateField label={t("income.receivedOnLabel")} value={receivedOn} onChange={(iso) => iso && setReceivedOn(iso)} />
       <TextField testID="receipt-note" label={t("income.note")} maxLength={120} value={note} onChangeText={setNote} />
+      <AccountShares rows={shares} onChange={setShares} accounts={accounts} amount={minor} currency={currency}
+        label={t("cashMovements.intoAccounts")} hint={t("cashMovements.intoAccountsHint")} />
       {existing ? <Button testID="delete-receipt" variant="destructive" title={t("accounts.delete")} onPress={() => void remove()} /> : null}
     </Screen>
   )

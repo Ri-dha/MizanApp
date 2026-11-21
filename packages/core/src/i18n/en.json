@@ -525,6 +525,7 @@
     "valuationReminder": "Remind me to revalue assets after (months)"
   },
   "common": {
+    "done": "Done",
     "cancel": "Cancel",
     "error": "Something went wrong",
     "retry": "Retry",

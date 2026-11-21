@@ -3,12 +3,14 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
+import { overAssigned, rowsFrom, sharesFrom, type ShareRow } from "@mizan/core/db/accountChoice"
 import { createIncomeSource, historyOf, liveAmountHistory, microsToRate, RATE_SCALE, rateToMicros, recordAmountChange, removeAmountChange, updateIncomeSource } from "@mizan/core/db/income"
 import { defaultsOf, livePrivacySetting } from "@mizan/core/db/privacy"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
 import type { Frequency } from "@mizan/core/schema"
 import { table } from "@mizan/core/store/store"
+import { AccountShares } from "@/components/account-shares"
 import { Button } from "@/components/button"
 import { Chips } from "@/components/chips"
 import { DateField } from "@/components/date-field"
@@ -18,6 +20,7 @@ import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
+import { useCashAccounts } from "@/hooks/use-views"
 import { spacing } from "@/theme"
 import { SHORT_DATE, formatDay } from "@/utils/dates"
 import { CurrencyField } from "@/components/currency-field"
@@ -52,6 +55,8 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
   const [raiseFrom, setRaiseFrom] = useState(todayIso())
   const [raiseNote, setRaiseNote] = useState("")
   const [loaded, setLoaded] = useState(!id)
+  const [shares, setShares] = useState<ShareRow[]>([])
+  const accounts = useCashAccounts()
   const needsRate = currency !== base
   const usesPayDay = frequency === "MONTHLY"
   const oneOff = frequency === "ONE_OFF"
@@ -71,6 +76,7 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
     setActiveFrom(source.activeFrom)
     setActiveTo(source.activeTo)
     setIsPrivate(source.visibility === "PRIVATE")
+    setShares(rowsFrom(source.intoAccounts, source.currency))
     setLoaded(true)
   }, [source, loaded])
 
@@ -78,7 +84,11 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
     if (!id) setIsPrivate(privacy.accounts === "PRIVATE")
   }, [id, privacy.accounts])
 
+  const sourceAmount = source ? source.amount : amount ? toMinorUnits(amount, currency) : 0
+  const tooMuch = overAssigned(shares, sourceAmount, currency)
+
   async function save() {
+    if (tooMuch) return
     const input = {
       name: name.trim(),
       amount: source ? source.amount : toMinorUnits(amount, currency),
@@ -91,6 +101,7 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
       activeTo: oneOff ? anchorDate : activeTo,
       note: null,
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
+      intoAccounts: sharesFrom(shares, currency),
     }
     if (id) await updateIncomeSource(id, input)
     else await createIncomeSource(input)
@@ -112,7 +123,7 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
 
   return (
     <Screen sheet>
-      <Stack.Screen options={{ title: id ? t("income.editSource") : t("income.addSource"), headerRight: () => <Button testID="save-source" variant="ghost" title={t("accounts.save")} disabled={!name.trim() || !amount} onPress={() => void save()} /> }} />
+      <Stack.Screen options={{ title: id ? t("income.editSource") : t("income.addSource"), headerRight: () => <Button testID="save-source" variant="ghost" title={t("accounts.save")} disabled={!name.trim() || !amount || tooMuch} onPress={() => void save()} /> }} />
       <TextField testID="source-name" label={t("income.name")} maxLength={80} value={name} onChangeText={setName} autoFocus={!id} />
       <View style={styles.pair}>
         <View style={styles.wide}>
@@ -147,6 +158,8 @@ export function IncomeSourceEditor({ id }: { id?: string }) {
           <DateField label={t("income.activeTo")} value={activeTo} onChange={setActiveTo} optional />
         </>
       )}
+      <AccountShares rows={shares} onChange={setShares} accounts={accounts} amount={sourceAmount} currency={currency}
+        label={t("cashMovements.usualSplit")} hint={t("cashMovements.usualSplitHint")} />
       <ToggleRow label={t("accounts.private")} value={isPrivate} onChange={setIsPrivate} />
       {id ? <Button testID="end-source" variant="secondary" title={t("income.endSource")} onPress={() => void endSource()} /> : null}
 

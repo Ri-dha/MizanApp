@@ -1,7 +1,6 @@
-import type { CashAccount } from "@mizan/core/schema"
+import { NO_ACCOUNT } from "@mizan/core/db/accountChoice"
 
-/** A Select needs a value for "no account". */
-export const NO_ACCOUNT = "none"
+export { NO_ACCOUNT, pickedAccount } from "@mizan/core/db/accountChoice"
 const LAST_ACCOUNT_KEY = "mizan.lastCashAccount"
 
 /** The account last used on this device, so a run of payments from one wallet needs no picking. */
@@ -20,6 +19,3 @@ export function rememberAccount(id: string) {
     // A per-device convenience; losing it costs one extra pick.
   }
 }
-
-/** The picked account's id, or null for "No account" or an account that no longer exists. */
-export const pickedAccount = (value: string, accounts: CashAccount[]): string | null => (accounts.some((a) => a.id === value) ? value : null)

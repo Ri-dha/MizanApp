@@ -19,12 +19,10 @@ import { liveDebts } from "@mizan/core/db/debts"
 import { liveGoals } from "@mizan/core/db/goals"
 import {
   addWidget, DEFAULT_LAYOUT, definitionOf, moveWidget, placeWidget, removeWidget, saveHomeLayout, shownWidgets, updateWidget, WIDGETS,
-  type HomeWidget, type WidgetDefinition, type WidgetSize,
-} from "@mizan/core/db/homeLayout"
+  type HomeWidget, type WidgetDefinition, type WidgetSize, MAX_TITLE } from "@mizan/core/db/homeLayout"
 
 const SIZES: WidgetSize[] = ["full", "compact"]
 const ANCHOR = "home"
-const MAX_TITLE = 40
 
 interface Choice {
   id: string

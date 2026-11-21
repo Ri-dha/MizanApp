@@ -6,5 +6,4 @@
   `removeWidget` (the last of a kind stays hidden so an older app still finds one of each), `pickedFrom`,
   `shownWidgets`; move, place and update work by id. Cash cards pick accounts, goals cards goals, debts cards debts.
   Web: Settings → Home screen lists the shown cards with a name field, remove, the picker and "Add a card"; Home draws
-  each card by id with its name and picks. Phone: Home and its settings work by id and show names and picks; adding,
-  removing, renaming and picking are web-only for now.
+  each card by id with its name and picks. Phone: the same editor (T-phone-parity) with arrows instead of dragging.

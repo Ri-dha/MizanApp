@@ -20,7 +20,7 @@ import { formatWhen } from "@/app/dates"
 import { CurrencySelect } from "@/features/currency/CurrencySelect"
 import { useTodayRate } from "@/features/currency/useCurrencies"
 import { AccountSharesEditor } from "@/features/accounts/AccountSharesEditor"
-import { overAssigned, rowsFrom, sharesFrom, type ShareRow } from "@/features/accounts/shareRows"
+import { overAssigned, rowsFrom, sharesFrom, type ShareRow } from "@mizan/core/db/accountChoice"
 import { useAccountsNow } from "@/features/accounts/useAccountsNow"
 
 const FREQUENCIES: Frequency[] = ["MONTHLY", "BIWEEKLY", "WEEKLY", "ONE_OFF"]

@@ -1,4 +1,5 @@
-import { liveAccountsNow } from "@mizan/core/db/cashMovements"
+import { liveAccountsNow, liveMovementSources, movementsOf, withMovements, type Movement } from "@mizan/core/db/cashMovements"
+import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { EMPTY_METALS_VIEW, metalsViewFor, type MetalsView } from "@mizan/core/db/metalsView"
 import { EMPTY_MONTH_VIEW, monthViewFor, type MonthView } from "@mizan/core/db/monthView"
 import { EMPTY_NET_WORTH, metalsValueOf, netWorthFiguresFor, rateSetOf, type NetWorthView } from "@mizan/core/db/netWorthView"
@@ -33,4 +34,21 @@ export function useNetWorth(): NetWorthView & { metals: MetalsView } {
 export function useCashAccounts(): CashAccount[] {
   const { prices } = useMetals()
   return useLiveQuery(() => liveAccountsNow(prices.perUsd), [prices.perUsd], NO_ACCOUNTS)
+}
+
+export interface AccountsNow {
+  accounts: CashAccount[]
+  movements: Movement[]
+}
+
+const NO_MOVEMENTS: AccountsNow = { accounts: NO_ACCOUNTS, movements: [] }
+
+/** Today's balances with the movements behind them, for "since you last set it" (ADR cash-1). */
+export function useCashAccountsWithMovements(): AccountsNow {
+  const { prices } = useMetals()
+  return useLiveQuery(async () => {
+    const [accounts, sources] = await Promise.all([liveCashAccounts(), liveMovementSources()])
+    const movements = movementsOf(accounts, sources, prices.perUsd)
+    return { accounts: withMovements(accounts, movements), movements }
+  }, [prices.perUsd], NO_MOVEMENTS)
 }

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
+import { NO_ACCOUNT, pickedAccount } from "@mizan/core/db/accountChoice"
+import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { createDebt, updateDebt } from "@mizan/core/db/debts"
 import { microsToRate, RATE_SCALE, rateToMicros } from "@mizan/core/db/income"
 import { liveBucketsOf, livePlans, planFor } from "@mizan/core/db/plan"
@@ -13,6 +15,7 @@ import { todayIso } from "@mizan/core/domain/calendar/month"
 import { fromMinorUnits, toMinorUnits } from "@mizan/core/domain/money/format"
 import type { DebtDirection } from "@mizan/core/schema"
 import { table } from "@mizan/core/store/store"
+import { AccountField } from "@/components/account-field"
 import { Button } from "@/components/button"
 import { Chips } from "@/components/chips"
 import { DateField } from "@/components/date-field"
@@ -54,6 +57,8 @@ export function DebtEditor({ id }: { id?: string }) {
   const [startDate, setStartDate] = useState(todayIso())
   const [isPrivate, setIsPrivate] = useState(false)
   const [loaded, setLoaded] = useState(!id)
+  const [accountId, setAccountId] = useState(NO_ACCOUNT)
+  const accounts = useLiveQuery(liveCashAccounts, [], [])
   const needsRate = currency !== base
 
   useEffect(() => {
@@ -70,6 +75,7 @@ export function DebtEditor({ id }: { id?: string }) {
     setBucketId(debt.bucketId)
     setStartDate(debt.startDate)
     setIsPrivate(debt.visibility === "PRIVATE")
+    setAccountId(debt.cashAccountId ?? NO_ACCOUNT)
     setLoaded(true)
   }, [debt, loaded])
 
@@ -93,8 +99,11 @@ export function DebtEditor({ id }: { id?: string }) {
       note: null,
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
     }
-    if (id) await updateDebt(id, input)
-    else await createDebt(input)
+    const cashAccountId = pickedAccount(accountId, accounts)
+    // ADR cash-2: the link moves money, so it is written only when new or changed (ADR cash-1).
+    const account = debt && (debt.cashAccountId ?? null) === cashAccountId ? {} : { cashAccountId }
+    if (id) await updateDebt(id, { ...input, ...account })
+    else await createDebt({ ...input, ...account })
     router.back()
   }
 
@@ -134,6 +143,8 @@ export function DebtEditor({ id }: { id?: string }) {
         </View>
       ) : null}
       <DateField label={t("debts.startDate")} value={startDate} onChange={(iso) => iso && setStartDate(iso)} />
+      <AccountField testID="debt-account" label={direction === "OWING" ? t("debts.receivedInto") : t("debts.takenFrom")}
+        value={accountId} onChange={setAccountId} accounts={accounts} />
       <ToggleRow label={t("accounts.private")} value={isPrivate} onChange={setIsPrivate} />
       {id ? <Button testID="delete-debt" variant="destructive" title={t("accounts.delete")} onPress={() => void remove()} /> : null}
     </Screen>

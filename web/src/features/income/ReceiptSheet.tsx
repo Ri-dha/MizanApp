@@ -13,7 +13,7 @@ import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
 import { CurrencySelect } from "@/features/currency/CurrencySelect"
 import { useTodayRate } from "@/features/currency/useCurrencies"
 import { AccountSharesEditor } from "@/features/accounts/AccountSharesEditor"
-import { overAssigned, rowsFrom, sharesFrom, type ShareRow } from "@/features/accounts/shareRows"
+import { overAssigned, rowsFrom, sharesFrom, type ShareRow } from "@mizan/core/db/accountChoice"
 import { useAccountsNow } from "@/features/accounts/useAccountsNow"
 import type { AccountShare } from "@mizan/core/schema"
 

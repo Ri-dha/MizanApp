@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
+import { NO_ACCOUNT, pickedAccount } from "@mizan/core/db/accountChoice"
 import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { liveDebts } from "@mizan/core/db/debts"
 import { liveGoals } from "@mizan/core/db/goals"
@@ -18,6 +19,7 @@ import { suggestCategory } from "@mizan/core/domain/categorise"
 import { fromMinorUnits, toMinorUnits } from "@mizan/core/domain/money/format"
 import type { Bucket, CounterpartyType, LedgerTransaction, TransactionType } from "@mizan/core/schema"
 import { rows, table } from "@mizan/core/store/store"
+import { AccountField } from "@/components/account-field"
 import { Button } from "@/components/button"
 import { Chips } from "@/components/chips"
 import { Notice } from "@/components/notice"
@@ -32,6 +34,7 @@ import { dateOf, isoOf } from "@/utils/dates"
 import { ReceiptField } from "@/components/receipt-field"
 import { CurrencyField } from "@/components/currency-field"
 import { useTodayRate } from "@/hooks/use-currency"
+import { lastAccount, rememberAccount } from "@/utils/last-account"
 
 const TYPES: TransactionType[] = ["EXPENSE", "TRANSFER", "INCOME"]
 const SUGGEST_AFTER_MS = 300
@@ -76,6 +79,7 @@ export function TransactionEditor({ id }: { id?: string }) {
   const [loaded, setLoaded] = useState(!id)
   const [attachmentId, setAttachmentId] = useState<string | null>(null)
   const [draftId] = useState(() => id ?? crypto.randomUUID())
+  const [accountId, setAccountId] = useState(() => (id ? NO_ACCOUNT : lastAccount()))
 
   const monthKey = monthKeyFor(occurredOn, startDay)
   const buckets = useLiveQuery(async () => liveBucketsOf(planFor(await livePlans(), monthKey)?.id), [monthKey], NO_BUCKETS)
@@ -101,6 +105,7 @@ export function TransactionEditor({ id }: { id?: string }) {
     setNote(existing.note ?? "")
     setIsPrivate(existing.visibility === "PRIVATE")
     setAttachmentId(existing.attachmentId ?? null)
+    setAccountId(existing.cashAccountId ?? NO_ACCOUNT)
     setLoaded(true)
   }, [existing, loaded])
 
@@ -151,15 +156,20 @@ export function TransactionEditor({ id }: { id?: string }) {
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
       assetId: type === "EXPENSE" ? (existing?.assetId ?? null) : null,
     }
-    if (id) await updateTransaction(id, input)
+    const moves = type === "EXPENSE" || type === "INCOME"
+    const cashAccountId = moves ? pickedAccount(accountId, accounts) : null
+    // Rewriting an unchanged account would count the record again after a balance set by hand (ADR cash-1).
+    const account = !moves || (existing && (existing.cashAccountId ?? null) === cashAccountId) ? {} : { cashAccountId }
+    if (moves) rememberAccount(accountId)
+    if (id) await updateTransaction(id, { ...input, ...account })
     else if (split && type === "EXPENSE") {
       const splitParts = parts.filter((p) => p.bucketId && p.amount).map((p) => ({ bucketId: p.bucketId!, amount: toMinorUnits(p.amount, currency) }))
       if (splitParts.reduce((sum, p) => sum + p.amount, 0) !== input.amount) {
         setProblem(t("transactions.splitMismatch"))
         return
       }
-      await createSplit(input, splitParts)
-    } else await createTransaction(input)
+      await createSplit({ ...input, ...account }, splitParts)
+    } else await createTransaction({ ...input, ...account })
     router.back()
   }
 
@@ -204,6 +214,11 @@ export function TransactionEditor({ id }: { id?: string }) {
           <ThemedText variant="subhead">{type === "TRANSFER" ? t("transactions.fromBucket") : t("transactions.bucket")}</ThemedText>
           {buckets.length === 0 ? <ThemedText variant="subhead">{t("plan.noBuckets")}</ThemedText> : <Chips testID="bucket" options={bucketChips} value={bucketId} onChange={setBucketId} />}
         </View>
+      ) : null}
+
+      {type === "EXPENSE" || type === "INCOME" ? (
+        <AccountField testID="transaction-account" label={type === "EXPENSE" ? t("cashMovements.paidFrom") : t("cashMovements.intoAccount")}
+          value={accountId} onChange={setAccountId} accounts={accounts} />
       ) : null}
 
       {type === "TRANSFER" ? (

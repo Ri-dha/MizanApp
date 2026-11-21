@@ -3,11 +3,14 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
+import { pickedAccount } from "@mizan/core/db/accountChoice"
+import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { balanceOf, livePayments, recordPayment, undoPayment } from "@mizan/core/db/debts"
 import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
 import { debtPayoff } from "@mizan/core/domain/debt/payoff"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
 import { table } from "@mizan/core/store/store"
+import { AccountField } from "@/components/account-field"
 import { Button } from "@/components/button"
 import { DateField } from "@/components/date-field"
 import { Group, Row } from "@/components/row"
@@ -17,6 +20,7 @@ import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing } from "@/theme"
 import { SHORT_DATE, formatDay } from "@/utils/dates"
+import { lastAccount, rememberAccount } from "@/utils/last-account"
 
 export function DebtDetail({ id }: { id: string }) {
   const { t, i18n } = useTranslation()
@@ -27,6 +31,8 @@ export function DebtDetail({ id }: { id: string }) {
   const [amount, setAmount] = useState("")
   const [paidOn, setPaidOn] = useState(todayIso())
   const [extra, setExtra] = useState("")
+  const accounts = useLiveQuery(liveCashAccounts, [], [])
+  const [accountId, setAccountId] = useState(lastAccount)
   if (!debt) return <Screen><Stack.Screen options={{ title: t("debts.title") }} /></Screen>
 
   const money = (value: number) => formatMoney(value, debt.currency, i18n.language)
@@ -41,7 +47,9 @@ export function DebtDetail({ id }: { id: string }) {
   async function pay() {
     if (!debt) return
     const paid = toMinorUnits(amount || fromMinorUnits(debt.monthlyPayment, debt.currency), debt.currency)
-    await recordPayment(debt, payments, paid, paidOn, monthKeyFor(paidOn, startDay), null)
+    const cashAccountId = pickedAccount(accountId, accounts)
+    rememberAccount(accountId)
+    await recordPayment(debt, payments, paid, paidOn, monthKeyFor(paidOn, startDay), null, cashAccountId)
     setAmount("")
   }
 
@@ -65,6 +73,8 @@ export function DebtDetail({ id }: { id: string }) {
           <ThemedText variant="headline">{t("debts.recordPayment")}</ThemedText>
           <TextField testID="debt-payment-amount" label={t("income.amount")} keyboardType="decimal-pad" placeholder={fromMinorUnits(debt.monthlyPayment, debt.currency)} value={amount} onChangeText={setAmount} />
           <DateField label={t("bills.paidOnLabel")} value={paidOn} onChange={(iso) => iso && setPaidOn(iso)} />
+          <AccountField testID="payment-account" label={debt.direction === "OWING" ? t("cashMovements.paidFrom") : t("debts.repaidInto")}
+            value={accountId} onChange={setAccountId} accounts={accounts} />
           <Button testID="record-payment" title={t("debts.recordPayment")} onPress={() => void pay()} />
         </View>
       ) : null}

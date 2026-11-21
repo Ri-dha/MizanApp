@@ -1,6 +1,12 @@
-import { fromMinorUnits, toMinorUnits } from "@/app/money"
-import { unassigned } from "@mizan/core/db/cashMovements"
-import type { AccountShare } from "@mizan/core/schema"
+import { fromMinorUnits, toMinorUnits } from "../domain/money/format"
+import type { AccountShare, CashAccount } from "../schema"
+import { unassigned } from "./cashMovements"
+
+/** A picker needs a value for "no account" (ADR cash-1). */
+export const NO_ACCOUNT = "none"
+
+/** The picked account's id, or null for "No account" or an account that no longer exists. */
+export const pickedAccount = (value: string, accounts: CashAccount[]): string | null => (accounts.some((a) => a.id === value) ? value : null)
 
 const BASIS_POINTS_PER_PERCENT = 100
 
@@ -33,4 +39,11 @@ export function sharesFrom(rows: ShareRow[], currency: string): AccountShare[] {
 /** True when the shares ask for more than the amount; the form should not save then. */
 export function overAssigned(rows: ShareRow[], amount: number, currency: string): boolean {
   return unassigned(amount, sharesFrom(rows, currency)) < 0
+}
+
+/** Rows as the editor adds them: the first takes everything, later ones a fixed amount still to type. */
+export function nextShareRow(rows: ShareRow[], accounts: CashAccount[]): ShareRow | null {
+  const free = accounts.find((a) => !rows.some((r) => r.cashAccountId === a.id)) ?? accounts[0]
+  if (!free) return null
+  return rows.length === 0 ? { cashAccountId: free.id, kind: "PERCENT", text: "100" } : { cashAccountId: free.id, kind: "AMOUNT", text: "" }
 }

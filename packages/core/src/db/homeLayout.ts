@@ -33,7 +33,7 @@ export const WIDGETS: readonly WidgetDefinition[] = [
 ]
 
 const SIZES: readonly WidgetSize[] = ["full", "compact"]
-const MAX_TITLE = 40
+export const MAX_TITLE = 40
 const MAX_PICKS = 50
 
 export const definitionOf = (kind: WidgetKind): WidgetDefinition | undefined => WIDGETS.find((w) => w.kind === kind)

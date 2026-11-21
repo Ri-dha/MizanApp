@@ -5,6 +5,8 @@ import { Pressable, SectionList, StyleSheet, View } from "react-native"
 import { SegmentedControl } from "@expo/ui/community/segmented-control"
 
 import { formatMoney } from "@/utils/money"
+import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
+import { isAccountTransfer } from "@mizan/core/db/cashMovements"
 import { EMPTY_FILTER, filterTransactions, liveRecentlyDeleted, liveTransactionsFor, restoreTransaction } from "@mizan/core/db/transactions"
 import type { LedgerTransaction, TransactionType } from "@mizan/core/schema"
 import { Button } from "@/components/button"
@@ -45,7 +47,11 @@ export function Ledger() {
   const month = useLiveQuery(() => liveTransactionsFor(monthKey), [monthKey], NO_ROWS)
   const deleted = useLiveQuery(liveRecentlyDeleted, [], NO_ROWS)
   const bucketName = (id: string | null) => view.buckets.find((b) => b.id === id)?.name
-  const money = (row: LedgerTransaction) => formatMoney(row.type === "INCOME" ? row.amount : -row.amount, row.currency, i18n.language)
+  const accounts = useLiveQuery(liveCashAccounts, [], [])
+  const accountName = (id: string | null | undefined) => accounts.find((a) => a.id === id)?.name ?? "?"
+  // A move between the person's own accounts is neither spending nor income, so it carries no sign.
+  const signed = (row: LedgerTransaction) => (row.type === "INCOME" || isAccountTransfer(row) ? row.amount : -row.amount)
+  const money = (row: LedgerTransaction) => formatMoney(signed(row), row.currency, i18n.language)
   const statusText = status.pending > 0 ? t("sync.status.pending", { count: status.pending }) : t(`sync.status.${status.phase}`)
 
   const sections = useMemo<Section[]>(() => {
@@ -97,7 +103,7 @@ export function Ledger() {
           return (
             <Pressable
               testID={`transaction-${item.id}`}
-              onPress={() => (section.deleted ? undefined : router.push({ pathname: "/transaction", params: { id: item.id } }))}
+              onPress={() => (section.deleted ? undefined : router.push({ pathname: isAccountTransfer(item) ? "/account-transfer" : "/transaction", params: { id: item.id } }))}
               style={({ pressed }) => [styles.cell, first && styles.first, last && styles.last, pressed && !section.deleted ? styles.pressed : null]}
             >
               <Row
@@ -110,9 +116,9 @@ export function Ledger() {
                   )
                 }
               >
-                <ThemedText>{item.payee ?? item.category ?? t(`transactions.types.${item.type}`)}</ThemedText>
+                <ThemedText>{isAccountTransfer(item) ? `${accountName(item.cashAccountId)} → ${accountName(item.counterpartyId)}` : item.payee ?? item.category ?? t(`transactions.types.${item.type}`)}</ThemedText>
                 <ThemedText variant="caption">
-                  {[bucketName(item.bucketId), item.category, item.splitGroupId ? t("transactions.splitBadge") : null].filter(Boolean).join(" · ") || " "}
+                  {[isAccountTransfer(item) ? t("transactions.types.TRANSFER") : bucketName(item.bucketId), item.category, item.note, item.splitGroupId ? t("transactions.splitBadge") : null].filter(Boolean).join(" · ") || " "}
                 </ThemedText>
               </Row>
             </Pressable>

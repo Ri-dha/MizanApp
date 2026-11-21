@@ -10,7 +10,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 import { unassigned } from "@mizan/core/db/cashMovements"
 import type { CashAccount } from "@mizan/core/schema"
-import { sharesFrom, type ShareRow } from "./shareRows"
+import { nextShareRow, sharesFrom, type ShareRow } from "@mizan/core/db/accountChoice"
 
 /**
  * T-cash-movements: split an income across cash accounts, each by a fixed amount or a percentage.
@@ -63,7 +63,7 @@ export function AccountSharesEditor({ rows, onChange, accounts, amount, currency
         </div>
       ))}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={() => onChange([...rows, { cashAccountId: accounts[0].id, kind: rows.length === 0 ? "PERCENT" : "AMOUNT", text: rows.length === 0 ? "100" : "" }])}>
+        <Button type="button" variant="outline" size="sm" onClick={() => { const next = nextShareRow(rows, accounts); if (next) onChange([...rows, next]) }}>
           <Plus /> {t("cashMovements.addAccount")}
         </Button>
         {rows.length > 0 && (
