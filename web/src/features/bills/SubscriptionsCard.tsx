@@ -14,7 +14,7 @@ export function SubscriptionsCard({ currency, onEdit }: { currency: string; onEd
   const { t, i18n } = useTranslation()
   const expenses = useLiveQuery(liveRecurringExpenses, [], [])
   const { prices } = useMetals()
-  const summary = subscriptionSummary(expenses, todayIso(), prices.usdIqdMicros)
+  const summary = subscriptionSummary(expenses, todayIso(), prices.usdBaseMicros)
   const money = (v: number, c = currency) => formatMoney(v, c, i18n.language)
 
   return (

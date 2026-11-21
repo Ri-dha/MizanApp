@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Switch } from "@/components/ui/switch"
-import { createCashAccount, liveAdjustmentsOf, updateCashAccount } from "@mizan/core/db/cashAccounts"
+import { createCashAccount, hasProvider, liveAdjustmentsOf, updateCashAccount } from "@mizan/core/db/cashAccounts"
 import { useLiveQuery } from "dexie-react-hooks"
 import type { CashAccount, CashAccountKind } from "@/db/schema"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
@@ -56,7 +56,7 @@ export function AccountSheet({ open, account, onClose, onDelete }: Props) {
     const input = {
       name: name.trim(),
       kind,
-      institution: institution.trim() || null,
+      institution: hasProvider(kind) ? institution.trim() || null : null,
       currency,
       balance: toMinorUnits(balance, currency),
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
@@ -84,9 +84,11 @@ export function AccountSheet({ open, account, onClose, onDelete }: Props) {
               </SelectContent>
             </Select>
           </Field>
-          <Field id="institution" label={t("accounts.institution")}>
-            <Input id="institution" value={institution} onChange={(e) => setInstitution(e.target.value)} maxLength={80} />
-          </Field>
+          {hasProvider(kind) && (
+            <Field id="institution" label={t("accounts.institution")}>
+              <Input id="institution" value={institution} onChange={(e) => setInstitution(e.target.value)} maxLength={80} />
+            </Field>
+          )}
           <div className="grid grid-cols-[1fr_auto] gap-2">
             <Field id="balance" label={t("accounts.balance")}>
               <Input id="balance" inputMode="decimal" dir="ltr" value={balance} onChange={(e) => setBalance(e.target.value)} />

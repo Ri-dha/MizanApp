@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Alert, StyleSheet, View } from "react-native"
 
-import { createCashAccount, liveAdjustmentsOf, updateCashAccount } from "@mizan/core/db/cashAccounts"
+import { createCashAccount, hasProvider, liveAdjustmentsOf, updateCashAccount } from "@mizan/core/db/cashAccounts"
 import { defaultsOf, livePrivacySetting } from "@mizan/core/db/privacy"
 import { softDelete } from "@mizan/core/db/write"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
@@ -57,7 +57,7 @@ export function AccountEditor({ id }: { id?: string }) {
     const input = {
       name: name.trim(),
       kind,
-      institution: institution.trim() || null,
+      institution: hasProvider(kind) ? institution.trim() || null : null,
       currency,
       balance: toMinorUnits(balance || "0", currency),
       visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
@@ -83,7 +83,7 @@ export function AccountEditor({ id }: { id?: string }) {
         <ThemedText variant="subhead">{t("accounts.kind")}</ThemedText>
         <Chips testID="account-kind" options={KINDS.map((k) => ({ value: k, label: t(`accounts.kinds.${k}`) }))} value={kind} onChange={(next) => next && setKind(next as CashAccountKind)} />
       </View>
-      <TextField testID="account-institution" label={t("accounts.institution")} maxLength={80} value={institution} onChangeText={setInstitution} />
+      {hasProvider(kind) ? <TextField testID="account-institution" label={t("accounts.institution")} maxLength={80} value={institution} onChangeText={setInstitution} /> : null}
       <View style={styles.pair}>
         <View style={styles.wide}><TextField testID="account-balance" label={t("accounts.balance")} keyboardType="decimal-pad" value={balance} onChangeText={setBalance} /></View>
         <View style={styles.narrow}>

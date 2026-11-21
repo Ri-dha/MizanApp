@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { StyleSheet, View } from "react-native"
 
 import { closeMonth, householdFigure, reopenMonth } from "@mizan/core/db/householdFigure"
-import { attributionSinceLastClose } from "@mizan/core/db/netWorthView"
+import { attributionSinceLastClose, dollarRateMinor, dollarRateOf, inDollarCents } from "@mizan/core/db/netWorthView"
 import { isMonthClosed, snapshotFor, trendPoints } from "@mizan/core/db/networth"
 import { shiftKey } from "@mizan/core/domain/calendar/month"
 import { formatMoney } from "@/utils/money"
@@ -27,7 +27,6 @@ import { formatWhen } from "@/utils/dates"
 const MONTHS_LISTED = 12
 const ALWAYS_SHOWN = ["CASH", "METALS", "RECEIVABLES"]
 const ATTRIBUTION_KEYS = ["total", "saving", "priceMovement", "debtRepayment", "newPurchases"] as const
-const MICROS = 1e6
 
 export function NetWorth() {
   const { t, i18n } = useTranslation()
@@ -46,10 +45,12 @@ export function NetWorth() {
   const money = (v: number) => formatMoney(v, base, i18n.language)
   const signed = (v: number) => (v > 0 ? "+" : "") + money(v)
   const negative = (v: number) => (v < 0 ? { color: brand.destructive } : null)
-  const rate = money(Math.round(Number(view.rateSet.usdIqdMicros) / MICROS))
-  const rateKind = t(`metals.rateKinds.${String(view.rateSet.rateKind)}`)
+  const rateKind = base === "IQD" ? t(`metals.rateKinds.${String(view.rateSet.rateKind)}`) : t("networth.worldRate")
   const prefs = usePreferences()
-  const usdIqd = Number(view.rateSet.usdIqdMicros) / MICROS
+  const inUsd = inDollarCents(view.current.netWorth, base, view.rateSet)
+  const ratesNote = base === "USD"
+    ? t("networth.goldFrom", { gold: String(view.rateSet.xauSource) })
+    : t("networth.ratesInUse", { rate: money(dollarRateMinor(view.rateSet, base)), kind: rateKind, gold: String(view.rateSet.xauSource) })
   const thisMonth = currentMonthKey(startDay)
   const months = Array.from({ length: MONTHS_LISTED }, (_, i) => shiftKey(thisMonth, -i))
   const closedTrend = trendPoints(view.closes, view.snapshots)
@@ -78,7 +79,7 @@ export function NetWorth() {
       <View style={styles.section}>
         <ThemedText variant="subhead">{t("networth.headline")}</ThemedText>
         <ThemedText testID="networth-value" variant="largeTitle" style={negative(view.current.netWorth)}>{money(view.current.netWorth)}</ThemedText>
-        {prefs.showUsd && usdIqd > 0 ? <ThemedText variant="title">{`≈ ${formatMoney(Math.round((view.current.netWorth / usdIqd) * 100), "USD", i18n.language)} (${rateKind})`}</ThemedText> : null}
+        {prefs.showUsd && inUsd !== null ? <ThemedText variant="title">{`≈ ${formatMoney(inUsd, "USD", i18n.language)} (${rateKind})`}</ThemedText> : null}
         <ThemedText variant="caption">{t("networth.formula")}</ThemedText>
         {household !== null && household !== view.current.netWorth ? <ThemedText variant="subhead">{t("networth.householdFigure", { value: money(household) })}</ThemedText> : null}
       </View>
@@ -98,7 +99,7 @@ export function NetWorth() {
             <ThemedText variant="headline">{t("networth.liabilities")}</ThemedText>
           </Row>
         </Group>
-        <ThemedText variant="caption">{t("networth.ratesInUse", { rate, kind: rateKind, gold: String(view.rateSet.xauSource) })}</ThemedText>
+        <ThemedText variant="caption">{ratesNote}</ThemedText>
       </View>
 
       {attribution ? (
@@ -151,7 +152,9 @@ export function NetWorth() {
                 <ThemedText>{closed ? `${formatMonthKey(key, i18n.language)} · ${t("networth.closedBadge")}` : formatMonthKey(key, i18n.language)}</ThemedText>
                 {snapshot && closed ? (
                   <ThemedText variant="caption">
-                    {t("networth.snapshotLine", { value: money(snapshot.netWorth), at: when(snapshot.takenAt), rate: money(Math.round(Number(snapshot.rateSet.usdIqdMicros ?? 0) / MICROS)) })}
+                    {dollarRateOf(snapshot.rateSet) > 0 && base !== "USD"
+                      ? t("networth.snapshotLine", { value: money(snapshot.netWorth), at: when(snapshot.takenAt), rate: money(dollarRateMinor(snapshot.rateSet, base)) })
+                      : t("networth.snapshotLineNoRate", { value: money(snapshot.netWorth), at: when(snapshot.takenAt) })}
                   </ThemedText>
                 ) : null}
               </Row>

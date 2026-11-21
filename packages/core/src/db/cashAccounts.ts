@@ -49,3 +49,6 @@ export function totalsByCurrency(accounts: CashAccount[]): Record<string, number
     return totals
   }, {})
 }
+
+/** Only a bank or a wallet app has a provider worth naming; cash at home and "other" do not. */
+export const hasProvider = (kind: CashAccountKind): boolean => kind === "BANK" || kind === "WALLET"

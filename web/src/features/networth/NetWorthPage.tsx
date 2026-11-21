@@ -17,7 +17,7 @@ import { syncNow } from "@/sync/engine"
 import { usePreferences } from "@/app/preferences"
 import { useNetWorth } from "./useNetWorth"
 import { useMetals } from "@/features/metals/useMetals"
-import { attributionSinceLastClose } from "@mizan/core/db/netWorthView"
+import { attributionSinceLastClose, dollarRateMinor, dollarRateOf, inDollarCents } from "@mizan/core/db/netWorthView"
 import { HelpButton } from "@/components/HelpButton"
 import { SourceCredit } from "@/components/SourceCredit"
 import { useScreenTour } from "@/tours/useTour"
@@ -37,9 +37,13 @@ export function NetWorthPage() {
   useScreenTour("networth")
   const metals = useMetals()
   const attribution = attributionSinceLastClose(view, metals)
-  const usdIqd = Number(view.rateSet.usdIqdMicros) / 1e6
-  const inUsd = (v: number) => formatMoney(Math.round((v / usdIqd) * 100), "USD", i18n.language)
   const money = (v: number) => formatMoney(v, base, i18n.language)
+  const dinar = base === "IQD"
+  const rateKind = dinar ? t(`metals.rateKinds.${String(view.rateSet.rateKind)}`) : t("networth.worldRate")
+  const inUsd = inDollarCents(view.current.netWorth, base, view.rateSet)
+  const ratesNote = base === "USD"
+    ? t("networth.goldFrom", { gold: String(view.rateSet.xauSource) })
+    : t("networth.ratesInUse", { rate: money(dollarRateMinor(view.rateSet, base)), kind: rateKind, gold: String(view.rateSet.xauSource) })
 
   const thisMonth = currentMonthKey(startDay)
   const months = Array.from({ length: MONTHS_LISTED }, (_, i) => shiftMonth(thisMonth, -i))
@@ -80,7 +84,7 @@ export function NetWorthPage() {
           {household && household.netWorth !== view.current.netWorth && (
             <p className="text-sm opacity-70">{t("networth.householdFigure", { value: money(household.netWorth) })}</p>
           )}
-          {prefs.showUsd && usdIqd > 0 && <p className="text-lg opacity-70 tabular-nums">≈ {inUsd(view.current.netWorth)} <span className="text-xs">({t(`metals.rateKinds.${String(view.rateSet.rateKind)}`)})</span></p>}
+          {prefs.showUsd && inUsd !== null && <p className="text-lg opacity-70 tabular-nums">≈ {formatMoney(inUsd, "USD", i18n.language)} <span className="text-xs">({rateKind})</span></p>}
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="rounded-lg border p-3">
               <p className="text-sm opacity-70">{t("networth.assets")}</p>
@@ -97,8 +101,8 @@ export function NetWorthPage() {
               <p className="text-sm opacity-70">{t("networth.liabilities")}</p>
               <p className="font-semibold tabular-nums">{money(view.current.totalLiabilities)}</p>
               <p className="mt-2 text-xs opacity-70">
-                {t("networth.ratesInUse", { rate: money(Math.round(Number(view.rateSet.usdIqdMicros) / 1e6)), kind: t(`metals.rateKinds.${String(view.rateSet.rateKind)}`), gold: String(view.rateSet.xauSource) })}{" "}
-                <SourceCredit source={String(view.rateSet.usdIqdSource)} />
+                {ratesNote}
+                {dinar && <>{" "}<SourceCredit source={String(view.rateSet.usdIqdSource)} /></>}
               </p>
             </div>
           </div>
@@ -157,7 +161,9 @@ export function NetWorthPage() {
                   <span className="font-semibold">{formatMonthKey(key, i18n.language)} {closed && <Badge variant="secondary">{t("networth.closedBadge")}</Badge>}</span>
                   {snapshot && closed && (
                     <span className="text-sm opacity-70">
-                      {t("networth.snapshotLine", { value: money(snapshot.netWorth), at: formatWhen(snapshot.takenAt, i18n.language), rate: money(Math.round(Number(snapshot.rateSet.usdIqdMicros ?? 0) / 1e6)) })}
+                      {dollarRateOf(snapshot.rateSet) > 0 && base !== "USD"
+                        ? t("networth.snapshotLine", { value: money(snapshot.netWorth), at: formatWhen(snapshot.takenAt, i18n.language), rate: money(dollarRateMinor(snapshot.rateSet, base)) })
+                        : t("networth.snapshotLineNoRate", { value: money(snapshot.netWorth), at: formatWhen(snapshot.takenAt, i18n.language) })}
                     </span>
                   )}
                 </div>

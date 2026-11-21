@@ -5,6 +5,7 @@ import { toBaseAmount } from "./income"
 import { liveMonthCloses, liveNetWorth, liveSnapshots, trendPoints } from "./networth"
 import type { Asset, AssetValuation, MonthClose, NetWorthSnapshot } from "../schema"
 import { todayIso } from "../domain/calendar/month"
+import { minorUnitsPerMajor } from "../domain/money/format"
 import { attributeChange, type Attribution, type Reading } from "../domain/networth/attribution"
 import type { NetWorthResult } from "../domain/networth/networth"
 import type { ResolvedPrices } from "../market/prices"
@@ -47,6 +48,29 @@ export function rateSetOf(prices: ResolvedPrices): Record<string, unknown> {
     xauSource: prices.spot.GOLD.source.label,
     xagSource: prices.spot.SILVER.source.label,
   }
+}
+
+/**
+ * Household-currency units per dollar that a rate set was taken at; 0 when unknown. Sets from
+ * before ADR currency-1 carry only the dinar rate, which is right only for a dinar household.
+ */
+export function dollarRateOf(rateSet: Record<string, unknown>): number {
+  const base = String(rateSet.baseCurrency ?? "IQD")
+  // usdBaseMicros counts the base's minor units (cents for the euro); the dinar has none.
+  const micros = Number(rateSet.usdBaseMicros ?? (base === "IQD" ? rateSet.usdIqdMicros : 0))
+  return Number.isFinite(micros) && micros > 0 ? micros / 1e6 / minorUnitsPerMajor(base) : 0
+}
+
+/** The dollar rate as an amount of the household currency, in its minor units, for "Dollar at …". */
+export function dollarRateMinor(rateSet: Record<string, unknown>, base: string): number {
+  return Math.round(dollarRateOf(rateSet) * minorUnitsPerMajor(base))
+}
+
+/** An amount in the household currency, in US cents at the set's rate; null for a dollar household or an unknown rate. */
+export function inDollarCents(minorUnits: number, base: string, rateSet: Record<string, unknown>): number | null {
+  const rate = dollarRateOf(rateSet)
+  if (base === "USD" || rate === 0) return null
+  return Math.round((minorUnits / minorUnitsPerMajor(base) / rate) * 100)
 }
 
 const OTHER_ASSET_CLASSES = ["VEHICLES", "PROPERTY", "OTHER_ASSETS"]
