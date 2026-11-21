@@ -13,7 +13,14 @@ const TOKEN_KEY = "mizan.pushToken"
 const ANDROID_CHANNEL = "reminders"
 
 /** The web paths the server's reminders open, and the phone screens they mean. */
-const SCREENS: Record<string, Href> = { "/bills": "/bills", "/income": "/income", "/plan": "/plan", "/networth": "/networth", "/metals": "/metals", "/settings": "/settings" }
+const SCREENS: Record<string, Href> = { "/bills": "/bills", "/income": "/income", "/plan": "/plan", "/networth": "/networth", "/metals": "/metals", "/settings": "/settings", "/support": "/support" }
+/** A support reply opens its report (ADR support-1). */
+const REPORT_PATH = /^\/support\/([0-9a-f-]{36})$/
+
+function screenFor(url: string): Href | undefined {
+  const report = REPORT_PATH.exec(url)
+  return report ? { pathname: "/support-report", params: { id: report[1] } } : SCREENS[url]
+}
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: true, shouldSetBadge: false }),
@@ -54,11 +61,11 @@ export async function sendTestPush(): Promise<number> {
   return (await unwrap(api().POST("/api/v1/notifications/test"))).sent ?? 0
 }
 
-/** A tapped reminder opens the screen it is about, once the app is unlocked. */
+/** A tapped reminder or reply opens the screen it is about, once the app is unlocked. */
 export function openRemindersOnTap(): () => void {
   const open = (response: Notifications.NotificationResponse | null) => {
     const url = response?.notification.request.content.data?.url
-    const screen = typeof url === "string" ? SCREENS[url] : undefined
+    const screen = typeof url === "string" ? screenFor(url) : undefined
     if (screen) router.navigate(screen)
   }
   void Notifications.getLastNotificationResponseAsync().then(open)

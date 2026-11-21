@@ -93,6 +93,15 @@ async function authorisedFetch(request: Request): Promise<Response> {
   return fetch(withToken(request))
 }
 
+/** Multipart uploads skip openapi-fetch so React Native builds the boundary from its own FormData. */
+export async function authorisedSend(path: string, init: RequestInit): Promise<Response> {
+  if (!accessToken) await refreshAccessToken()
+  const send = () => fetch(`${API_ORIGIN}${path}`, { ...init, headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} })
+  const response = await send()
+  if (response.status !== UNAUTHORIZED || !(await refreshAccessToken())) return response
+  return send()
+}
+
 export function installApiClient() {
   installApi(createClient<paths>({ baseUrl: API_ORIGIN, fetch: authorisedFetch }))
 }

@@ -38,6 +38,7 @@ export function More() {
     { id: "debts", href: "/debts", label: t("nav.debts"), audiences: MEMBERS },
     { id: "prices", href: "/prices", label: t("nav.prices"), audiences: EVERYONE },
     { id: "household", href: "/household", label: t("household.title"), audiences: EVERYONE },
+    { id: "support", href: "/support", label: t("support.title"), audiences: EVERYONE },
     { id: "help", href: "/help", label: t("help.title"), audiences: EVERYONE },
     { id: "settings", href: "/settings", label: t("nav.settings"), audiences: EVERYONE },
     { id: "sync", href: "/sync", label: t("nav.sync"), audiences: EVERYONE },
