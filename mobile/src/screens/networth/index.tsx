@@ -22,6 +22,7 @@ import { spacing, useBrandColors } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { formatMonthKey } from "@/utils/month"
 import { useScreenTour } from "@/tours"
+import { formatWhen } from "@/utils/dates"
 
 const MONTHS_LISTED = 12
 const ALWAYS_SHOWN = ["CASH", "METALS", "RECEIVABLES"]
@@ -52,7 +53,7 @@ export function NetWorth() {
   const thisMonth = currentMonthKey(startDay)
   const months = Array.from({ length: MONTHS_LISTED }, (_, i) => shiftKey(thisMonth, -i))
   const closedTrend = trendPoints(view.closes, view.snapshots)
-  const when = (at: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(at))
+  const when = (at: string) => formatWhen(at, i18n.language)
 
   async function act(monthKey: string, action: "close" | "reopen") {
     if (!session) return

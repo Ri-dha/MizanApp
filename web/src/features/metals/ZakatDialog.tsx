@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useDateFormat } from "@/app/dates"
+import { formatCount, useDateFormat } from "@/app/dates"
 import { Field } from "@/components/Field"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -48,7 +48,7 @@ export function ZakatDialog({ open, valued, perGram24k, currency, onClose }: Pro
   }
   const gold = metalRow("GOLD", nisabGold, goldPrice)
   const silver = metalRow("SILVER", nisabSilver, silverPrice)
-  const grams = (mg: number) => `${new Intl.NumberFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { maximumFractionDigits: 3 }).format(mg / MG)} g`
+  const grams = (mg: number) => `${formatCount(mg / MG, i18n.language, { maximumFractionDigits: 3 })} g`
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>

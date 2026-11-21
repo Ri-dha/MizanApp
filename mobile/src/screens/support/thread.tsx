@@ -8,12 +8,13 @@ import { ThemedText } from "@/components/themed-text"
 import type { ReportDetail, ReportStatus } from "@/platform/support"
 import { colors, radius, spacing, useBrandColors } from "@/theme"
 import { ImagesField, ReportImage } from "./images"
+import { formatWhen } from "@/utils/dates"
 
 export const MAX_BODY = 4000
 
 export function useWhen() {
   const { i18n } = useTranslation()
-  return (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso))
+  return (iso: string) => formatWhen(iso, i18n.language)
 }
 
 export function StatusBadge({ status }: { status: ReportStatus }) {

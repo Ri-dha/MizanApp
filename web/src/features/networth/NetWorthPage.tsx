@@ -21,6 +21,7 @@ import { attributionSinceLastClose } from "@mizan/core/db/netWorthView"
 import { HelpButton } from "@/components/HelpButton"
 import { SourceCredit } from "@/components/SourceCredit"
 import { useScreenTour } from "@/tours/useTour"
+import { formatWhen } from "@/app/dates"
 
 const MONTHS_LISTED = 12
 
@@ -156,7 +157,7 @@ export function NetWorthPage() {
                   <span className="font-semibold">{formatMonthKey(key, i18n.language)} {closed && <Badge variant="secondary">{t("networth.closedBadge")}</Badge>}</span>
                   {snapshot && closed && (
                     <span className="text-sm opacity-70">
-                      {t("networth.snapshotLine", { value: money(snapshot.netWorth), at: new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(snapshot.takenAt)), rate: money(Math.round(Number(snapshot.rateSet.usdIqdMicros ?? 0) / 1e6)) })}
+                      {t("networth.snapshotLine", { value: money(snapshot.netWorth), at: formatWhen(snapshot.takenAt, i18n.language), rate: money(Math.round(Number(snapshot.rateSet.usdIqdMicros ?? 0) / 1e6)) })}
                     </span>
                   )}
                 </div>

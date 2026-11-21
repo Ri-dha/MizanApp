@@ -21,6 +21,7 @@ import { basisPointsToPercent, percentToBasisPoints, rebalance } from "@mizan/co
 import { useMonthView } from "./useMonthFigures"
 import { HelpButton } from "@/components/HelpButton"
 import { useScreenTour } from "@/tours/useTour"
+import { formatWhen } from "@/app/dates"
 
 const PALETTE = ["#88aaee", "#ffdc58", "#ff6b6b", "#a3e635", "#c4a1ff", "#fd9745", "#7fdbca"]
 
@@ -42,7 +43,7 @@ export function PlanPage() {
   const editing = draft ?? view.buckets.map((b) => ({ id: b.id, name: b.name, colour: b.colour, shareBasisPoints: b.shareBasisPoints, fixedAmount: b.fixedAmount, carryOver: b.carryOver }))
   const totalShares = editing.filter((b) => b.fixedAmount === null).reduce((sum, b) => sum + b.shareBasisPoints, 0)
   const fixedTotal = editing.reduce((sum, b) => sum + (b.fixedAmount ?? 0), 0)
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { day: "numeric", month: "short" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, { day: "numeric", month: "short" })
   const gapShares = totalShares - BASIS_POINTS
   const gapAmount = Math.round(((view.income.planned - fixedTotal) * gapShares) / BASIS_POINTS)
   const money = (amount: number) => formatMoney(amount, currency, i18n.language)

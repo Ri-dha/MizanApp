@@ -21,6 +21,7 @@ import { spacing } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { invitationToken } from "./token"
 import { useScreenTour } from "@/tours"
+import { DATE, formatWhen } from "@/utils/dates"
 
 type Member = Awaited<ReturnType<typeof listMembers>>[number]
 type Invitation = Awaited<ReturnType<typeof listInvitations>>[number]
@@ -46,7 +47,7 @@ export function Household() {
   const [message, setMessage] = useState<string | null>(null)
   const canManage = session?.role === "OWNER"
   const canEdit = canManage || session?.role === "MEMBER"
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { dateStyle: "medium" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, DATE)
 
   const load = useCallback(async () => {
     try {

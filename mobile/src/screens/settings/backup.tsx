@@ -16,6 +16,7 @@ import { ToggleRow } from "@/components/toggle-row"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { spacing } from "@/theme"
 import { describeError } from "@/utils/errors"
+import { formatWhen } from "@/utils/dates"
 
 const MIN_PASSPHRASE = 8
 const BYTES_PER_KB = 1024
@@ -32,7 +33,7 @@ export function BackupSettings() {
   const [passphrase, setPassphrase] = useState("")
   const [message, setMessage] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const when = (at: string | number) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(at))
+  const when = (at: string | number) => formatWhen(at, i18n.language)
 
   async function run(action: () => Promise<unknown>, done?: string) {
     try {

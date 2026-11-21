@@ -8,16 +8,17 @@ import { dismissSyncRejection, liveSyncRejections } from "@mizan/core/db/syncRej
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { syncNow, useSyncStatus } from "@/sync/engine"
+import { formatWhen } from "@/app/dates"
 
 export function SyncPage() {
   const { t, i18n } = useTranslation()
   const status = useSyncStatus()
   const conflicts = useLiveQuery(liveConflicts, [], [])
   const rejections = useLiveQuery(liveSyncRejections, [], [])
-  const when = (iso: string) => new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso))
+  const when = (iso: string) => formatWhen(iso, i18n.language)
 
   const lastSync = status.lastSyncAt
-    ? t("sync.lastSync", { when: new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(status.lastSyncAt) })
+    ? t("sync.lastSync", { when: formatWhen(status.lastSyncAt, i18n.language) })
     : t("sync.never")
 
   return (

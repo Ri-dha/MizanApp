@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useScreenTour } from "@/tours/useTour"
+import { DATE, formatWhen } from "@/app/dates"
 
 type Member = Awaited<ReturnType<typeof listMembers>>[number]
 type Invitation = Awaited<ReturnType<typeof listInvitations>>[number]
@@ -43,7 +44,7 @@ export function HouseholdPage() {
   useScreenTour("household", members.length > 0)
 
   const canManage = session?.role === "OWNER"
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { dateStyle: "medium" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, DATE)
 
   const load = useCallback(async () => {
     try {

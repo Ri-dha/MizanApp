@@ -8,6 +8,7 @@ import { Notice } from "@/components/notice"
 import { Screen } from "@/components/screen"
 import { ThemedText } from "@/components/themed-text"
 import { describeError } from "@/utils/errors"
+import { DATE, formatWhen } from "@/utils/dates"
 
 type Preview = Awaited<ReturnType<typeof previewInvitation>>
 
@@ -17,7 +18,7 @@ export function JoinHousehold({ token }: { token: string }) {
   const [preview, setPreview] = useState<Preview | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { dateStyle: "medium" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, DATE)
 
   useEffect(() => {
     previewInvitation(token).then(setPreview).catch((e) => setError(describeError(e)))

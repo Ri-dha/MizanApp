@@ -10,6 +10,7 @@ import { Group, Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSyncStatus } from "@/hooks/use-core"
 import { colors, spacing } from "@/theme"
+import { formatWhen } from "@/utils/dates"
 
 const NONE: LocalConflict[] = []
 const NO_REJECTIONS: SyncRejection[] = []
@@ -20,9 +21,9 @@ export function Sync() {
   const status = useSyncStatus()
   const conflicts = useLiveQuery(liveConflicts, [], NONE)
   const rejections = useLiveQuery(liveSyncRejections, [], NO_REJECTIONS)
-  const when = (iso: string) => new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso))
+  const when = (iso: string) => formatWhen(iso, i18n.language)
   const lastSync = status.lastSyncAt
-    ? t("sync.lastSync", { when: new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(status.lastSyncAt) })
+    ? t("sync.lastSync", { when: formatWhen(status.lastSyncAt, i18n.language) })
     : t("sync.never")
   const headline = status.pending > 0 ? t("sync.status.pending", { count: status.pending }) : t(`sync.status.${status.phase}`)
 

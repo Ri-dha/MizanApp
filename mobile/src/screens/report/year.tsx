@@ -15,6 +15,7 @@ import { currentMonthKey } from "@/hooks/use-views"
 import { spacing, useBrandColors } from "@/theme"
 import { shareReportPdf } from "@/platform/report-pdf"
 import { formatMonthKey } from "@/utils/month"
+import { formatWhen } from "@/utils/dates"
 
 const TOP_CATEGORIES = 8
 
@@ -36,7 +37,7 @@ export function YearReport() {
   const bucketIds = summary ? [...new Set(summary.months.flatMap((m) => Object.keys(m.byBucket)))] : []
   const bucketName = (id: string) => summary?.months.map((m) => m.bucketNames[id]).find(Boolean) ?? id
   const bucketTotal = (id: string) => summary?.months.reduce((s, m) => s + (m.byBucket[id] ?? 0), 0) ?? 0
-  const monthShort = (key: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { month: "short" }).format(new Date(Date.UTC(year, Number(key.slice(5, 7)) - 1, 1)))
+  const monthShort = (key: string) => formatWhen(Date.UTC(year, Number(key.slice(5, 7)) - 1, 1), i18n.language, { month: "short" })
   const hasNetWorth = summary?.netWorthStart != null && summary?.netWorthEnd != null
 
   function savePdf() {

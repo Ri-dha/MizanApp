@@ -1,5 +1,7 @@
-/** The household month as a title, the way the web shows it: "November 2026", "تشرين الثاني ٢٠٢٦". */
+import { formatWhen } from "./dates"
+
+/** The household month as a title: "November 2026", "تشرين الثاني 2026" (or with Arabic-Indic digits, as chosen). */
 export function formatMonthKey(key: string, locale: string): string {
   const [year, month] = key.split("-").map(Number)
-  return new Intl.DateTimeFormat(locale === "ar" ? "ar-IQ" : "en-GB", { month: "long", year: "numeric" }).format(new Date(Date.UTC(year, month - 1, 1)))
+  return formatWhen(Date.UTC(year, month - 1, 1), locale, { month: "long", year: "numeric", timeZone: "UTC" })
 }

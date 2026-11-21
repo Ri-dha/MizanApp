@@ -29,9 +29,10 @@ import { perGramFor } from "@mizan/core/db/metals"
 import { useMetals } from "./useMetals"
 import { HelpButton } from "@/components/HelpButton"
 import { useScreenTour } from "@/tours/useTour"
+import { formatCount, formatWhen } from "@/app/dates"
 
 export function grams(mg: number, locale: string): string {
-  return `${new Intl.NumberFormat(locale === "ar" ? "ar-IQ" : "en-GB", { maximumFractionDigits: 3 }).format(mg / 1000)} g`
+  return `${formatCount(mg / 1000, locale, { maximumFractionDigits: 3 })} g`
 }
 
 export function MetalsPage() {
@@ -118,7 +119,7 @@ export function MetalsPage() {
           <div>
             <CardTitle>{t("metals.priceTable")}</CardTitle>
             <CardDescription>
-              {goldAt ? t("metals.priceTableBody", { at: new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(goldAt)), source: view.prices.spot.GOLD.source.label }) : t("metals.priceTableNoPrice")}
+              {goldAt ? t("metals.priceTableBody", { at: formatWhen(goldAt, i18n.language), source: view.prices.spot.GOLD.source.label }) : t("metals.priceTableNoPrice")}
               {view.prices.spot.GOLD.source.stale && <> · <Badge>{t("metals.stale")}</Badge></>}
             </CardDescription>
           </div>
@@ -238,7 +239,7 @@ function Fig({ label, value, strong }: { label: string; value: string; strong?: 
 
 function PriceLine({ label, value, source }: { label: string; value: string; source: PriceSource }) {
   const { t, i18n } = useTranslation()
-  const when = source.at ? new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { dateStyle: "medium", timeStyle: source.kind === "feed" || source.kind === "local" ? "short" : undefined }).format(new Date(source.at)) : ""
+  const when = source.at ? formatWhen(source.at, i18n.language, { dateStyle: "medium", timeStyle: source.kind === "feed" || source.kind === "local" ? "short" : undefined }) : ""
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
       <span>{label}: <span className="font-semibold tabular-nums">{value}</span></span>

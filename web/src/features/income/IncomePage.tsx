@@ -17,6 +17,7 @@ import { IncomeSourceSheet } from "./IncomeSourceSheet"
 import { ReceiptSheet, type ReceiptDraft } from "./ReceiptSheet"
 import { HelpButton } from "@/components/HelpButton"
 import { useScreenTour } from "@/tours/useTour"
+import { formatWhen } from "@/app/dates"
 
 export function IncomePage() {
   const { t, i18n } = useTranslation()
@@ -30,7 +31,7 @@ export function IncomePage() {
   useScreenTour("income")
   const today = todayIso()
   const money = (amount: number, currency = base) => formatMoney(amount, currency, i18n.language)
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { day: "numeric", month: "short" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, { day: "numeric", month: "short" })
 
   const irregular = view.receipts.filter((r) => !view.occurrences.some((o) => o.receipt?.id === r.id))
 

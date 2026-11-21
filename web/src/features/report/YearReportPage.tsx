@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { trailingSavingRate, yearSummary, type YearSummary } from "@mizan/core/db/report"
 import { formatMoney } from "@/app/money"
+import { formatWhen } from "@/app/dates"
 
 const PALETTE = ["#88aaee", "#ffdc58", "#ff6b6b", "#a3e635", "#c4a1ff", "#fd9745", "#7fdbca", "#f472b6"]
 const TOP_CATEGORIES = 8
@@ -27,7 +28,7 @@ export function YearReportPage() {
   const summary = useLiveQuery(() => yearSummary(year, startDay, uncategorised), [year, startDay, uncategorised], undefined as YearSummary | undefined)
   const trailing = useLiveQuery(() => trailingSavingRate(thisMonth, startDay), [thisMonth, startDay], null)
   const money = (v: number) => formatMoney(v, base, i18n.language)
-  const monthLabel = (key: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { month: "short" }).format(new Date(Date.UTC(year, Number(key.slice(5, 7)) - 1, 1)))
+  const monthLabel = (key: string) => formatWhen(Date.UTC(year, Number(key.slice(5, 7)) - 1, 1), i18n.language, { month: "short" })
 
   const bucketIds = summary ? [...new Set(summary.months.flatMap((m) => Object.keys(m.byBucket)))] : []
   const bucketName = (id: string) => summary?.months.map((m) => m.bucketNames[id]).find(Boolean) ?? id

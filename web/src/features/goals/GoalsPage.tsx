@@ -17,6 +17,7 @@ import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
 import { goalProjection } from "@mizan/core/domain/goal/projection"
 import { formatMoney, toMinorUnits } from "@/app/money"
 import { GoalSheet } from "./GoalSheet"
+import { formatWhen } from "@/app/dates"
 
 export function GoalsPage() {
   const { t, i18n } = useTranslation()
@@ -34,7 +35,7 @@ export function GoalsPage() {
   const assetValues = Object.fromEntries(assets.map((a) => [a.id, currentValue(a, valuations, today).value]))
 
   const money = (value: number, currency: string) => formatMoney(value, currency, i18n.language)
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, { day: "numeric", month: "short", year: "numeric" })
 
   async function submitDeposit(event: FormEvent) {
     event.preventDefault()

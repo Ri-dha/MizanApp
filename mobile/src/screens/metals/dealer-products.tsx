@@ -9,6 +9,7 @@ import { Button } from "@/components/button"
 import { Group, Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
 import { spacing } from "@/theme"
+import { formatWhen } from "@/utils/dates"
 
 interface Item { id: string; name_ar: string; name_en: string; bid_iqd: number; ask_iqd: number }
 interface ProductGroup { key: string; title_ar: string; title_en: string; items: Item[] }
@@ -46,7 +47,7 @@ export function DealerProducts({ currency }: { currency: string }) {
   }, [])
 
   if (!catalogue) return null
-  const at = new Intl.DateTimeFormat(ar ? "ar-IQ-u-nu-latn" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(catalogue.asOf))
+  const at = formatWhen(catalogue.asOf, ar ? "ar" : "en")
   return (
     <View style={styles.section}>
       <ThemedText variant="headline">{t("metals.dealerProducts")}</ThemedText>

@@ -103,6 +103,11 @@
   what a role cannot use (advisor: Home cards, notifications, backup, your data; viewer: privacy
   defaults and imports), import previews name tables in the app language, pages pushed over the tabs
   show a plain back arrow instead of "(tabs)", and the reset email field autofills.
+- Small findings are on main (33288d0). On `fix/arabic-digits` (uncommitted): dates and plain numbers
+  follow the digit setting on both apps (`domain/digits.ts` in core: `withDigits`, `formatDateTime`,
+  `formatNumber`; the phone's and web's `formatWhen`/`formatCount`; Hijri and Gregorian dates take the
+  setting). Hermes ignores `-u-nu-` and browsers pick digits by region, so digits are set after
+  formatting. A screen already open shows a new digit setting once it re-renders (as money did before).
 - Blocked on the owner (all in `docs/store/release-checklist.md`): `eas init`, EAS environment
   variables, Apple Developer with an APNs key, FCM, Play Console, the policy's contact address. Not logged in to Expo on this Mac. Open owner
   decisions: export compliance (`ITSAppUsesNonExemptEncryption`), the final brand icon.

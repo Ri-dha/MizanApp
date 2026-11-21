@@ -12,6 +12,7 @@ import { dayRange, holdingsSeries, sellVerdict } from "@mizan/core/domain/metal/
 import { formatMoney } from "@/app/money"
 import { useHistory } from "@/market/history"
 import type { MetalsView } from "./useMetals"
+import { formatWhen } from "@/app/dates"
 
 const CHART_DAYS = 180
 
@@ -44,7 +45,7 @@ export function SellOrHoldCard({ view, currency }: { view: MetalsView; currency:
   }, [history, lots, metal, view.disposals, view.disposalLots])
 
   const verdict = sellVerdict(open, bidPerGram)
-  const dateLabel = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { day: "numeric", month: "short" }).format(new Date(iso))
+  const dateLabel = (iso: string) => formatWhen(iso, i18n.language, { day: "numeric", month: "short" })
 
   return (
     <Card>

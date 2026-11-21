@@ -28,6 +28,7 @@ import { setPreferences, usePreferences, type LanguageChoice, type ThemeChoice }
 import { spacing } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { forgetAllTours, useScreenTour } from "@/tours"
+import { DATE, formatWhen } from "@/utils/dates"
 
 const LOCK_CHOICES = [0, 30, 60, 300]
 const THEMES: ThemeChoice[] = ["system", "light", "dark"]
@@ -75,7 +76,7 @@ export function Settings() {
   const [biometrics, setBiometrics] = useState<{ available: boolean; enrolled: boolean }>({ available: false, enrolled: false })
   const [message, setMessage] = useState<string | null>(null)
   const [push, setPush] = useState<PhonePushState>("unsupported")
-  const date = (ms: number) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { dateStyle: "medium" }).format(new Date(ms))
+  const date = (ms: number) => formatWhen(ms, i18n.language, DATE)
 
   useEffect(() => {
     void readMeta<number>(META_KEYS.lockAfterSeconds).then((value) => value !== undefined && setLockAfter(value))

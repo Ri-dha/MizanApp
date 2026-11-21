@@ -13,6 +13,7 @@ import { ThemedText } from "@/components/themed-text"
 import { useMarketHistoryFor } from "./history"
 import { spacing, useBrandColors } from "@/theme"
 import { formatMoney } from "@/utils/money"
+import { formatWhen } from "@/utils/dates"
 
 const CHART_DAYS = 180
 const DAY_MS = 86_400_000
@@ -48,7 +49,7 @@ export function SellOrHold({ view, currency }: { view: MetalsView; currency: str
   }, [history, lots, metal, view.disposals, view.disposalLots])
 
   const verdict = sellVerdict(open, bidPerGram)
-  const dayLabel = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { day: "numeric", month: "short" }).format(new Date(iso))
+  const dayLabel = (iso: string) => formatWhen(iso, i18n.language, { day: "numeric", month: "short" })
   const negative = verdict.gain < 0 ? { color: brand.destructive } : null
 
   return (

@@ -11,6 +11,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { formatMoney } from "@/app/money"
 import { cn } from "@/lib/utils"
 import { RANGES, SERIES, SERIES_KEYS, usePriceSeries, type Range, type SeriesKey } from "@/market/prices"
+import { DATE, DATE_TIME, formatWhen } from "@/app/dates"
 
 const SHORT_RANGES: ReadonlySet<Range> = new Set(["1D", "1W"])
 const COMPACT_FROM = 100_000
@@ -35,7 +36,7 @@ export function PricesPage() {
   const formatSigned = (value: number) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${format(Math.abs(value))}`
   const percent = (value: number, base: number) => (base === 0 ? "" : `${value > 0 ? "+" : value < 0 ? "−" : ""}${Math.abs((value / base) * 100).toFixed(2)}%`)
   const when = (iso: string, withTime: boolean) =>
-    new Intl.DateTimeFormat(locale, withTime ? { dateStyle: "medium", timeStyle: "short" } : { dateStyle: "medium" }).format(new Date(iso))
+    formatWhen(iso, locale, withTime ? DATE_TIME : DATE)
 
   const latest = series.changes[0]
   const first = series.points[0]
@@ -89,7 +90,7 @@ export function PricesPage() {
                 <LineChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis dataKey="at" tickLine={false} axisLine={false} minTickGap={32}
-                    tickFormatter={(v: string) => new Intl.DateTimeFormat(locale, SHORT_RANGES.has(range) ? { day: "numeric", hour: "2-digit" } : { month: "short", day: "numeric" }).format(new Date(v))} />
+                    tickFormatter={(v: string) => formatWhen(v, locale, SHORT_RANGES.has(range) ? { day: "numeric", hour: "2-digit" } : { month: "short", day: "numeric" })} />
                   <YAxis tickLine={false} axisLine={false} width={64} domain={["auto", "auto"]}
                     tickFormatter={axisNumber} />
                   <ChartTooltip content={<ChartTooltipContent labelFormatter={(_, payload) => when(String(payload?.[0]?.payload?.at ?? ""), SHORT_RANGES.has(range))}

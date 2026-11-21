@@ -37,6 +37,7 @@ import { HelpButton } from "@/components/HelpButton"
 import { useScreenTour } from "@/tours/useTour"
 import { forgetAllTours } from "@/tours/store"
 import { PRIVACY_KINDS, savePrivacyDefault, usePrivacyDefaults } from "@/db/privacy"
+import { DATE, formatWhen } from "@/app/dates"
 
 const LOCK_CHOICES = [0, 30, 60, 300]
 const THEMES: Theme[] = ["system", "light", "dark"]
@@ -287,7 +288,7 @@ export function SettingsPage() {
                 <Switch id="backupAuto" checked={backup.automatic} onCheckedChange={(on) => void setAutomaticBackup(on)} />
                 <Label htmlFor="backupAuto">{t("backup.automatic")}</Label>
               </div>
-              <p className="text-xs opacity-70">{backup.lastBackupAt ? t("backup.last", { at: new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(backup.lastBackupAt)) }) : t("backup.never")}</p>
+              <p className="text-xs opacity-70">{backup.lastBackupAt ? t("backup.last", { at: formatWhen(backup.lastBackupAt, i18n.language) }) : t("backup.never")}</p>
               <div className="flex flex-wrap gap-2">
                 <Button variant="outline" onClick={() => void backupNow()}>{t("backup.now")}</Button>
                 <Button variant="outline" onClick={() => setPassphraseDialog("set")}>{t("backup.changePassphrase")}</Button>
@@ -300,7 +301,7 @@ export function SettingsPage() {
               <p className="font-semibold">{t("backup.list")}</p>
               {backups.map((b) => (
                 <div key={b.id} className="flex items-center justify-between gap-2">
-                  <span>{b.uploadedAt ? new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(b.uploadedAt)) : t("backup.pendingUpload")} · {Math.round(b.byteSize / 1024)} KB</span>
+                  <span>{b.uploadedAt ? formatWhen(b.uploadedAt, i18n.language) : t("backup.pendingUpload")} · {Math.round(b.byteSize / 1024)} KB</span>
                   <Button size="sm" variant="outline" onClick={() => setPassphraseDialog({ restore: b })}>{t("backup.restore")}</Button>
                 </div>
               ))}
@@ -390,7 +391,7 @@ export function SettingsPage() {
         <CardContent className="flex flex-col gap-3">
           {session?.deletionRequestedAt && (
             <p className="rounded-lg border p-3 text-sm">
-              {t("account.deletionPending", { date: new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { dateStyle: "medium" }).format(new Date(new Date(session.deletionRequestedAt).getTime() + 30 * 86_400_000)) })}
+              {t("account.deletionPending", { date: formatWhen(new Date(session.deletionRequestedAt).getTime() + 30 * 86_400_000, i18n.language, DATE) })}
             </p>
           )}
           <div className="flex flex-wrap gap-2">

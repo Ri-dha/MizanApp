@@ -8,6 +8,7 @@ import { acceptInvitation, previewInvitation, rememberPendingInvite } from "@/ap
 import { describeError } from "@/app/errors"
 import { AuthLayout } from "@/components/AuthLayout"
 import { Button } from "@/components/ui/button"
+import { DATE, formatWhen } from "@/app/dates"
 
 type Preview = Awaited<ReturnType<typeof previewInvitation>>
 
@@ -37,7 +38,7 @@ export function JoinPage() {
     }
   }
 
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { dateStyle: "medium" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, DATE)
 
   return (
     <AuthLayout title={t("household.joinTitle")}>

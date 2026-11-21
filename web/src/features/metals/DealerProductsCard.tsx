@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { readMeta, writeMeta } from "@mizan/core/db/meta"
 import { formatMoney } from "@/app/money"
+import { formatWhen } from "@/app/dates"
 
 interface Item { id: string; name_ar: string; name_en: string; weight_g: number; karat: number; purity_label: string; bid_iqd: number; ask_iqd: number }
 interface Group { key: string; metal: string; title_ar: string; title_en: string; items: Item[] }
@@ -45,7 +46,7 @@ export function DealerProductsCard({ currency }: { currency: string }) {
       <CardHeader className="flex-row items-start justify-between gap-2">
         <div>
           <CardTitle>{t("metals.dealerProducts")}</CardTitle>
-          <CardDescription>{t("metals.dealerProductsBody", { source: catalogue.source, at: new Intl.DateTimeFormat(ar ? "ar-IQ" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(catalogue.asOf)) })}</CardDescription>
+          <CardDescription>{t("metals.dealerProductsBody", { source: catalogue.source, at: formatWhen(catalogue.asOf, ar ? "ar" : "en") })}</CardDescription>
         </div>
         <Button size="sm" variant="outline" onClick={() => setOpen((o) => !o)}>{open ? t("metals.hide") : t("metals.show")}</Button>
       </CardHeader>

@@ -35,7 +35,7 @@ export function BillsPage() {
   useScreenTour("bills")
   const today = todayIso()
   const money = (amount: number, currency = base) => formatMoney(amount, currency, i18n.language)
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { day: "numeric", month: "short" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, { day: "numeric", month: "short" })
   const bucketName = (id: string | null) => view.buckets.find((b) => b.id === id)?.name
 
   const committed = view.bills.filter((b) => !b.occurrence).reduce((sum, b) => sum + b.expectedAmount, 0)
@@ -160,6 +160,7 @@ function RecurringExpenseListOutsideMonth({ monthBills, onEdit }: { monthBills: 
 
 import { useLiveQuery } from "dexie-react-hooks"
 import { liveRecurringExpenses } from "@mizan/core/db/expenses"
+import { formatWhen } from "@/app/dates"
 
 function useOthers(shown: Set<string>) {
   const all = useLiveQuery(liveRecurringExpenses, [], [])

@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react"
 import { useTranslation } from "react-i18next"
+import { formatWhen } from "@/app/dates"
 
 export type Action = () => Promise<unknown>
 export type Run = (action: Action, done?: string) => Promise<boolean>
@@ -13,5 +14,5 @@ export function useAdminAction(): Run {
 export function useWhen() {
   const { i18n } = useTranslation()
   return (iso: string | null | undefined) =>
-    iso ? new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso)) : "—"
+    iso ? formatWhen(iso, i18n.language) : "—"
 }

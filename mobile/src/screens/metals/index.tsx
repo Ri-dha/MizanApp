@@ -21,6 +21,7 @@ import { DealerProducts } from "./dealer-products"
 import { SellOrHold } from "./sell-or-hold"
 import { grams, wholeFromMicros } from "./format"
 import { useScreenTour } from "@/tours"
+import { formatWhen } from "@/utils/dates"
 
 const METALS: Metal[] = ["GOLD", "SILVER"]
 const USD_MINOR_PER_MICROS = 1e4
@@ -37,7 +38,7 @@ export function Metals() {
   const money = (v: number) => formatMoney(v, base, i18n.language)
   const usd = (micros: number) => formatMoney(Math.round(micros / USD_MINOR_PER_MICROS), "USD", i18n.language)
   const signed = (v: number) => (v > 0 ? "+" : "") + money(v)
-  const when = (at: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(at))
+  const when = (at: string) => formatWhen(at, i18n.language)
   const table = priceTable(view.prices, view.setting)
   const openLots = view.valued.filter((v) => v.remainingMg > 0)
   const totals = view.lines.reduce((acc, l) => ({ cost: acc.cost + l.costBasis, value: acc.value + l.valueNow, gain: acc.gain + l.gain, gainX: acc.gainX + l.gainExcludingMaking }), { cost: 0, value: 0, gain: 0, gainX: 0 })

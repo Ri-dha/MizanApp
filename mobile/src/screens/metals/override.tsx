@@ -15,6 +15,7 @@ import { useSession } from "@/hooks/use-core"
 import { useMetals } from "@/hooks/use-views"
 import { spacing } from "@/theme"
 import { wholeFromMicros } from "./format"
+import { formatCount } from "@/utils/dates"
 
 const INSTRUMENTS: MarketInstrument[] = ["XAU", "XAG", "USDIQD"]
 const LOCAL_UNITS = ["GRAM", "MITHQAL", "TOLA"]
@@ -71,7 +72,7 @@ export function PriceOverride() {
       )}
       <TextField testID="override-price" label={isRate ? t("metals.ratePrice", { base }) : t("metals.localPrice", { base })} keyboardType="decimal-pad" value={price} onChangeText={setPrice} autoFocus />
       {isRate || !price ? null : (
-        <ThemedText variant="caption">{t("metals.perGram24k", { amount: new Intl.NumberFormat(i18n.language === "ar" ? "ar-IQ-u-nu-latn" : "en-GB").format(wholeFromMicros(perGram24kMicros)) })}</ThemedText>
+        <ThemedText variant="caption">{t("metals.perGram24k", { amount: formatCount(wholeFromMicros(perGram24kMicros), i18n.language) })}</ThemedText>
       )}
       <TextField label={t("income.note")} maxLength={120} placeholder={t("metals.overrideNoteHint")} value={note} onChangeText={setNote} />
       {view.overrides.length > 0 ? <ThemedText variant="caption">{t("metals.overrideCount", { count: view.overrides.length })}</ThemedText> : null}

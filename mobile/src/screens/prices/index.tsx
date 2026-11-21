@@ -12,6 +12,7 @@ import { ThemedText } from "@/components/themed-text"
 import { usePriceSeries } from "@/hooks/use-market"
 import { spacing, useBrandColors } from "@/theme"
 import { formatMoney } from "@/utils/money"
+import { DATE, DATE_TIME, formatWhen } from "@/utils/dates"
 
 const SHORT_RANGES: ReadonlySet<Range> = new Set(["1D", "1W"])
 const COMPACT_FROM = 100_000
@@ -36,8 +37,8 @@ export function Prices() {
   const format = (value: number) => (usd ? formatMoney(Math.round(value * CENTS), "USD", i18n.language) : formatMoney(Math.round(value), "IQD", i18n.language))
   const signed = (value: number) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${format(Math.abs(value))}`
   const percent = (value: number, base: number) => (base === 0 ? "" : `${value > 0 ? "+" : value < 0 ? "−" : ""}${Math.abs((value / base) * 100).toFixed(2)}%`)
-  const when = (iso: string, withTime: boolean) => new Intl.DateTimeFormat(locale, withTime ? { dateStyle: "medium", timeStyle: "short" } : { dateStyle: "medium" }).format(new Date(iso))
-  const tick = (iso: string) => new Intl.DateTimeFormat(locale, SHORT_RANGES.has(range) ? { day: "numeric", hour: "2-digit" } : { month: "short", day: "numeric" }).format(new Date(iso))
+  const when = (iso: string, withTime: boolean) => formatWhen(iso, locale, withTime ? DATE_TIME : DATE)
+  const tick = (iso: string) => formatWhen(iso, locale, SHORT_RANGES.has(range) ? { day: "numeric", hour: "2-digit" } : { month: "short", day: "numeric" })
   const moveColour = (v: number) => (v > 0 ? { color: brand.chart[3] } : v < 0 ? { color: brand.destructive } : null)
 
   const latest = series.changes[0]

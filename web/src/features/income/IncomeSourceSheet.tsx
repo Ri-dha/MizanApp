@@ -16,6 +16,7 @@ import { createIncomeSource, historyOf, microsToRate, RATE_SCALE, rateToMicros, 
 import type { Frequency, IncomeSource, IncomeSourceAmount } from "@/db/schema"
 import { todayIso } from "@mizan/core/domain/calendar/month"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
+import { formatWhen } from "@/app/dates"
 
 const FREQUENCIES: Frequency[] = ["MONTHLY", "BIWEEKLY", "WEEKLY", "ONE_OFF"]
 const CURRENCIES = ["IQD", "USD"]
@@ -64,7 +65,7 @@ export function IncomeSourceSheet({ open, source, history, onClose }: Props) {
   }, [open, source, base, privacy])
 
   const timeline = source ? historyOf(source, history) : []
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, { day: "numeric", month: "short", year: "numeric" })
 
   async function submitRaise(event: FormEvent) {
     event.preventDefault()

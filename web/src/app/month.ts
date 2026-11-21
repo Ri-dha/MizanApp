@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react"
 
 import { monthKeyFor, shiftKey, todayIso } from "@mizan/core/domain/calendar/month"
+import { formatWhen } from "./dates"
 
 let selected: string | null = null
 const listeners = new Set<() => void>()
@@ -31,6 +32,5 @@ export function shiftMonth(key: string, months: number): string {
 
 export function formatMonthKey(key: string, locale: string): string {
   const [year, month] = key.split("-").map(Number)
-  return new Intl.DateTimeFormat(locale === "ar" ? "ar-IQ" : "en-GB", { month: "long", year: "numeric" })
-    .format(new Date(Date.UTC(year, month - 1, 1)))
+  return formatWhen(Date.UTC(year, month - 1, 1), locale, { month: "long", year: "numeric", timeZone: "UTC" })
 }

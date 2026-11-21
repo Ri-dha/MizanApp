@@ -10,6 +10,7 @@ import type { Debt, DebtPayment } from "@/db/schema"
 import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
 import { debtPayoff } from "@mizan/core/domain/debt/payoff"
 import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
+import { formatWhen } from "@/app/dates"
 
 interface Props {
   debt: Debt | null
@@ -28,7 +29,7 @@ export function DebtDetailSheet({ debt, payments, startDay, onClose, onEdit }: P
   if (!debt) return <Sheet open={false}><SheetContent /></Sheet>
 
   const money = (value: number) => formatMoney(value, debt.currency, i18n.language)
-  const date = (iso: string) => new Intl.DateTimeFormat(i18n.language === "ar" ? "ar-IQ" : "en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(iso))
+  const date = (iso: string) => formatWhen(iso, i18n.language, { day: "numeric", month: "short", year: "numeric" })
   const balance = balanceOf(debt, payments)
   const ledger = payments.filter((p) => p.debtId === debt.id).reverse()
   const payoff = debtPayoff(balance, debt.annualRateBasisPoints, debt.monthlyPayment)
