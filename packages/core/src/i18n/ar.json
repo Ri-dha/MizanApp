@@ -1050,7 +1050,17 @@
     "noSnapshots": "لا أشهر مقفلة بعد",
     "noProjection": "—",
     "spendingByBucket": "الإنفاق لكل قسم حسب الشهر",
-    "months": "شهراً بشهر"
+    "months": "شهراً بشهر",
+    "savingRateTitle": "نسبة الادخار",
+    "shareOfIncome": "{{percent}}% مما ورد",
+    "vsLastMonth": "الإنفاق مقارنة بالشهر الماضي",
+    "ofAmount": "من {{amount}}",
+    "category": "الفئة",
+    "savedThisYear": "المدخر هذه السنة",
+    "monthlyAverage": "{{amount}} شهرياً في المتوسط",
+    "previousYear": "السنة السابقة",
+    "nextYear": "السنة التالية",
+    "yearHeading": "السنة بنظرة واحدة"
   },
   "data": {
     "title": "بياناتك",

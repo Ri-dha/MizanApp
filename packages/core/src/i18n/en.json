@@ -1034,7 +1034,17 @@
     "noSnapshots": "No closed months yet",
     "noProjection": "—",
     "spendingByBucket": "Spending per bucket, by month",
-    "months": "Month by month"
+    "months": "Month by month",
+    "savingRateTitle": "Saving rate",
+    "shareOfIncome": "{{percent}}% of what came in",
+    "vsLastMonth": "Spending vs last month",
+    "ofAmount": "of {{amount}}",
+    "category": "Category",
+    "savedThisYear": "Saved this year",
+    "monthlyAverage": "{{amount}} a month on average",
+    "previousYear": "Previous year",
+    "nextYear": "Next year",
+    "yearHeading": "Year at a glance"
   },
   "data": {
     "title": "Your data",
