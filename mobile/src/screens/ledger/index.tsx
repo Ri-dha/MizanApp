@@ -1,143 +1,29 @@
-import { Link, Stack, router } from "expo-router"
-import { useMemo, useState } from "react"
+import { Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
-import { Pressable, SectionList, View } from "react-native"
-import { SegmentedControl } from "@expo/ui/community/segmented-control"
 
-import { formatMoney } from "@/utils/money"
-import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
-import { isAccountTransfer } from "@mizan/core/db/cashMovements"
-import { EMPTY_FILTER, filterTransactions, liveRecentlyDeleted, liveTransactionsFor, restoreTransaction } from "@mizan/core/db/transactions"
-import type { LedgerTransaction, TransactionType } from "@mizan/core/schema"
+import { viewFor } from "@mizan/core/domain/appStyle"
 import { Button } from "@/components/button"
-import { Notice } from "@/components/notice"
-import { Row } from "@/components/row"
-import { ThemedText } from "@/components/themed-text"
-import { useLiveQuery, useSession, useSyncStatus } from "@/hooks/use-core"
-import { useSelectedMonth } from "@/hooks/use-selected-month"
-import { useMonthView } from "@/hooks/use-views"
-import { MonthSwitcher } from "@/components/month-switcher"
-import { radius, spacing, type, makeStyles } from "@/theme"
-import { formatDay } from "@/utils/dates"
-import { useScreenTour } from "@/tours"
+import { useAppStyle } from "@/theme"
+import { useLedgerScreen } from "./use-ledger-screen"
+import { LedgerSoft } from "./views/ledger-soft"
 
-const NO_ROWS: LedgerTransaction[] = []
-const DAY: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" }
-const TYPE_FILTERS: (TransactionType | null)[] = [null, "EXPENSE", "TRANSFER", "INCOME"]
-
-interface Section {
-  key: string
-  title: string
-  data: LedgerTransaction[]
-  deleted?: boolean
-}
+/** ADR styles-1: each template draws the screen its own way; a template without a view of its own gets Soft. */
+const VIEWS = { soft: LedgerSoft }
 
 export function Ledger() {
-  const styles = useStyles()
-  const { t, i18n } = useTranslation()
-  useScreenTour("ledger")
-  const session = useSession()
-  // Viewers and advisors read only, as on the web; the server refuses their writes in any case.
-  const canWrite = session?.role !== "VIEWER" && session?.role !== "ADVISOR"
-  const status = useSyncStatus()
-  const startDay = session?.monthStartDay ?? 1
-  const [monthKey, setMonthKey] = useSelectedMonth(startDay)
-  const [text, setText] = useState("")
-  const [typeFilter, setTypeFilter] = useState<TransactionType | null>(null)
-  const view = useMonthView(monthKey, startDay)
-  const month = useLiveQuery(() => liveTransactionsFor(monthKey), [monthKey], NO_ROWS)
-  const deleted = useLiveQuery(liveRecentlyDeleted, [], NO_ROWS)
-  const bucketName = (id: string | null) => view.buckets.find((b) => b.id === id)?.name
-  const accounts = useLiveQuery(liveCashAccounts, [], [])
-  const accountName = (id: string | null | undefined) => accounts.find((a) => a.id === id)?.name ?? "?"
-  // A move between the person's own accounts is neither spending nor income, so it carries no sign.
-  const signed = (row: LedgerTransaction) => (row.type === "INCOME" || isAccountTransfer(row) ? row.amount : -row.amount)
-  const money = (row: LedgerTransaction) => formatMoney(signed(row), row.currency, i18n.language)
-  const statusText = status.pending > 0 ? t("sync.status.pending", { count: status.pending }) : t(`sync.status.${status.phase}`)
-
-  const sections = useMemo<Section[]>(() => {
-    const matching = filterTransactions(month, { ...EMPTY_FILTER, text, type: typeFilter })
-    const byDay = new Map<string, LedgerTransaction[]>()
-    for (const row of matching) byDay.set(row.occurredOn, [...(byDay.get(row.occurredOn) ?? []), row])
-    const days: Section[] = [...byDay.entries()].map(([day, data]) => ({ key: day, title: formatDay(day, i18n.language, DAY), data }))
-    return deleted.length > 0 && !text && !typeFilter ? [...days, { key: "deleted", title: t("transactions.recentlyDeleted"), data: deleted, deleted: true }] : days
-  }, [month, deleted, text, typeFilter, i18n.language, t])
-
+  const { t } = useTranslation()
+  const model = useLedgerScreen()
+  const View = viewFor(VIEWS, useAppStyle())
   return (
     <>
       <Stack.Screen
         options={{
           title: t("transactions.title"),
-          headerRight: () => (canWrite ? <Button testID="open-add-transaction" variant="ghost" title={t("transactions.add")} onPress={() => router.push("/transaction")} /> : null),
-          headerSearchBarOptions: { placeholder: t("transactions.search"), onChangeText: (event) => setText(event.nativeEvent.text) },
+          headerRight: () => (model.canWrite ? <Button testID="open-add-transaction" variant="ghost" title={t("transactions.add")} onPress={model.add} /> : null),
+          headerSearchBarOptions: { placeholder: t("transactions.search"), onChangeText: (event) => model.setText(event.nativeEvent.text) },
         }}
       />
-      <SectionList
-        style={styles.list}
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.content}
-        sections={sections}
-        keyExtractor={(row) => row.id}
-        stickySectionHeadersEnabled={false}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            {session && !session.verified ? (
-              <Link href="/verify" asChild>
-                <Pressable testID="open-verify" accessibilityRole="link"><Notice>{`${t("auth.verifyTitle")} · ${t("auth.verify")}`}</Notice></Pressable>
-              </Link>
-            ) : null}
-            <MonthSwitcher monthKey={monthKey} onChange={setMonthKey} />
-            <SegmentedControl
-              testID="type-filter"
-              values={TYPE_FILTERS.map((value) => (value ? t(`transactions.types.${value}`) : t("transactions.allTypes")))}
-              selectedIndex={TYPE_FILTERS.indexOf(typeFilter)}
-              onChange={(event) => setTypeFilter(TYPE_FILTERS[event.nativeEvent.selectedSegmentIndex])}
-            />
-            <Link href="/sync" testID="sync-status" style={[type.subhead, styles.status]}>{statusText}</Link>
-          </View>
-        }
-        ListEmptyComponent={<ThemedText variant="subhead">{t("transactions.none")}</ThemedText>}
-        renderSectionHeader={({ section }) => <ThemedText variant="subhead" style={styles.sectionTitle}>{section.title}</ThemedText>}
-        renderItem={({ item, index, section }) => {
-          const first = index === 0
-          const last = index === section.data.length - 1
-          return (
-            <Pressable
-              testID={`transaction-${item.id}`}
-              onPress={() => (section.deleted ? undefined : router.push({ pathname: isAccountTransfer(item) ? "/account-transfer" : "/transaction", params: { id: item.id } }))}
-              style={({ pressed }) => [styles.cell, first && styles.first, last && styles.last, pressed && !section.deleted ? styles.pressed : null]}
-            >
-              <Row
-                last={last}
-                trailing={
-                  section.deleted ? (
-                    <Button testID={`restore-${item.id}`} variant="ghost" title={t("accounts.restore")} onPress={() => void restoreTransaction(item.id)} />
-                  ) : (
-                    <ThemedText style={type.amount}>{money(item)}</ThemedText>
-                  )
-                }
-              >
-                <ThemedText>{isAccountTransfer(item) ? `${accountName(item.cashAccountId)} → ${accountName(item.counterpartyId)}` : item.payee ?? item.category ?? t(`transactions.types.${item.type}`)}</ThemedText>
-                <ThemedText variant="caption">
-                  {[isAccountTransfer(item) ? t("transactions.types.TRANSFER") : bucketName(item.bucketId), item.category, item.note, item.splitGroupId ? t("transactions.splitBadge") : null].filter(Boolean).join(" · ") || " "}
-                </ThemedText>
-              </Row>
-            </Pressable>
-          )
-        }}
-      />
+      <View model={model} />
     </>
   )
 }
-
-const useStyles = makeStyles((colors) => ({
-  list: { backgroundColor: colors.background },
-  status: { color: colors.secondaryLabel },
-  content: { padding: spacing.md, paddingBottom: spacing.xxl },
-  header: { gap: spacing.md, marginBottom: spacing.sm },
-  sectionTitle: { marginTop: spacing.md, marginBottom: spacing.xs },
-  cell: { backgroundColor: colors.surface, overflow: "hidden" },
-  first: { borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md },
-  last: { borderBottomLeftRadius: radius.md, borderBottomRightRadius: radius.md },
-  pressed: { backgroundColor: colors.fill },
-}))
