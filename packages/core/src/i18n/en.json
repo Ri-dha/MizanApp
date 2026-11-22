@@ -1772,5 +1772,12 @@
     "gateBody": "You are using simple mode, which leaves this screen out. Switching shows it again, with everything you recorded.",
     "switchToAdvanced": "Switch to advanced",
     "includesAdvanced": "Includes gold or other assets recorded in advanced mode."
+  },
+  "more": {
+    "groups": {
+      "money": "Money",
+      "own": "What you own",
+      "app": "Household and app"
+    }
   }
 }
