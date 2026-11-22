@@ -742,7 +742,10 @@
     "paidOnLabel": "Paid on",
     "end": "End this bill",
     "reminderDays": "Remind me (days before)",
-    "reminderDaysHint": "Leave empty to use the default from Settings."
+    "reminderDaysHint": "Leave empty to use the default from Settings.",
+    "inDays_one": "In {{count}} day",
+    "inDays_other": "In {{count}} days",
+    "dueToday": "Due today"
   },
   "debts": {
     "title": "Debts",

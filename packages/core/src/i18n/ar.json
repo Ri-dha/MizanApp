@@ -754,7 +754,14 @@
     "paidOnLabel": "تاريخ الدفع",
     "end": "إنهاء هذه الفاتورة",
     "reminderDays": "ذكّرني قبل (أيام)",
-    "reminderDaysHint": "اتركه فارغاً لاستخدام الافتراضي من الإعدادات."
+    "reminderDaysHint": "اتركه فارغاً لاستخدام الافتراضي من الإعدادات.",
+    "inDays_zero": "اليوم",
+    "inDays_one": "بعد يوم",
+    "inDays_two": "بعد يومين",
+    "inDays_few": "بعد {{count}} أيام",
+    "inDays_many": "بعد {{count}} يوماً",
+    "inDays_other": "بعد {{count}} يوم",
+    "dueToday": "تستحق اليوم"
   },
   "debts": {
     "title": "الديون",
