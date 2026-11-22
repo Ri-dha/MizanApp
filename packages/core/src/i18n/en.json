@@ -761,8 +761,7 @@
     "reminderDays": "Remind me (days before)",
     "reminderDaysHint": "Leave empty to use the default from Settings.",
     "inDays_one": "In {{count}} day",
-    "inDays_other": "In {{count}} days",
-    "dueToday": "Due today"
+    "inDays_other": "In {{count}} days"
   },
   "debts": {
     "title": "Debts",
@@ -1601,7 +1600,8 @@
       "money": "Money",
       "owned": "What you own",
       "insight": "Insight",
-      "app": "Household and app"
+      "app": "Household and app",
+      "own": "What you own"
     }
   },
   "homeLayout": {
@@ -1835,12 +1835,5 @@
     "gateBody": "You are using simple mode, which leaves this screen out. Switching shows it again, with everything you recorded.",
     "switchToAdvanced": "Switch to advanced",
     "includesAdvanced": "Includes gold or other assets recorded in advanced mode."
-  },
-  "more": {
-    "groups": {
-      "money": "Money",
-      "own": "What you own",
-      "app": "Household and app"
-    }
   }
 }
