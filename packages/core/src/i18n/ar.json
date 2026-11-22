@@ -542,7 +542,8 @@
     "showHijri": "عرض التاريخ الهجري إلى جانب الميلادي",
     "languageSystem": "لغة الهاتف",
     "restartForDirection": "أغلق ميزان وافتحه من جديد لتغيير اتجاه الشاشة.",
-    "valuationReminder": "ذكّرني بإعادة تقييم الأصول بعد (أشهر)"
+    "valuationReminder": "ذكّرني بإعادة تقييم الأصول بعد (أشهر)",
+    "languageAndTheme": "اللغة والمظهر"
   },
   "common": {
     "done": "تم",

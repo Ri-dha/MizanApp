@@ -530,7 +530,8 @@
     "showHijri": "Show Hijri dates alongside",
     "languageSystem": "Phone's language",
     "restartForDirection": "Close and reopen Mizan to switch the screen direction.",
-    "valuationReminder": "Remind me to revalue assets after (months)"
+    "valuationReminder": "Remind me to revalue assets after (months)",
+    "languageAndTheme": "Language and theme"
   },
   "common": {
     "done": "Done",
