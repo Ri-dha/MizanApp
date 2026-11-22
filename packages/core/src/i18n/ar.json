@@ -617,7 +617,14 @@
     "effectiveFrom": "اعتباراً من",
     "raiseSaved": "تم تسجيل التغيير",
     "amountLocked": "استخدم «تسجيل زيادة أو تغيير» أدناه لتحتفظ الأشهر السابقة بأرقامها.",
-    "currentAmount": "آخر مبلغ"
+    "currentAmount": "آخر مبلغ",
+    "receivedThisMonth": "المستلم هذا الشهر",
+    "ofPlanned": "من {{amount}} مخطط",
+    "allIn": "وصل كله",
+    "expected": "متوقع",
+    "expectedThisMonth": "المتوقع هذا الشهر",
+    "source": "المصدر",
+    "goesTo": "يذهب إلى"
   },
   "plan": {
     "title": "الخطة",
@@ -714,7 +721,11 @@
     "takePhoto": "التقاط صورة",
     "choosePhoto": "اختيار صورة",
     "removeReceipt": "إزالة الصورة",
-    "note": "ملاحظة"
+    "note": "ملاحظة",
+    "moneyIn": "الوارد",
+    "moneyOut": "الصادر",
+    "moved": "المنقول",
+    "movedDay": "نُقل {{amount}}"
   },
   "bills": {
     "title": "الفواتير",
@@ -750,7 +761,14 @@
     "paidOnLabel": "تاريخ الدفع",
     "end": "إنهاء هذه الفاتورة",
     "reminderDays": "ذكّرني قبل (أيام)",
-    "reminderDaysHint": "اتركه فارغاً لاستخدام الافتراضي من الإعدادات."
+    "reminderDaysHint": "اتركه فارغاً لاستخدام الافتراضي من الإعدادات.",
+    "inDays_zero": "اليوم",
+    "inDays_one": "بعد يوم",
+    "inDays_two": "بعد يومين",
+    "inDays_few": "بعد {{count}} أيام",
+    "inDays_many": "بعد {{count}} يوماً",
+    "inDays_other": "بعد {{count}} يوم",
+    "dueToday": "تستحق اليوم"
   },
   "debts": {
     "title": "الديون",
@@ -1032,7 +1050,17 @@
     "noSnapshots": "لا أشهر مقفلة بعد",
     "noProjection": "—",
     "spendingByBucket": "الإنفاق لكل قسم حسب الشهر",
-    "months": "شهراً بشهر"
+    "months": "شهراً بشهر",
+    "savingRateTitle": "نسبة الادخار",
+    "shareOfIncome": "{{percent}}% مما ورد",
+    "vsLastMonth": "الإنفاق مقارنة بالشهر الماضي",
+    "ofAmount": "من {{amount}}",
+    "category": "الفئة",
+    "savedThisYear": "المدخر هذه السنة",
+    "monthlyAverage": "{{amount}} شهرياً في المتوسط",
+    "previousYear": "السنة السابقة",
+    "nextYear": "السنة التالية",
+    "yearHeading": "السنة بنظرة واحدة"
   },
   "data": {
     "title": "بياناتك",

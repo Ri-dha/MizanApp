@@ -605,7 +605,14 @@
     "effectiveFrom": "From",
     "raiseSaved": "Change recorded",
     "amountLocked": "Use 'Record a raise or change' below so earlier months keep their figures.",
-    "currentAmount": "Latest amount"
+    "currentAmount": "Latest amount",
+    "receivedThisMonth": "Received this month",
+    "ofPlanned": "of {{amount}} planned",
+    "allIn": "All in",
+    "expected": "Expected",
+    "expectedThisMonth": "Expected this month",
+    "source": "Source",
+    "goesTo": "Goes to"
   },
   "plan": {
     "title": "Plan",
@@ -702,7 +709,11 @@
     "takePhoto": "Take photo",
     "choosePhoto": "Choose photo",
     "removeReceipt": "Remove photo",
-    "note": "Note"
+    "note": "Note",
+    "moneyIn": "Money in",
+    "moneyOut": "Money out",
+    "moved": "Moved",
+    "movedDay": "{{amount}} moved"
   },
   "bills": {
     "title": "Bills",
@@ -738,7 +749,10 @@
     "paidOnLabel": "Paid on",
     "end": "End this bill",
     "reminderDays": "Remind me (days before)",
-    "reminderDaysHint": "Leave empty to use the default from Settings."
+    "reminderDaysHint": "Leave empty to use the default from Settings.",
+    "inDays_one": "In {{count}} day",
+    "inDays_other": "In {{count}} days",
+    "dueToday": "Due today"
   },
   "debts": {
     "title": "Debts",
@@ -1020,7 +1034,17 @@
     "noSnapshots": "No closed months yet",
     "noProjection": "—",
     "spendingByBucket": "Spending per bucket, by month",
-    "months": "Month by month"
+    "months": "Month by month",
+    "savingRateTitle": "Saving rate",
+    "shareOfIncome": "{{percent}}% of what came in",
+    "vsLastMonth": "Spending vs last month",
+    "ofAmount": "of {{amount}}",
+    "category": "Category",
+    "savedThisYear": "Saved this year",
+    "monthlyAverage": "{{amount}} a month on average",
+    "previousYear": "Previous year",
+    "nextYear": "Next year",
+    "yearHeading": "Year at a glance"
   },
   "data": {
     "title": "Your data",
