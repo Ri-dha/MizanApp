@@ -1,120 +1,24 @@
-import { useCashAccounts } from "@/hooks/use-views"
-import { router, Stack } from "expo-router"
-import { useEffect, useState } from "react"
+import { Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
-import { Alert, StyleSheet, View } from "react-native"
 
-import { createCashAccount, hasProvider, liveAdjustmentsOf, updateCashAccount } from "@mizan/core/db/cashAccounts"
-import { defaultsOf, livePrivacySetting } from "@mizan/core/db/privacy"
-import { softDelete } from "@mizan/core/db/write"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@/utils/money"
-import type { CashAccountKind } from "@mizan/core/schema"
+import { viewFor } from "@mizan/core/domain/appStyle"
 import { Button } from "@/components/button"
-import { Chips } from "@/components/chips"
-import { Group, Row } from "@/components/row"
 import { Screen } from "@/components/screen"
-import { TextField } from "@/components/text-field"
-import { ThemedText } from "@/components/themed-text"
-import { ToggleRow } from "@/components/toggle-row"
-import { useLiveQuery, useSession } from "@/hooks/use-core"
-import { spacing } from "@/theme"
-import { CurrencyField } from "@/components/currency-field"
+import { useAppStyle } from "@/theme"
+import { useAccountEditorScreen } from "./use-account-editor-screen"
+import { AccountEditorSoft } from "./views/account-editor-soft"
 
-const KINDS: CashAccountKind[] = ["WALLET", "BANK", "CASH_AT_HOME", "OTHER"]
+/** ADR styles-1: each template draws the sheet its own way; a template without a view of its own gets Soft. */
+const VIEWS = { soft: AccountEditorSoft }
 
-export function AccountEditor({ id }: { id?: string }) {
-  const { t, i18n } = useTranslation()
-  const session = useSession()
-  // Today's balance, linked income and spending included, is what the person sees and edits (ADR cash-1).
-  const account = useCashAccounts().find((a) => a.id === id)
-  const adjustments = useLiveQuery(() => (id ? liveAdjustmentsOf(id) : Promise.resolve([])), [id], [])
-  const privacy = useLiveQuery(async () => defaultsOf(await livePrivacySetting()), [], defaultsOf(undefined))
-  const [name, setName] = useState("")
-  const [kind, setKind] = useState<CashAccountKind>("WALLET")
-  const [institution, setInstitution] = useState("")
-  const [currency, setCurrency] = useState(session?.baseCurrency ?? "IQD")
-  const [balance, setBalance] = useState("")
-  const [adjustmentNote, setAdjustmentNote] = useState("")
-  const [isPrivate, setIsPrivate] = useState(false)
-  const [loaded, setLoaded] = useState(!id)
-
-  useEffect(() => {
-    if (!account || loaded) return
-    setName(account.name)
-    setKind(account.kind)
-    setInstitution(account.institution ?? "")
-    setCurrency(account.currency)
-    setBalance(fromMinorUnits(account.balance, account.currency))
-    setIsPrivate(account.visibility === "PRIVATE")
-    setLoaded(true)
-  }, [account, loaded])
-
-  useEffect(() => {
-    if (!id) setIsPrivate(privacy.accounts === "PRIVATE")
-  }, [id, privacy.accounts])
-
-  async function save() {
-    const input = {
-      name: name.trim(),
-      kind,
-      institution: hasProvider(kind) ? institution.trim() || null : null,
-      currency,
-      balance: toMinorUnits(balance || "0", currency),
-      visibility: isPrivate ? ("PRIVATE" as const) : ("SHARED" as const),
-    }
-    if (id) await updateCashAccount(id, input, adjustmentNote.trim() || null, account?.balance)
-    else await createCashAccount(input)
-    router.back()
-  }
-
-  function confirmDelete() {
-    if (!id) return
-    Alert.alert(t("accounts.delete"), name, [
-      { text: t("common.cancel"), style: "cancel" },
-      { text: t("accounts.delete"), style: "destructive", onPress: () => void softDelete("cash_account", id).then(() => router.back()) },
-    ])
-  }
-
+export function AccountEditor(props: Parameters<typeof useAccountEditorScreen>[0]) {
+  const { t } = useTranslation()
+  const model = useAccountEditorScreen(props)
+  const View = viewFor(VIEWS, useAppStyle())
   return (
     <Screen sheet>
-      <Stack.Screen options={{ title: id ? t("accounts.edit") : t("accounts.add"), headerRight: () => <Button testID="save-account" variant="ghost" title={t("accounts.save")} disabled={!name.trim()} onPress={() => void save()} /> }} />
-      <TextField testID="account-name" label={t("accounts.name")} maxLength={80} value={name} onChangeText={setName} autoFocus={!id} />
-      <View style={styles.field}>
-        <ThemedText variant="subhead">{t("accounts.kind")}</ThemedText>
-        <Chips testID="account-kind" options={KINDS.map((k) => ({ value: k, label: t(`accounts.kinds.${k}`) }))} value={kind} onChange={(next) => next && setKind(next as CashAccountKind)} />
-      </View>
-      {hasProvider(kind) ? <TextField testID="account-institution" label={t("accounts.institution")} maxLength={80} value={institution} onChangeText={setInstitution} /> : null}
-      <View style={styles.pair}>
-        <View style={styles.wide}><TextField testID="account-balance" label={t("accounts.balance")} keyboardType="decimal-pad" value={balance} onChangeText={setBalance} /></View>
-        <View style={styles.narrow}>
-          <CurrencyField testID="account-currency" value={currency} onChange={setCurrency} />
-        </View>
-      </View>
-      {id ? <TextField testID="account-adjustment-note" label={t("accounts.adjustmentNote")} maxLength={120} value={adjustmentNote} onChangeText={setAdjustmentNote} /> : null}
-      <ToggleRow label={t("accounts.private")} value={isPrivate} onChange={setIsPrivate} />
-      {account && adjustments.length > 0 ? (
-        <View style={styles.field}>
-          <ThemedText variant="headline">{t("accounts.adjustments")}</ThemedText>
-          <Group>
-            {adjustments.map((a, index) => (
-              <Row key={a.id} last={index === adjustments.length - 1}>
-                <ThemedText variant="subhead">
-                  {t("accounts.adjustmentLine", { date: a.adjustedOn, from: formatMoney(a.previousBalance, account.currency, i18n.language), to: formatMoney(a.newBalance, account.currency, i18n.language) })}
-                  {a.note ? ` · ${a.note}` : ""}
-                </ThemedText>
-              </Row>
-            ))}
-          </Group>
-        </View>
-      ) : null}
-      {id ? <Button testID="delete-account" variant="destructive" title={t("accounts.delete")} onPress={confirmDelete} /> : null}
+      <Stack.Screen options={{ title: model.id ? t("accounts.edit") : t("accounts.add"), headerRight: () => <Button testID="save-account" variant="ghost" title={t("accounts.save")} disabled={!model.ready} onPress={model.save} /> }} />
+      <View model={model} />
     </Screen>
   )
 }
-
-const styles = StyleSheet.create({
-  pair: { flexDirection: "row", gap: spacing.md, alignItems: "flex-end" },
-  wide: { flex: 3 },
-  narrow: { flex: 2, gap: spacing.xs },
-  field: { gap: spacing.xs },
-})
