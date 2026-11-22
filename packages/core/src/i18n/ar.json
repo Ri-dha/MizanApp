@@ -617,7 +617,14 @@
     "effectiveFrom": "اعتباراً من",
     "raiseSaved": "تم تسجيل التغيير",
     "amountLocked": "استخدم «تسجيل زيادة أو تغيير» أدناه لتحتفظ الأشهر السابقة بأرقامها.",
-    "currentAmount": "آخر مبلغ"
+    "currentAmount": "آخر مبلغ",
+    "receivedThisMonth": "المستلم هذا الشهر",
+    "ofPlanned": "من {{amount}} مخطط",
+    "allIn": "وصل كله",
+    "expected": "متوقع",
+    "expectedThisMonth": "المتوقع هذا الشهر",
+    "source": "المصدر",
+    "goesTo": "يذهب إلى"
   },
   "plan": {
     "title": "الخطة",

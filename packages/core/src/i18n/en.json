@@ -605,7 +605,14 @@
     "effectiveFrom": "From",
     "raiseSaved": "Change recorded",
     "amountLocked": "Use 'Record a raise or change' below so earlier months keep their figures.",
-    "currentAmount": "Latest amount"
+    "currentAmount": "Latest amount",
+    "receivedThisMonth": "Received this month",
+    "ofPlanned": "of {{amount}} planned",
+    "allIn": "All in",
+    "expected": "Expected",
+    "expectedThisMonth": "Expected this month",
+    "source": "Source",
+    "goesTo": "Goes to"
   },
   "plan": {
     "title": "Plan",
