@@ -1735,7 +1735,12 @@
     "reporter": "صاحب البلاغ",
     "closeImage": "إغلاق الصورة",
     "imageRemoved": "حُذفت الصورة بعد ستة أشهر من حل البلاغ",
-    "imageRemovedShort": "حُذفت الصورة"
+    "imageRemovedShort": "حُذفت الصورة",
+    "table": {
+      "report": "البلاغ",
+      "updated": "آخر تحديث",
+      "status": "الحالة"
+    }
   },
   "currency": {
     "all": "كل العملات",

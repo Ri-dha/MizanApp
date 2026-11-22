@@ -1699,7 +1699,12 @@
     "reporter": "Reporter",
     "closeImage": "Close image",
     "imageRemoved": "Photo removed after the report had been resolved for 6 months",
-    "imageRemovedShort": "Photo removed"
+    "imageRemovedShort": "Photo removed",
+    "table": {
+      "report": "Report",
+      "updated": "Last update",
+      "status": "Status"
+    }
   },
   "currency": {
     "all": "All currencies",
