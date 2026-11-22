@@ -955,7 +955,8 @@
     "hide": "Hide",
     "product": "Product",
     "dealerPays": "Dealer pays",
-    "dealerCharges": "Dealer charges"
+    "dealerCharges": "Dealer charges",
+    "gainSincePurchase": "Gain since purchase"
   },
   "networth": {
     "title": "Net worth",

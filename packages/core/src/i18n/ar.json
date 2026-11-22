@@ -967,7 +967,8 @@
     "hide": "إخفاء",
     "product": "المنتج",
     "dealerPays": "يدفع الصائغ",
-    "dealerCharges": "يطلب الصائغ"
+    "dealerCharges": "يطلب الصائغ",
+    "gainSincePurchase": "الربح منذ الشراء"
   },
   "networth": {
     "title": "صافي الثروة",
