@@ -1,38 +1,25 @@
-import { router, Stack } from "expo-router"
-import { useState } from "react"
+import { Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
 
-import { liveDeposits, recordDeposit } from "@mizan/core/db/goals"
-import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
-import { toMinorUnits } from "@mizan/core/domain/money/format"
-import type { GoalDeposit } from "@mizan/core/schema"
-import { table } from "@mizan/core/store/store"
+import { viewFor } from "@mizan/core/domain/appStyle"
 import { Button } from "@/components/button"
-import { DateField } from "@/components/date-field"
 import { Screen } from "@/components/screen"
-import { TextField } from "@/components/text-field"
-import { useLiveQuery, useSession } from "@/hooks/use-core"
+import { useAppStyle } from "@/theme"
+import { useGoalEntryScreen } from "./use-goal-entry-screen"
+import { GoalEntrySoft } from "./views/goal-entry-soft"
 
-export function GoalEntry({ id, direction }: { id: string; direction: GoalDeposit["direction"] }) {
+/** ADR styles-1: each template draws the sheet its own way; a template without a view of its own gets Soft. */
+const VIEWS = { soft: GoalEntrySoft }
+
+export function GoalEntry(props: Parameters<typeof useGoalEntryScreen>[0]) {
   const { t } = useTranslation()
-  const session = useSession()
-  const startDay = session?.monthStartDay ?? 1
-  const goal = useLiveQuery(() => table("goals").get(id), [id], undefined)
-  const [amount, setAmount] = useState("")
-  const [on, setOn] = useState(todayIso())
-
-  async function save() {
-    if (!goal) return
-    await recordDeposit(goal, await liveDeposits(), toMinorUnits(amount, goal.currency), direction, on, monthKeyFor(on, startDay), null)
-    router.back()
-  }
-
-  const verb = t(`goals.${direction === "DEPOSIT" ? "deposit" : "withdraw"}`)
+  const model = useGoalEntryScreen(props)
+  const View = viewFor(VIEWS, useAppStyle())
+  const verb = t(`goals.${model.direction === "DEPOSIT" ? "deposit" : "withdraw"}`)
   return (
     <Screen sheet>
-      <Stack.Screen options={{ title: goal ? `${verb}: ${goal.name}` : verb, headerRight: () => <Button testID="save-goal-entry" variant="ghost" title={t("accounts.save")} disabled={!amount} onPress={() => void save()} /> }} />
-      <TextField testID="goal-entry-amount" label={t("income.amount")} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} autoFocus />
-      <DateField label={t("transactions.date")} value={on} onChange={(iso) => iso && setOn(iso)} />
+      <Stack.Screen options={{ title: model.goal ? `${verb}: ${model.goal.name}` : verb, headerRight: () => <Button testID="save-goal-entry" variant="ghost" title={t("accounts.save")} disabled={!model.ready} onPress={model.save} /> }} />
+      <View model={model} />
     </Screen>
   )
 }
