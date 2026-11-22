@@ -66,7 +66,7 @@ function Tile({ card }: { card: HomeCard }) {
   const tone = TONES[card.kind]
   return (
     <Link href={card.href} asChild>
-      <Pressable testID={card.testID} accessibilityRole="link" style={({ pressed }) => [styles.tile, pressed ? styles.pressed : null]}>
+      <Pressable testID={card.testID} accessibilityRole="link" style={styles.tile}>
         <SoftCard tone={tone === "gold" ? "gold" : undefined} style={styles.tileCard}>
           <SectionTitle tone={tone === "gold" ? "gold" : undefined}>{card.title}</SectionTitle>
           {card.figure ? (
@@ -103,7 +103,7 @@ function Card({ card }: { card: HomeCard }) {
             <>
               <View style={styles.thickBar}>
                 <View style={[styles.assets, { width: `${card.split.assetsPercent}%` }]} />
-                <View style={[styles.liabilities, { width: `${100 - card.split.assetsPercent}%` }]} />
+                <View style={[styles.liabilities, { width: `${card.split.liabilitiesPercent}%` }]} />
               </View>
               <Pair label={card.split.assetsLabel} value={card.split.assets} hero={hero} />
               <Pair label={card.split.liabilitiesLabel} value={card.split.liabilities} hero={hero} />

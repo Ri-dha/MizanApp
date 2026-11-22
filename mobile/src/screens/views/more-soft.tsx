@@ -23,7 +23,7 @@ export function MoreSoft({ model }: { model: MoreScreenModel }) {
           <View style={styles.group}>
             {group.items.map((item, index) => (
               <Link key={item.id} href={item.href} asChild>
-                <Pressable testID={`more-${item.id}`} accessibilityRole="link" style={({ pressed }) => [styles.row, pressed ? styles.pressed : null]}>
+                <Pressable testID={`more-${item.id}`} accessibilityRole="link" style={styles.row}>
                   <Lead colour={item.id === "networth" ? colors.primary : item.id in TILES ? colors.buckets[TILES[item.id] % colors.buckets.length] : null} />
                   <View style={[styles.main, index === group.items.length - 1 ? null : styles.divider]}>
                     <ThemedText numberOfLines={1} style={styles.label}>{item.label}</ThemedText>

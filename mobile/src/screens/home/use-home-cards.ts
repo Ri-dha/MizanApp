@@ -50,7 +50,7 @@ export interface HomeCard {
   /** A sentence under the lines. */
   note?: string
   /** Net worth only: what is owned against what is owed. */
-  split?: { assetsLabel: string; assets: string; liabilitiesLabel: string; liabilities: string; assetsPercent: number }
+  split?: { assetsLabel: string; assets: string; liabilitiesLabel: string; liabilities: string; assetsPercent: number; liabilitiesPercent: number }
   /** Cash only: one total per currency. */
   totals?: string[]
 }
@@ -77,7 +77,7 @@ function useNetWorthCard(widget: HomeWidget): HomeCard {
     figure: money(current.netWorth), figureNegative: current.netWorth < 0,
     detail: widget.options.breakdown === "totals" ? `${t("networth.assets")}: ${money(current.totalAssets)} · ${t("networth.liabilities")}: ${money(current.totalLiabilities)}` : undefined,
     split: widget.options.breakdown === "totals"
-      ? { assetsLabel: t("networth.assets"), assets: money(current.totalAssets), liabilitiesLabel: t("networth.liabilities"), liabilities: money(current.totalLiabilities), assetsPercent: share(current.totalAssets, current.totalAssets + current.totalLiabilities) }
+      ? { assetsLabel: t("networth.assets"), assets: money(current.totalAssets), liabilitiesLabel: t("networth.liabilities"), liabilities: money(current.totalLiabilities), assetsPercent: share(current.totalAssets, current.totalAssets + current.totalLiabilities), liabilitiesPercent: share(current.totalLiabilities, current.totalAssets + current.totalLiabilities) }
       : undefined,
     lines: classes.map((c) => ({ key: c.assetClass, label: t(`networth.classes.${c.assetClass}`), value: money(c.amount) })),
     note: hiddenCounted ? t("appMode.includesAdvanced") : undefined,
