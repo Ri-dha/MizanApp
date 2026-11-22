@@ -1,76 +1,24 @@
-import { router, Stack } from "expo-router"
-import { useEffect, useState } from "react"
+import { Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
-import { StyleSheet, View } from "react-native"
 
-import { moveMoney } from "@mizan/core/db/plan"
-import { monthKeyFor, monthWindow, todayIso } from "@mizan/core/domain/calendar/month"
-import { formatMoney, toMinorUnits } from "@/utils/money"
+import { viewFor } from "@mizan/core/domain/appStyle"
 import { Button } from "@/components/button"
-import { Chips } from "@/components/chips"
 import { Screen } from "@/components/screen"
-import { TextField } from "@/components/text-field"
-import { DatePicker } from "@/components/date-picker"
-import { ThemedText } from "@/components/themed-text"
-import { useSession } from "@/hooks/use-core"
-import { useMonthView } from "@/hooks/use-views"
-import { spacing, useBrandColors } from "@/theme"
+import { useAppStyle } from "@/theme"
+import { useMoveMoney } from "./use-move-money"
+import { MoveMoneySoft } from "./views/move-money-soft"
 
+/** ADR styles-1: each template draws the sheet its own way; a template without a view of its own gets Soft. */
+const VIEWS = { soft: MoveMoneySoft }
 
-/** A move is a transfer between two buckets, not spending, and stays in the month's audit trail. */
 export function MoveMoney({ monthKey }: { monthKey: string }) {
-  const { t, i18n } = useTranslation()
-  const session = useSession()
-  const startDay = session?.monthStartDay ?? 1
-  const currency = session?.baseCurrency ?? "IQD"
-  const view = useMonthView(monthKey, startDay)
-  const [fromId, setFromId] = useState<string | null>(null)
-  const [toId, setToId] = useState<string | null>(null)
-  const [amount, setAmount] = useState("")
-  const [reason, setReason] = useState("")
-  const today = todayIso()
-  const [on, setOn] = useState(monthKeyFor(today, startDay) === monthKey ? today : monthWindow(monthKey, startDay).from)
-
-  useEffect(() => {
-    if (fromId === null && view.buckets[0]) setFromId(view.buckets[0].id)
-    if (toId === null && view.buckets[1]) setToId(view.buckets[1].id)
-  }, [view.buckets, fromId, toId])
-
-  const freeOf = (id: string) => view.figures.buckets.find((b) => b.id === id)?.free ?? 0
-  const value = toMinorUnits(amount || "0", currency)
-  const from = view.buckets.find((b) => b.id === fromId)
-  const to = view.buckets.find((b) => b.id === toId)
-  const ready = !!from && !!to && from.id !== to.id && value > 0
-
-  async function move() {
-    if (!from || !to) return
-    await moveMoney(from, to, value, on, monthKey, reason.trim() || null, currency)
-    router.back()
-  }
-
+  const { t } = useTranslation()
+  const model = useMoveMoney(monthKey)
+  const View = viewFor(VIEWS, useAppStyle())
   return (
     <Screen sheet>
-      <Stack.Screen options={{ title: t("plan.move"), headerRight: () => <Button testID="confirm-move" variant="ghost" title={t("plan.moveConfirm")} disabled={!ready} onPress={() => void move()} /> }} />
-      <View style={styles.field}>
-        <ThemedText variant="subhead">{t("transactions.fromBucket")}</ThemedText>
-        <Chips testID="move-from" options={view.buckets.map((b) => ({ value: b.id, label: `${b.name} · ${formatMoney(freeOf(b.id), currency, i18n.language)}`, swatch: b.colour }))} value={fromId} onChange={setFromId} />
-      </View>
-      <View style={styles.field}>
-        <ThemedText variant="subhead">{t("transactions.to")}</ThemedText>
-        <Chips testID="move-to" options={view.buckets.filter((b) => b.id !== fromId).map((b) => ({ value: b.id, label: b.name, swatch: b.colour }))} value={toId} onChange={setToId} />
-      </View>
-      <TextField testID="move-amount" label={t("transactions.amount")} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} />
-      <View style={styles.dateRow}>
-        <ThemedText>{t("transactions.date")}</ThemedText>
-        <DatePicker testID="move-date" value={on} onChange={setOn} />
-      </View>
-      <TextField testID="move-reason" label={t("plan.reason")} placeholder={t("plan.reasonHint")} maxLength={120} value={reason} onChangeText={setReason} />
-      <ThemedText variant="caption">{t("plan.moveHint")}</ThemedText>
+      <Stack.Screen options={{ title: t("plan.move"), headerRight: () => <Button testID="confirm-move" variant="ghost" title={t("plan.moveConfirm")} disabled={!model.ready} onPress={model.move} /> }} />
+      <View model={model} />
     </Screen>
   )
 }
-
-const styles = StyleSheet.create({
-  field: { gap: spacing.xs },
-  dateRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 44 },
-})

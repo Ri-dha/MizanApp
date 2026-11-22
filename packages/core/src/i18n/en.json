@@ -1593,6 +1593,14 @@
     "switch": "This is a subscription",
     "categoryHint": "Subscriptions are grouped on the Bills screen with their monthly and yearly cost."
   },
+  "more": {
+    "groups": {
+      "money": "Money",
+      "owned": "What you own",
+      "insight": "Insight",
+      "app": "Household and app"
+    }
+  },
   "homeLayout": {
     "title": "Home screen",
     "body": "The cards on Home. Add a card from a template, as many as you like; rename it, choose its size and what it shows, limit it to some accounts, goals or debts, drag it into place, or remove it. Saved for you on every device you sign in on.",
