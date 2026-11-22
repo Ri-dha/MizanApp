@@ -28,11 +28,11 @@ export function DollarTodayCard({ title }: { title?: string | null } = {}) {
           <SourceCredit source={latest.source} />
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex items-center justify-between gap-2">
-        <div className="flex items-baseline gap-3">
+      <CardContent className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className="text-3xl font-semibold tabular-nums">{money(latest.value)}</span>
           {move !== null && move !== 0 && (
-            <span className={cn("text-sm tabular-nums", move > 0 ? "text-success" : "text-destructive")}>
+            <span className={cn("text-sm whitespace-nowrap tabular-nums", move > 0 ? "text-success" : "text-destructive")}>
               {move > 0 ? "+" : "−"}{money(Math.abs(move))} {t("prices.sinceYesterday")}
             </span>
           )}

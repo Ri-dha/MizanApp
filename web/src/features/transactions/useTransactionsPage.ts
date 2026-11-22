@@ -7,7 +7,7 @@ import { useDateFormat } from "@/app/dates"
 import { formatMoney, toMinorUnits } from "@/app/money"
 import { useSelectedMonth } from "@/app/month"
 import type { LedgerTransaction, TransactionType } from "@/db/schema"
-import { useMonthView } from "@/features/plan/useMonthFigures"
+import { monthFlow, useMonthView } from "@/features/plan/useMonthFigures"
 import { useScreenTour } from "@/tours/useTour"
 import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { isAccountTransfer } from "@mizan/core/db/cashMovements"
@@ -76,6 +76,7 @@ export function useTransactionsPage() {
     })
   }
 
+  const flow = monthFlow(view)
   const sumOf = (type: TransactionType) => view.transactions.filter((tx) => tx.type === type).reduce((sum, tx) => sum + tx.baseAmount, 0)
   const editingTransfer = editing !== null && editing !== "new" && isAccountTransfer(editing) ? editing : null
 
@@ -89,7 +90,8 @@ export function useTransactionsPage() {
     setType: (type: TransactionType | null) => setFilter({ ...filter, type }),
     setMin: (text: string) => setFilter({ ...filter, minAmount: text ? toMinorUnits(text, base) : null }),
     setMax: (text: string) => setFilter({ ...filter, maxAmount: text ? toMinorUnits(text, base) : null }),
-    totals: { received: sumOf("INCOME"), spent: sumOf("EXPENSE"), moved: sumOf("TRANSFER") },
+    // Income is recorded as receipts, not ledger rows, so money in comes from the month's flow and matches Home.
+    totals: { received: flow.received, spent: flow.spent, moved: sumOf("TRANSFER") },
     days,
     empty: matching.length === 0,
     shownCount: shown.length,
