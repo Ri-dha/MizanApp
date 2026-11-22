@@ -5,7 +5,8 @@ import { HelpButton } from "@/components/HelpButton"
 import { SourceCredit } from "@/components/SourceCredit"
 import { Button } from "@/components/ui/button"
 import { ATTRIBUTION_KEYS, type NetWorthPageModel } from "../useNetWorthPage"
-import { PageTop, Pill, ShareBar, amountHero, amountLarge, card, cardTitle, eyebrow, fillAt, heroCard, meta, row } from "./parts"
+import { PageTop, Pill, ShareBar, amountHero, amountLarge, card, cardTitle, eyebrow, heroCard, meta, row } from "./parts"
+import { fillAt } from "./shared"
 
 /** Soft: the headline figure as a hero card beside what is owed, then what changed, the trend, and the months as rows. */
 export default function NetWorthSoft({ model }: { model: NetWorthPageModel }) {

@@ -839,7 +839,10 @@
     "backingAssetHint": "عند تحديده يتبع التقدم قيمة الأصل بدل الإيداعات.",
     "alreadySaved": "المدّخر مسبقًا ({{currency}})",
     "alreadySavedHint": "مال جمعته قبل إضافة هذا الهدف. يُحسب ضمن الهدف دون إيداع، فلا تتأثر خطة هذا الشهر.",
-    "includesSaved": "يشمل {{amount}} مدّخرة مسبقًا"
+    "includesSaved": "يشمل {{amount}} مدّخرة مسبقًا",
+    "onTrack": "على المسار",
+    "behind": "متأخر",
+    "ofTarget": "من {{amount}}"
   },
   "metals": {
     "dataCredit": "البيانات: {{name}}",

@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import type { CashAccountKind } from "@/db/schema"
-import { Lead, PageTop, Pill, ShareBar, amountHero, card, eyebrow, fillAt, heroCard, meta } from "@/features/networth/views/parts"
+import { Lead, PageTop, Pill, ShareBar, amountHero, card, eyebrow, heroCard, meta } from "@/features/networth/views/parts"
+import { fillAt } from "@/features/networth/views/shared"
 import type { AccountsPageModel } from "../useAccountsPage"
 
 const ICONS: Record<CashAccountKind, typeof Wallet> = { WALLET: Wallet, BANK: Landmark, CASH_AT_HOME: House, OTHER: Banknote }

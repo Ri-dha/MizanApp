@@ -12,9 +12,6 @@ export const cardTitle = "text-base font-semibold"
 export const amountHero = "text-[34px] leading-10 font-bold tracking-tight tabular-nums"
 export const amountLarge = "text-[26px] leading-8 font-semibold tabular-nums"
 
-export const BUCKET_FILLS = ["bg-bucket-1", "bg-bucket-2", "bg-bucket-3", "bg-bucket-4", "bg-bucket-5", "bg-bucket-6", "bg-bucket-7", "bg-bucket-8"] as const
-export const fillAt = (index: number) => BUCKET_FILLS[index % BUCKET_FILLS.length]
-
 export type Tone = "ok" | "warn" | "bad" | "neutral" | "gold"
 
 const PILL: Record<Tone, string> = {
