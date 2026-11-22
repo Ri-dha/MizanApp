@@ -23,6 +23,7 @@
   },
   "auth": {
     "identifier": "Email",
+    "encrypted": "Your records are end-to-end encrypted.",
     "identifierHint": "We send a confirmation code to this address",
     "password": "Password",
     "displayName": "Your name",
@@ -365,6 +366,7 @@
   },
   "lock": {
     "title": "Locked",
+    "body": "Locked to keep your household's money private.",
     "enterPin": "Enter your PIN",
     "unlock": "Unlock",
     "biometric": "Use biometrics",
@@ -724,6 +726,7 @@
   },
   "bills": {
     "title": "Bills",
+    "dueToday": "Due today",
     "thisMonth": "Due this month",
     "stillDue": "Still due",
     "paid": "Paid",
@@ -1706,6 +1709,7 @@
   },
   "support": {
     "title": "Report a problem",
+    "yours": "Your reports",
     "intro": "Tell the Mizan team about a problem, an idea or a question. You'll see their replies here and get a notification.",
     "new": "New report",
     "none": "You haven't sent any reports.",
