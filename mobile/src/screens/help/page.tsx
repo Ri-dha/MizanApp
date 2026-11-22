@@ -1,24 +1,24 @@
-import { router, Stack } from "expo-router"
+import { Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/button"
-import { Markdown } from "@/components/markdown"
+import { viewFor } from "@mizan/core/domain/appStyle"
 import { Screen } from "@/components/screen"
-import { ThemedText } from "@/components/themed-text"
-import { manualPages, phoneScreenFor } from "./pages"
+import { useAppStyle } from "@/theme"
+import { usePageScreen } from "./use-page-screen"
+import { PageSoft } from "./views/page-soft"
+
+/** ADR styles-1: each template draws the page its own way; a template without a view of its own gets Soft. */
+const VIEWS = { soft: PageSoft }
 
 export function HelpPage({ slug }: { slug: string }) {
-  const { t, i18n } = useTranslation()
-  const page = manualPages(i18n.language).find((p) => p.slug === slug)
-  if (!page) return <Screen><Stack.Screen options={{ title: t("help.title") }} /></Screen>
-  const screen = phoneScreenFor(page.screen)
+  const { t } = useTranslation()
+  const model = usePageScreen(slug)
+  const View = viewFor(VIEWS, useAppStyle())
+  if (!model) return <Screen><Stack.Screen options={{ title: t("help.title") }} /></Screen>
   return (
     <Screen>
       <Stack.Screen options={{ title: t("help.title"), headerLargeTitle: false }} />
-      <ThemedText variant="largeTitle">{page.title}</ThemedText>
-      {page.lang !== (i18n.language.startsWith("ar") ? "ar" : "en") ? <ThemedText variant="caption">{t("help.englishOnly")}</ThemedText> : null}
-      <Markdown source={page.body} />
-      {screen ? <Button testID="help-open-screen" variant="secondary" title={t("help.openScreen")} onPress={() => router.navigate(screen)} /> : null}
+      <View model={model} />
     </Screen>
   )
 }
