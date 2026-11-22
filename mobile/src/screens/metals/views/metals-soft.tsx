@@ -21,6 +21,7 @@ export function MetalsSoft({ model }: { model: MetalsScreenModel }) {
       {model.message ? <Notice>{model.message}</Notice> : null}
       <Card style={styles.gold}>
         <ThemedText variant="headline" style={styles.goldText}>{t("metals.portfolio")}</ThemedText>
+        <ThemedText variant="caption">{t("metals.gainSincePurchase")}</ThemedText>
         <HeroAmount testID="metals-gain" tone={model.gainNegative ? "danger" : "ok"}>{model.gain}</HeroAmount>
         <ThemedText variant="caption">{model.totalsLine}</ThemedText>
         <ThemedText variant="caption">{model.excludingMaking}</ThemedText>
