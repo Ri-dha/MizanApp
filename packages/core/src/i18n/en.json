@@ -706,6 +706,7 @@
   },
   "bills": {
     "title": "Bills",
+    "dueToday": "Due today",
     "thisMonth": "Due this month",
     "stillDue": "Still due",
     "paid": "Paid",
