@@ -1,52 +1,14 @@
-import { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
-
-import { biometricUnlock, setPin } from "@mizan/core/lock/store"
-import { Button } from "@/components/button"
+import { viewFor } from "@mizan/core/domain/appStyle"
 import { Screen } from "@/components/screen"
-import { TextField } from "@/components/text-field"
-import { ToggleRow } from "@/components/toggle-row"
-import { ThemedText } from "@/components/themed-text"
-import { useBrandColors } from "@/theme"
+import { useAppStyle } from "@/theme"
+import { useSetPinScreen } from "./use-set-pin-screen"
+import { SetPinSoft } from "./views/set-pin-soft"
 
-const PIN_PATTERN = /^\d{4,8}$/
+/** ADR styles-1: each template draws the screen its own way; a template without a view of its own gets Soft. */
+const VIEWS = { soft: SetPinSoft }
 
 export function SetPin() {
-  const { t } = useTranslation()
-  const brand = useBrandColors()
-  const [pin, setPinText] = useState("")
-  const [repeat, setRepeat] = useState("")
-  const [withBiometrics, setWithBiometrics] = useState(false)
-  const [canUseBiometrics, setCanUseBiometrics] = useState(false)
-  const [busy, setBusy] = useState(false)
-  const mismatch = repeat.length > 0 && repeat !== pin
-
-  useEffect(() => {
-    void biometricUnlock().available().then(setCanUseBiometrics)
-  }, [])
-
-  async function save() {
-    setBusy(true)
-    try {
-      const dataKey = await setPin(pin)
-      if (withBiometrics) await biometricUnlock().enrol(dataKey)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <Screen centered>
-      <ThemedText variant="title">{t("lock.setTitle")}</ThemedText>
-      <ThemedText variant="subhead">{t("lock.setBody")}</ThemedText>
-      <TextField testID="new-pin" label={t("lock.pin")} keyboardType="number-pad" secureTextEntry maxLength={8} value={pin} onChangeText={setPinText} />
-      <TextField testID="repeat-pin" label={t("lock.confirmPin")} keyboardType="number-pad" secureTextEntry maxLength={8} value={repeat} onChangeText={setRepeat} />
-      {mismatch ? <ThemedText style={{ color: brand.destructive }}>{t("lock.pinMismatch")}</ThemedText> : null}
-      {canUseBiometrics ? (
-        <ToggleRow testID="enrol-biometrics" label={t("lock.enrollBiometric")} value={withBiometrics} onChange={setWithBiometrics} />
-      ) : null}
-      <Button testID="save-pin" size="lg" title={t("lock.save")} loading={busy} disabled={!PIN_PATTERN.test(pin) || pin !== repeat} onPress={() => void save()} />
-    </Screen>
-  )
+  const model = useSetPinScreen()
+  const View = viewFor(VIEWS, useAppStyle())
+  return <Screen centered><View model={model} /></Screen>
 }
-
