@@ -47,7 +47,11 @@
     "offlineNeedsSession": "Sign in once while online; after that Mizan works offline.",
     "country": "Country",
     "baseCurrency": "Main currency",
-    "baseCurrencyHint": "Totals, plans and net worth are counted in it. You can still record amounts in any currency."
+    "baseCurrencyHint": "Totals, plans and net worth are counted in it. You can still record amounts in any currency.",
+    "welcomeBack": "Welcome back.",
+    "brandBody": "Every currency you hold, gold and silver at today's price, and the whole household in one place.",
+    "brandEncrypted": "Encrypted on your devices",
+    "brandOffline": "Works offline"
   },
   "admin": {
     "nav": "Admin",
