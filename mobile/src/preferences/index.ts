@@ -4,6 +4,7 @@ import Storage from "expo-sqlite/kv-store"
 import { saveSyncedPreferences } from "@mizan/core/db/homeLayout"
 import type { DigitStyle } from "@mizan/core/domain/money/format"
 import type { AppMode } from "@mizan/core/domain/appMode"
+import { DEFAULT_APP_STYLE, isAppStyle, type AppStyle } from "@mizan/core/domain/appStyle"
 
 export type LanguageChoice = "system" | "en" | "ar"
 export type ThemeChoice = "system" | "light" | "dark"
@@ -25,15 +26,19 @@ export interface Preferences {
   displayCurrency: string | null
   /** ADR mode-1: simple hides the planning and wealth screens; nothing stored changes. */
   appMode: AppMode
+  /** ADR styles-1: the template the app wears. */
+  appStyle: AppStyle
 }
 
 const KEY = "mizan.preferences"
-export const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [], dismissedAnnouncements: [], displayCurrency: null, appMode: "advanced" }
+export const DEFAULTS: Preferences = { language: "system", theme: "system", digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, toursSeen: [], dismissedAnnouncements: [], displayCurrency: null, appMode: "advanced", appStyle: DEFAULT_APP_STYLE }
 
 function load(): Preferences {
   try {
     const stored = Storage.getItemSync(KEY)
-    return stored ? { ...DEFAULTS, ...JSON.parse(stored) } : DEFAULTS
+    if (!stored) return DEFAULTS
+    const merged = { ...DEFAULTS, ...JSON.parse(stored) }
+    return isAppStyle(merged.appStyle) ? merged : { ...merged, appStyle: DEFAULT_APP_STYLE }
   } catch {
     return DEFAULTS
   }

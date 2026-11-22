@@ -1,7 +1,10 @@
 import { Text, type TextProps } from "react-native"
 
-import { type } from "@/theme"
+import { type, useColors } from "@/theme"
+
+const SECONDARY: ReadonlySet<keyof typeof type> = new Set(["subhead", "caption"])
 
 export function ThemedText({ variant = "body", style, ...props }: TextProps & { variant?: keyof typeof type }) {
-  return <Text style={[type[variant], style]} {...props} />
+  const colors = useColors()
+  return <Text style={[type[variant], { color: SECONDARY.has(variant) ? colors.secondaryLabel : colors.label }, style]} {...props} />
 }

@@ -22,6 +22,7 @@ import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
 import { AppModeChoice } from "@/components/app-mode-choice"
+import { AppStyleChoice } from "@/components/app-style-choice"
 import { useAppMode } from "@/hooks/use-app-mode"
 import { useLiveQuery, useLockState, useSession } from "@/hooks/use-core"
 import { SUPPORTED_LOCALES, applyTheme, directionNeedsRestart, localeFor } from "@/platform/appearance"
@@ -199,6 +200,10 @@ export function Settings() {
 
       <Section title={t("currency.title")} body={t("currency.body")}>
         <CurrencySettings />
+      </Section>
+
+      <Section title={t("appStyle.title")} body={t("appStyle.body")}>
+        <AppStyleChoice value={prefs.appStyle} onChange={(next) => setPreferences({ appStyle: next })} />
       </Section>
 
       {!restricted ? (

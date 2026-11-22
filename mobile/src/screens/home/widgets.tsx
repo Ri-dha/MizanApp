@@ -20,7 +20,7 @@ import { Group, Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSession } from "@/hooks/use-core"
 import { currentMonthKey, useMonthView, useNetWorth } from "@/hooks/use-views"
-import { colors, radius, spacing, type, useBrandColors } from "@/theme"
+import { radius, spacing, type, useBrandColors, useColors } from "@/theme"
 import { pickedFrom, shownWidgets, widgetsFor } from "@mizan/core/db/homeLayout"
 import { useAppMode } from "@/hooks/use-app-mode"
 import { monthFlow } from "@mizan/core/db/monthView"
@@ -172,6 +172,7 @@ function MonthCard({ widget }: WidgetProps) {
 }
 
 function PlanCard({ widget }: WidgetProps) {
+  const colors = useColors()
   const { t } = useTranslation()
   const { money } = useMoney()
   const session = useSession()

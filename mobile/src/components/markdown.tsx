@@ -1,7 +1,7 @@
 import { Fragment, type ReactNode } from "react"
 import { Platform, StyleSheet, Text, View } from "react-native"
 
-import { colors, radius, spacing } from "@/theme"
+import { radius, spacing, makeStyles } from "@/theme"
 import { ThemedText } from "./themed-text"
 
 type Block =
@@ -57,7 +57,7 @@ export function parseMarkdown(source: string): Block[] {
   return blocks
 }
 
-function inline(text: string): ReactNode[] {
+function inline(text: string, styles: ReturnType<typeof useStyles>): ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).filter(Boolean).map((part, i) => {
     if (part.startsWith("**")) return <Text key={i} style={styles.bold}>{part.slice(2, -2)}</Text>
     if (part.startsWith("`")) return <Text key={i} style={styles.code}>{part.slice(1, -1)}</Text>
@@ -66,21 +66,22 @@ function inline(text: string): ReactNode[] {
 }
 
 export function Markdown({ source }: { source: string }) {
+  const styles = useStyles()
   return (
     <View style={styles.document}>
       {parseMarkdown(source).map((block, i) => {
         switch (block.kind) {
           case "heading":
-            return <ThemedText key={i} variant={block.level <= 2 ? "title" : "headline"} style={styles.heading}>{inline(block.text)}</ThemedText>
+            return <ThemedText key={i} variant={block.level <= 2 ? "title" : "headline"} style={styles.heading}>{inline(block.text, styles)}</ThemedText>
           case "paragraph":
-            return <ThemedText key={i}>{inline(block.text)}</ThemedText>
+            return <ThemedText key={i}>{inline(block.text, styles)}</ThemedText>
           case "list":
             return (
               <View key={i} style={styles.list}>
                 {block.items.map((item, n) => (
                   <View key={n} style={styles.item}>
                     <ThemedText>{block.ordered ? `${n + 1}.` : "•"}</ThemedText>
-                    <ThemedText style={styles.itemText}>{inline(item)}</ThemedText>
+                    <ThemedText style={styles.itemText}>{inline(item, styles)}</ThemedText>
                   </View>
                 ))}
               </View>
@@ -91,7 +92,7 @@ export function Markdown({ source }: { source: string }) {
                 {block.rows.map((row, r) => (
                   <View key={r} style={[styles.tableRow, r > 0 ? styles.rowDivider : null]}>
                     {row.map((cell, c) => (
-                      <ThemedText key={c} variant={r === 0 ? "headline" : "subhead"} style={styles.cell}>{inline(cell)}</ThemedText>
+                      <ThemedText key={c} variant={r === 0 ? "headline" : "subhead"} style={styles.cell}>{inline(cell, styles)}</ThemedText>
                     ))}
                   </View>
                 ))}
@@ -103,7 +104,7 @@ export function Markdown({ source }: { source: string }) {
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   document: { gap: spacing.md },
   heading: { marginTop: spacing.sm },
   bold: { fontWeight: "600" },
@@ -115,4 +116,4 @@ const styles = StyleSheet.create({
   tableRow: { flexDirection: "row", gap: spacing.sm, padding: spacing.sm },
   rowDivider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.separator },
   cell: { flex: 1 },
-})
+}))

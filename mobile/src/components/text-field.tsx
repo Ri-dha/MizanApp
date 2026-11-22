@@ -1,10 +1,12 @@
-import { StyleSheet, TextInput, View, type TextInputProps } from "react-native"
+import { TextInput, View, type TextInputProps } from "react-native"
 
-import { colors, radius, spacing, type } from "@/theme"
+import { makeStyles, radius, spacing, type, useColors } from "@/theme"
 import { ThemedText } from "./themed-text"
 
 /** A labelled input; the label stays visible so a filled field still says what it holds. */
 export function TextField({ label, style, ...props }: TextInputProps & { label: string }) {
+  const styles = useStyles()
+  const colors = useColors()
   return (
     <View style={styles.field}>
       <ThemedText variant="subhead">{label}</ThemedText>
@@ -13,10 +15,10 @@ export function TextField({ label, style, ...props }: TextInputProps & { label: 
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   field: { gap: spacing.xs },
   input: {
-    ...type.body, backgroundColor: colors.surface, borderRadius: radius.md, borderCurve: "continuous",
+    ...type.body, color: colors.label, backgroundColor: colors.surface, borderRadius: radius.md, borderCurve: "continuous",
     paddingHorizontal: spacing.md, paddingVertical: spacing.sm + spacing.xs, textAlign: "auto",
   },
-})
+}))

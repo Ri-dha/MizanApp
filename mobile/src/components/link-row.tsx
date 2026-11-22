@@ -1,13 +1,14 @@
 import { Link, type Href } from "expo-router"
 import type { ReactNode } from "react"
-import { Pressable, StyleSheet } from "react-native"
+import { Pressable } from "react-native"
 
-import { colors } from "@/theme"
+import { makeStyles } from "@/theme"
 import { Row } from "./row"
 import { ThemedText } from "./themed-text"
 
 /** A list row that opens another screen, with the platform's disclosure mark. */
 export function LinkRow({ href, children, trailing, last, testID }: { href: Href; children: ReactNode; trailing?: ReactNode; last?: boolean; testID?: string }) {
+  const styles = useStyles()
   return (
     <Link href={href} asChild>
       <Pressable testID={testID} accessibilityRole="link" style={({ pressed }) => (pressed ? styles.pressed : null)}>
@@ -17,6 +18,6 @@ export function LinkRow({ href, children, trailing, last, testID }: { href: Href
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   pressed: { backgroundColor: colors.fill },
-})
+}))

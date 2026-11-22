@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next"
-import { StyleSheet, View } from "react-native"
+import { View } from "react-native"
 
 import { nextShareRow, sharesFrom, type ShareRow } from "@mizan/core/db/accountChoice"
 import { unassigned } from "@mizan/core/db/cashMovements"
 import type { CashAccount } from "@mizan/core/schema"
-import { colors, radius, spacing, useBrandColors } from "@/theme"
+import { radius, spacing, useBrandColors, makeStyles } from "@/theme"
 import { formatMoney } from "@/utils/money"
 import { AccountField } from "./account-field"
 import { Button } from "./button"
@@ -25,6 +25,7 @@ export function AccountShares({ rows, onChange, accounts, amount, currency, labe
   label: string
   hint: string
 }) {
+  const styles = useStyles()
   const { t, i18n } = useTranslation()
   const brand = useBrandColors()
   const left = unassigned(amount, sharesFrom(rows, currency))
@@ -74,10 +75,10 @@ export function AccountShares({ rows, onChange, accounts, amount, currency, labe
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   field: { gap: spacing.sm },
   row: { gap: spacing.sm, padding: spacing.md, borderRadius: radius.md, borderCurve: "continuous", backgroundColor: colors.surface },
   amountRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm },
   amount: { flex: 1 },
   remove: { alignSelf: "flex-start" },
-})
+}))

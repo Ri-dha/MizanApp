@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next"
-import { FlatList, StyleSheet, View } from "react-native"
+import { FlatList, View } from "react-native"
 
 import { dismissConflict, liveConflicts } from "@mizan/core/db/conflicts"
 import { dismissSyncRejection, liveSyncRejections, type SyncRejection } from "@mizan/core/db/syncRejections"
@@ -9,7 +9,7 @@ import { Button } from "@/components/button"
 import { Group, Row } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery, useSyncStatus } from "@/hooks/use-core"
-import { colors, spacing } from "@/theme"
+import { spacing, makeStyles } from "@/theme"
 import { formatWhen } from "@/utils/dates"
 
 const NONE: LocalConflict[] = []
@@ -17,6 +17,7 @@ const NO_REJECTIONS: SyncRejection[] = []
 const show = (value: unknown) => (value === null || value === undefined ? "—" : typeof value === "string" ? value : JSON.stringify(value))
 
 export function Sync() {
+  const styles = useStyles()
   const { t, i18n } = useTranslation()
   const status = useSyncStatus()
   const conflicts = useLiveQuery(liveConflicts, [], NONE)
@@ -83,11 +84,11 @@ export function Sync() {
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   page: { backgroundColor: colors.background },
   content: { padding: spacing.md },
   header: { gap: spacing.md, marginBottom: spacing.md },
   section: { gap: spacing.xs, marginTop: spacing.md },
   gap: { height: spacing.sm },
-})
+}))
 

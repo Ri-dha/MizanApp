@@ -1,12 +1,12 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { StyleSheet, View } from "react-native"
+import { View } from "react-native"
 
 import { Button } from "@/components/button"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import type { ReportDetail, ReportStatus } from "@/platform/support"
-import { colors, radius, spacing, useBrandColors } from "@/theme"
+import { radius, spacing, useBrandColors, makeStyles, useColors } from "@/theme"
 import { ImagesField, ReportImage } from "./images"
 import { formatWhen } from "@/utils/dates"
 
@@ -18,6 +18,8 @@ export function useWhen() {
 }
 
 export function StatusBadge({ status }: { status: ReportStatus }) {
+  const styles = useStyles()
+  const colors = useColors()
   const { t } = useTranslation()
   const brand = useBrandColors()
   const active = status === "IN_PROGRESS"
@@ -30,6 +32,7 @@ export function StatusBadge({ status }: { status: ReportStatus }) {
 
 /** The conversation, oldest first; the person's own messages sit towards the end edge. */
 export function ReportThread({ report }: { report: ReportDetail }) {
+  const styles = useStyles()
   const { t } = useTranslation()
   const when = useWhen()
   let imageNumber = 0
@@ -54,6 +57,7 @@ export function ReportThread({ report }: { report: ReportDetail }) {
 }
 
 export function ReplyForm({ onSend, hint }: { onSend: (body: string, images: string[]) => Promise<boolean>; hint?: string }) {
+  const styles = useStyles()
   const { t } = useTranslation()
   const [body, setBody] = useState("")
   const [images, setImages] = useState<string[]>([])
@@ -81,7 +85,7 @@ export function ReplyForm({ onSend, hint }: { onSend: (body: string, images: str
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   badge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs / 2, borderRadius: radius.full, alignSelf: "flex-start" },
   thread: { gap: spacing.sm },
   message: { gap: spacing.sm, padding: spacing.md, borderRadius: radius.md, borderCurve: "continuous", backgroundColor: colors.surface },
@@ -93,4 +97,4 @@ const styles = StyleSheet.create({
   images: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   reply: { gap: spacing.md },
   multiline: { minHeight: 96, textAlignVertical: "top" },
-})
+}))

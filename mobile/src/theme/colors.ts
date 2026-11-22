@@ -1,34 +1,35 @@
-import { Color } from "expo-router"
-import { Platform, useColorScheme } from "react-native"
+import { useMemo } from "react"
+import { useColorScheme, type ImageStyle, type TextStyle, type ViewStyle } from "react-native"
 
-/** Platform semantic colours: they resolve on the device and follow light and dark by themselves. */
-export const colors = {
-  label: Platform.select({ ios: Color.ios.label, android: Color.android.dynamic.onSurface, default: "#0a0a0a" })!,
-  secondaryLabel: Platform.select({ ios: Color.ios.secondaryLabel, android: Color.android.dynamic.onSurfaceVariant, default: "#696969" })!,
-  tertiaryLabel: Platform.select({ ios: Color.ios.tertiaryLabel, android: Color.android.dynamic.outline, default: "#a1a1a1" })!,
-  separator: Platform.select({ ios: Color.ios.separator, android: Color.android.dynamic.outlineVariant, default: "#e5e5e5" })!,
-  background: Platform.select({ ios: Color.ios.systemGroupedBackground, android: Color.android.dynamic.surface, default: "#ffffff" })!,
-  surface: Platform.select({ ios: Color.ios.secondarySystemGroupedBackground, android: Color.android.dynamic.surfaceContainer, default: "#f5f5f5" })!,
-  fill: Platform.select({ ios: Color.ios.tertiarySystemFill, android: Color.android.dynamic.surfaceContainerHighest, default: "#f5f5f5" })!,
+import type { AppStyle } from "@mizan/core/domain/appStyle"
+import { usePreferences } from "@/preferences"
+import { PALETTES, type Palette } from "./palettes"
+
+export type { Palette } from "./palettes"
+
+export function useAppStyle(): AppStyle {
+  return usePreferences().appStyle
 }
 
 /**
- * ADR mobile-5: the brand comes from the web's shadcn tokens (web/src/index.css), converted from
- * OKLCH, so the two apps read as one product.
+ * ADR styles-1: the chosen template's colours for the device's light or dark setting. They replace
+ * the platform palette (iOS system colours, Material You), so a screen looks the same on both.
  */
-const brandPalette = {
-  light: {
-    primary: "#2e62c9", onPrimary: "#fafafa", accent: "#ecf2fc", destructive: "#e7000b", onDestructive: "#ffffff",
-    chart: ["#447be4", "#e23439", "#ecaa0b", "#1eab53", "#8a63de"],
-  },
-  dark: {
-    primary: "#73a3fc", onPrimary: "#0a111f", accent: "#232b3a", destructive: "#ff6467", onDestructive: "#0a0a0a",
-    chart: ["#6a9cfb", "#ff645f", "#f7b83d", "#51c672", "#a787f6"],
-  },
-} as const
+export function useColors(): Palette {
+  const scheme = useColorScheme() === "dark" ? "dark" : "light"
+  return PALETTES[useAppStyle()][scheme]
+}
 
-export type BrandColors = (typeof brandPalette)["light"] | (typeof brandPalette)["dark"]
+/** The older name for the part of the palette that came from the web tokens (ADR mobile-5). */
+export type BrandColors = Palette
+export const useBrandColors = useColors
 
-export function useBrandColors(): BrandColors {
-  return brandPalette[useColorScheme() === "dark" ? "dark" : "light"]
+type Styles = Record<string, ViewStyle | TextStyle | ImageStyle>
+
+/** A stylesheet that needs the palette: `const useStyles = makeStyles((colors) => ({ … }))`, then `const styles = useStyles()`. */
+export function makeStyles<T extends Styles>(build: (colors: Palette) => T): () => T {
+  return function useStyles() {
+    const colors = useColors()
+    return useMemo(() => build(colors), [colors])
+  }
 }

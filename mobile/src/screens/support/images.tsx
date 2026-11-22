@@ -6,12 +6,13 @@ import { Button } from "@/components/button"
 import { Notice } from "@/components/notice"
 import { ThemedText } from "@/components/themed-text"
 import { MAX_REPORT_IMAGES, pickReportImages, reportImageUri, type ReportAttachment } from "@/platform/support"
-import { colors, radius, spacing } from "@/theme"
+import { radius, spacing, makeStyles } from "@/theme"
 
 const THUMB = 80
 
 /** Up to four images to send, shrunk on this phone; each thumbnail can be taken out again. */
 export function ImagesField({ images, onChange, disabled }: { images: string[]; onChange: (images: string[]) => void; disabled?: boolean }) {
+  const styles = useStyles()
   const { t } = useTranslation()
   const [preparing, setPreparing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -61,6 +62,7 @@ export function ImagesField({ images, onChange, disabled }: { images: string[]; 
 
 /** A sent image, fetched with the session's token; tapping it opens it full screen. */
 export function ReportImage({ reportId, image, number }: { reportId: string; image: ReportAttachment; number: number }) {
+  const styles = useStyles()
   const { t } = useTranslation()
   const [uri, setUri] = useState<string | null>(null)
   const [failed, setFailed] = useState(false)
@@ -102,7 +104,7 @@ export function ReportImage({ reportId, image, number }: { reportId: string; ima
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   field: { gap: spacing.sm },
   thumbs: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   thumb: { width: THUMB, height: THUMB, borderRadius: radius.md, borderCurve: "continuous", overflow: "hidden", backgroundColor: colors.fill },
@@ -114,4 +116,4 @@ const styles = StyleSheet.create({
   removeMark: { color: colors.label },
   add: { alignSelf: "flex-start" },
   viewer: { flex: 1, backgroundColor: "#000" },
-})
+}))

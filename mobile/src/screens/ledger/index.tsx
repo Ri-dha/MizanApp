@@ -1,7 +1,7 @@
 import { Link, Stack, router } from "expo-router"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Pressable, SectionList, StyleSheet, View } from "react-native"
+import { Pressable, SectionList, View } from "react-native"
 import { SegmentedControl } from "@expo/ui/community/segmented-control"
 
 import { formatMoney } from "@/utils/money"
@@ -17,7 +17,7 @@ import { useLiveQuery, useSession, useSyncStatus } from "@/hooks/use-core"
 import { useSelectedMonth } from "@/hooks/use-selected-month"
 import { useMonthView } from "@/hooks/use-views"
 import { MonthSwitcher } from "@/components/month-switcher"
-import { colors, radius, spacing, type } from "@/theme"
+import { radius, spacing, type, makeStyles } from "@/theme"
 import { formatDay } from "@/utils/dates"
 import { useScreenTour } from "@/tours"
 
@@ -33,6 +33,7 @@ interface Section {
 }
 
 export function Ledger() {
+  const styles = useStyles()
   const { t, i18n } = useTranslation()
   useScreenTour("ledger")
   const session = useSession()
@@ -92,7 +93,7 @@ export function Ledger() {
               selectedIndex={TYPE_FILTERS.indexOf(typeFilter)}
               onChange={(event) => setTypeFilter(TYPE_FILTERS[event.nativeEvent.selectedSegmentIndex])}
             />
-            <Link href="/sync" testID="sync-status" style={type.subhead}>{statusText}</Link>
+            <Link href="/sync" testID="sync-status" style={[type.subhead, styles.status]}>{statusText}</Link>
           </View>
         }
         ListEmptyComponent={<ThemedText variant="subhead">{t("transactions.none")}</ThemedText>}
@@ -129,8 +130,9 @@ export function Ledger() {
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   list: { backgroundColor: colors.background },
+  status: { color: colors.secondaryLabel },
   content: { padding: spacing.md, paddingBottom: spacing.xxl },
   header: { gap: spacing.md, marginBottom: spacing.sm },
   sectionTitle: { marginTop: spacing.md, marginBottom: spacing.xs },
@@ -138,4 +140,4 @@ const styles = StyleSheet.create({
   first: { borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md },
   last: { borderBottomLeftRadius: radius.md, borderBottomRightRadius: radius.md },
   pressed: { backgroundColor: colors.fill },
-})
+}))

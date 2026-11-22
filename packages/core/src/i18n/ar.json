@@ -664,7 +664,13 @@
     "overPlan": "فوق الخطة",
     "carries": "يُرحَّل",
     "resets": "يبدأ من جديد",
-    "monthLine": "المخطط {{planned}} · المستلم {{received}}"
+    "monthLine": "المخطط {{planned}} · المستلم {{received}}",
+    "ofAmount": "من {{amount}}",
+    "ofPlannedShort": "من {{amount}} مخطط",
+    "allIn": "وصل كله",
+    "almostUsed": "أوشك على النفاد",
+    "setAside": "مُجنَّب",
+    "usedPercent": "استُخدم {{percent}}٪"
   },
   "transactions": {
     "title": "السجل",

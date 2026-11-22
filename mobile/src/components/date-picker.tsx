@@ -1,9 +1,9 @@
 import { DateTimePicker } from "@expo/ui/community/datetime-picker"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Platform, Pressable, StyleSheet } from "react-native"
+import { Platform, Pressable } from "react-native"
 
-import { colors, radius, spacing, useBrandColors } from "@/theme"
+import { radius, spacing, useBrandColors, makeStyles } from "@/theme"
 import { dateOf, formatDay, isoOf, SHORT_DATE } from "@/utils/dates"
 import { ThemedText } from "./themed-text"
 
@@ -12,6 +12,7 @@ import { ThemedText } from "./themed-text"
  * its picker is a dialog that opens whenever it is on screen, so it is shown only after a tap.
  */
 export function DatePicker({ value, onChange, testID }: { value: string; onChange: (iso: string) => void; testID?: string }) {
+  const styles = useStyles()
   const { i18n } = useTranslation()
   const brand = useBrandColors()
   const [open, setOpen] = useState(false)
@@ -41,7 +42,7 @@ export function DatePicker({ value, onChange, testID }: { value: string; onChang
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   value: { backgroundColor: colors.fill, borderRadius: radius.sm, borderCurve: "continuous", paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
   pressed: { opacity: 0.6 },
-})
+}))

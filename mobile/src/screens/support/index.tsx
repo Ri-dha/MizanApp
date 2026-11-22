@@ -1,7 +1,7 @@
 import { router, Stack, useFocusEffect } from "expo-router"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { RefreshControl, ScrollView, StyleSheet, View } from "react-native"
+import { RefreshControl, ScrollView, View } from "react-native"
 
 import { Button } from "@/components/button"
 import { LinkRow } from "@/components/link-row"
@@ -9,12 +9,13 @@ import { Notice } from "@/components/notice"
 import { Group } from "@/components/row"
 import { ThemedText } from "@/components/themed-text"
 import { myReports, type ReportSummary } from "@/platform/support"
-import { colors, spacing, useBrandColors } from "@/theme"
+import { spacing, useBrandColors, makeStyles } from "@/theme"
 import { describeError } from "@/utils/errors"
 import { StatusBadge, useWhen } from "./thread"
 
 /** The person's reports, newest activity first; a reply from the team marks its report until it is opened. */
 export function Support() {
+  const styles = useStyles()
   const { t } = useTranslation()
   const brand = useBrandColors()
   const when = useWhen()
@@ -75,9 +76,9 @@ export function Support() {
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   fill: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.md, gap: spacing.md },
   meta: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   unread: { fontWeight: "600" },
-})
+}))

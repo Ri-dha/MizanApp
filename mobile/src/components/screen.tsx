@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from "react-native"
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native"
 
-import { colors, spacing } from "@/theme"
+import { spacing, makeStyles } from "@/theme"
 
 /**
  * A scrolling page on the grouped background. A full page keeps fields above the keyboard
@@ -9,6 +9,7 @@ import { colors, spacing } from "@/theme"
  * pushes its fields out of view.
  */
 export function Screen({ children, centered, sheet }: { children: ReactNode; centered?: boolean; sheet?: boolean }) {
+  const styles = useStyles()
   const scroll = (
     <ScrollView
       style={sheet ? styles.sheet : styles.fill}
@@ -27,9 +28,9 @@ export function Screen({ children, centered, sheet }: { children: ReactNode; cen
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   fill: { flex: 1, backgroundColor: colors.background },
   sheet: { backgroundColor: colors.background },
   content: { padding: spacing.md, gap: spacing.md },
   centered: { flexGrow: 1, justifyContent: "center" },
-})
+}))

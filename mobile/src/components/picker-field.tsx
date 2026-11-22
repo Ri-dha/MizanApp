@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Modal, Pressable, SectionList, StyleSheet, View } from "react-native"
+import { Modal, Pressable, SectionList, View } from "react-native"
 
-import { colors, radius, spacing, useBrandColors } from "@/theme"
+import { radius, spacing, useBrandColors, makeStyles } from "@/theme"
 import { Button } from "./button"
 import { Row } from "./row"
 import { TextField } from "./text-field"
@@ -27,6 +27,7 @@ export function PickerField({ label, searchLabel, value, shown, sections, onChan
   /** A line under the field, e.g. what choosing does. */
   hint?: string
 }) {
+  const styles = useStyles()
   const { t } = useTranslation()
   const brand = useBrandColors()
   const [open, setOpen] = useState(false)
@@ -84,7 +85,7 @@ export function PickerField({ label, searchLabel, value, shown, sections, onChan
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   field: { gap: spacing.xs },
   value: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.sm,
@@ -95,4 +96,4 @@ const styles = StyleSheet.create({
   sheet: { flex: 1, backgroundColor: colors.background, padding: spacing.md, gap: spacing.md },
   sheetHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   sectionTitle: { paddingTop: spacing.md, paddingBottom: spacing.xs },
-})
+}))

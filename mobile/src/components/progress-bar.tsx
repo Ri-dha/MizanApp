@@ -1,10 +1,11 @@
-import { StyleSheet, View } from "react-native"
+import { View } from "react-native"
 
-import { colors, radius, spacing, useBrandColors } from "@/theme"
+import { radius, spacing, useBrandColors, makeStyles } from "@/theme"
 
 const FULL = 100
 
 export function ProgressBar({ percent }: { percent: number }) {
+  const styles = useStyles()
   const brand = useBrandColors()
   const width = `${Math.max(0, Math.min(FULL, percent))}%` as const
   return (
@@ -14,7 +15,7 @@ export function ProgressBar({ percent }: { percent: number }) {
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   track: { height: spacing.sm, borderRadius: radius.full, backgroundColor: colors.fill, overflow: "hidden" },
   fill: { height: "100%", borderRadius: radius.full },
-})
+}))

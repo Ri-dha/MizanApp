@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, type ColorValue, type StyleProp, type ViewStyle } from "react-native"
 
-import { colors, radius, spacing, useBrandColors } from "@/theme"
+import { radius, spacing, useBrandColors, useColors } from "@/theme"
 import { ThemedText } from "./themed-text"
 
 type Variant = "primary" | "secondary" | "ghost" | "destructive"
@@ -23,11 +23,12 @@ export function Button({
   style?: StyleProp<ViewStyle>
   testID?: string
 }) {
+  const colors = useColors()
   const brand = useBrandColors()
   const surfaces: Record<Variant, { background: ColorValue; text: ColorValue }> = {
     primary: { background: brand.primary, text: brand.onPrimary },
     secondary: { background: colors.fill, text: colors.label },
-    ghost: { background: "transparent", text: brand.primary },
+    ghost: { background: "transparent", text: brand.link },
     destructive: { background: brand.destructive, text: brand.onDestructive },
   }
   const surface = surfaces[variant]

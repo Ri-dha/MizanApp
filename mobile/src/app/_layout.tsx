@@ -1,6 +1,6 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { StyleSheet, Text, useColorScheme, View } from "react-native"
 
 import { AccountGate } from "@/components/account-gate"
@@ -10,7 +10,7 @@ import { PlatformContext, type PlatformInfo } from "@/platform/context"
 import "@/i18n"
 import { installPlatform } from "@/platform/install"
 import { openRemindersOnTap } from "@/platform/push"
-import { spacing } from "@/theme"
+import { spacing, useColors } from "@/theme"
 import { DisplayRatesSync } from "@/utils/display-rates"
 import { SyncedPreferencesSync } from "@/utils/synced-preferences"
 import { usePreferences } from "@/preferences"
@@ -18,7 +18,13 @@ import { usePreferences } from "@/preferences"
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme()
+  const dark = useColorScheme() === "dark"
+  const colors = useColors()
+  // Native headers, sheets and the tab bar take their colours from here (ADR styles-1).
+  const navigation = useMemo(() => {
+    const base = dark ? DarkTheme : DefaultTheme
+    return { ...base, colors: { ...base.colors, primary: colors.link, background: colors.background, card: colors.surface, text: colors.label, border: colors.separator, notification: colors.destructive } }
+  }, [dark, colors])
   const [info, setInfo] = useState<PlatformInfo | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
 
@@ -38,7 +44,7 @@ export default function RootLayout() {
   }
   if (!info) return null
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={navigation}>
       <PlatformContext.Provider value={info}>
         <AccountGate>
           <Routes />
@@ -55,12 +61,12 @@ function Routes() {
   const signedIn = !!session
   useEffect(() => (signedIn ? openRemindersOnTap() : undefined), [signedIn])
   // Screens format amounts as they render and stay mounted, so these two settings redraw them all.
-  const { displayCurrency, digitStyle } = usePreferences()
+  const { displayCurrency, digitStyle, appStyle } = usePreferences()
   return (
     <>
       {signedIn ? <><DisplayRatesSync /><SyncedPreferencesSync /></> : null}
       {/* The screen under a pushed page is the tab group, whose name "(tabs)" would show as the back label. */}
-      <Stack key={`${displayCurrency ?? ""}|${digitStyle}`} screenOptions={{ headerBackButtonDisplayMode: "minimal" }}>
+      <Stack key={`${displayCurrency ?? ""}|${digitStyle}|${appStyle}`} screenOptions={{ headerBackButtonDisplayMode: "minimal" }}>
         {/* Without a target, signing out fell back to the last signed-out screen (reset password). */}
         <Stack.Protected guard={signedIn} redirectTo="/sign-in">
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

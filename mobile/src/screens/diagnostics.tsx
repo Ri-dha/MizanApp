@@ -1,7 +1,7 @@
 import { gunzipSync, gzipSync } from "fflate"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { FlatList, StyleSheet, Text, View } from "react-native"
+import { FlatList, Text, View } from "react-native"
 
 import { vaultVectorChecks } from "@mizan/core/vault/vectors"
 import { Button } from "@/components/button"
@@ -9,7 +9,7 @@ import { loadDemoData } from "@/dev/demo-data"
 import { useSession } from "@/hooks/use-core"
 import { ThemedText } from "@/components/themed-text"
 import { usePlatformInfo } from "@/platform/context"
-import { colors, spacing, type, useBrandColors } from "@/theme"
+import { spacing, type, useBrandColors, makeStyles, useColors } from "@/theme"
 
 interface Outcome {
   label: string
@@ -21,6 +21,8 @@ const fflate = { gzip: (bytes: Uint8Array) => gzipSync(bytes), gunzip: (bytes: U
 
 /** Runs the shared vault vectors on this device's crypto (ADR mobile-1): every one must pass before the app writes a record. */
 export function Diagnostics() {
+  const styles = useStyles()
+  const colors = useColors()
   const { cipherVersion } = usePlatformInfo()
   const [outcomes, setOutcomes] = useState<Outcome[]>([])
   const [running, setRunning] = useState(false)
@@ -78,8 +80,8 @@ export function Diagnostics() {
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   page: { padding: spacing.md, backgroundColor: colors.background },
   header: { gap: spacing.md, marginBottom: spacing.md },
   line: { ...type.log, marginBottom: spacing.xs },
-})
+}))

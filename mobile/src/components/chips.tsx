@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, View } from "react-native"
 
-import { colors, radius, spacing, useBrandColors } from "@/theme"
+import { radius, spacing, useBrandColors, useColors } from "@/theme"
 import { ThemedText } from "./themed-text"
 
 export interface Chip {
@@ -11,6 +11,7 @@ export interface Chip {
 
 /** One choice among a few, in a row that scrolls sideways; tapping the chosen chip again clears it. */
 export function Chips({ options, value, onChange, testID }: { options: Chip[]; value: string | null; onChange: (value: string | null) => void; testID?: string }) {
+  const colors = useColors()
   const brand = useBrandColors()
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row} testID={testID}>

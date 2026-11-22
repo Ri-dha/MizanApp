@@ -1,7 +1,7 @@
 import { Stack } from "expo-router"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native"
+import { Modal, Pressable, ScrollView, View } from "react-native"
 
 import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
 import { liveDebts } from "@mizan/core/db/debts"
@@ -19,7 +19,7 @@ import { ThemedText } from "@/components/themed-text"
 import { useLiveQuery } from "@/hooks/use-core"
 import { useAppMode } from "@/hooks/use-app-mode"
 import { useHomeLayout } from "@/hooks/use-home-layout"
-import { colors, radius, spacing, useBrandColors } from "@/theme"
+import { radius, spacing, useBrandColors, makeStyles } from "@/theme"
 
 const SIZES: WidgetSize[] = ["full", "compact"]
 
@@ -92,6 +92,7 @@ function CardEditor({ widget, index, count, layout, save, move, choices }: {
   save: (next: HomeWidget[]) => void
   choices: Choice[] | undefined
 }) {
+  const styles = useStyles()
   const { t } = useTranslation()
   const definition = definitionOf(widget.kind)
   const templateName = t(`homeLayout.kinds.${widget.kind}`)
@@ -193,6 +194,7 @@ function SheetList({ visible, title, hint, onClose, items, checked, onPick, test
   onPick: (id: string) => void
   testID: string
 }) {
+  const styles = useStyles()
   const { t } = useTranslation()
   const brand = useBrandColors()
   return (
@@ -221,7 +223,7 @@ function SheetList({ visible, title, hint, onClose, items, checked, onPick, test
   )
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   field: { gap: spacing.xs, flex: 1 },
   moves: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", flex: 1 },
   value: {
@@ -232,4 +234,4 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.6 },
   sheet: { flex: 1, backgroundColor: colors.background, padding: spacing.md, gap: spacing.md },
   sheetHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-})
+}))

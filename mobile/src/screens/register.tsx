@@ -6,6 +6,7 @@ import { register } from "@mizan/core/auth/session"
 import type { AppMode } from "@mizan/core/domain/appMode"
 import { IRAQ } from "@mizan/core/market/currency"
 import { AppModeChoice } from "@/components/app-mode-choice"
+import { AppStyleChoice } from "@/components/app-style-choice"
 import { Button } from "@/components/button"
 import { CountryField, CurrencyField } from "@/components/currency-field"
 import { Notice } from "@/components/notice"
@@ -13,7 +14,7 @@ import { Screen } from "@/components/screen"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { useCatalogue } from "@/hooks/use-currency"
-import { applyLocal } from "@/preferences"
+import { applyLocal, usePreferences } from "@/preferences"
 import { describeError } from "@/utils/errors"
 
 const MIN_PASSWORD = 8
@@ -28,6 +29,7 @@ export function Register() {
   const [currency, setCurrency] = useState("IQD")
   const [mode, setMode] = useState<AppMode>("simple")
   const [busy, setBusy] = useState(false)
+  const { appStyle } = usePreferences()
   const [error, setError] = useState<string | null>(null)
 
   const currencyOf = (code: string) => catalogue?.countries.find((c) => c.code === code)?.currency
@@ -72,6 +74,9 @@ export function Register() {
       <ThemedText variant="caption">{t("auth.baseCurrencyHint")}</ThemedText>
       <ThemedText variant="subhead">{t("appMode.label")}</ThemedText>
       <AppModeChoice value={mode} onChange={setMode} />
+      <ThemedText variant="subhead">{t("appStyle.label")}</ThemedText>
+      {/* Applied at once, so the person sees the template before the account exists. */}
+      <AppStyleChoice value={appStyle} onChange={(next) => applyLocal({ appStyle: next })} />
       {error ? <Notice tone="error" testID="register-error">{error}</Notice> : null}
       <Button testID="register" size="lg" title={t("auth.register")} loading={busy} disabled={!displayName || !identifier || password.length < MIN_PASSWORD} onPress={() => void submit()} />
     </Screen>

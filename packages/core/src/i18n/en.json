@@ -652,7 +652,13 @@
     "overPlan": "Over plan",
     "carries": "Carries over",
     "resets": "Resets",
-    "monthLine": "Planned {{planned}} · Received {{received}}"
+    "monthLine": "Planned {{planned}} · Received {{received}}",
+    "ofAmount": "of {{amount}}",
+    "ofPlannedShort": "of {{amount}} planned",
+    "allIn": "All in",
+    "almostUsed": "Almost used",
+    "setAside": "Set aside",
+    "usedPercent": "{{percent}}% used"
   },
   "transactions": {
     "title": "Ledger",
