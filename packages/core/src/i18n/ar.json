@@ -435,7 +435,13 @@
     },
     "adjustmentNote": "سبب التغيير",
     "adjustments": "تغييرات الرصيد",
-    "adjustmentLine": "{{date}}: {{from}} ← {{to}}"
+    "adjustmentLine": "{{date}}: {{from}} ← {{to}}",
+    "count_zero": "لا حسابات",
+    "count_one": "حساب واحد",
+    "count_two": "حسابان",
+    "count_few": "{{count}} حسابات",
+    "count_many": "{{count}} حساباً",
+    "count_other": "{{count}} حساب"
   },
   "sync": {
     "title": "المزامنة",

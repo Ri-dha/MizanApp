@@ -427,7 +427,9 @@
     },
     "adjustmentNote": "Reason for the change",
     "adjustments": "Balance changes",
-    "adjustmentLine": "{{date}}: {{from}} → {{to}}"
+    "adjustmentLine": "{{date}}: {{from}} → {{to}}",
+    "count_one": "{{count}} account",
+    "count_other": "{{count}} accounts"
   },
   "sync": {
     "title": "Sync",
