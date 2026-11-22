@@ -435,7 +435,13 @@
     },
     "adjustmentNote": "سبب التغيير",
     "adjustments": "تغييرات الرصيد",
-    "adjustmentLine": "{{date}}: {{from}} ← {{to}}"
+    "adjustmentLine": "{{date}}: {{from}} ← {{to}}",
+    "count_zero": "لا حسابات",
+    "count_one": "حساب واحد",
+    "count_two": "حسابان",
+    "count_few": "{{count}} حسابات",
+    "count_many": "{{count}} حساباً",
+    "count_other": "{{count}} حساب"
   },
   "sync": {
     "title": "المزامنة",
@@ -820,7 +826,10 @@
     "strategyDifference": "الفرق بين الترتيبين {{amount}} من الفائدة.",
     "receivedInto": "دخل المال إلى",
     "takenFrom": "خرج المال من",
-    "repaidInto": "استُلم في"
+    "repaidInto": "استُلم في",
+    "sooner": "سداد أسرع",
+    "lessInterest": "فائدة أقل",
+    "paidOff": "سُدّد {{paid}} من {{total}}"
   },
   "goals": {
     "title": "الأهداف",
@@ -848,7 +857,10 @@
     "backingAssetHint": "عند تحديده يتبع التقدم قيمة الأصل بدل الإيداعات.",
     "alreadySaved": "المدّخر مسبقًا ({{currency}})",
     "alreadySavedHint": "مال جمعته قبل إضافة هذا الهدف. يُحسب ضمن الهدف دون إيداع، فلا تتأثر خطة هذا الشهر.",
-    "includesSaved": "يشمل {{amount}} مدّخرة مسبقًا"
+    "includesSaved": "يشمل {{amount}} مدّخرة مسبقًا",
+    "onTrack": "على المسار",
+    "behind": "متأخر",
+    "ofTarget": "من {{amount}}"
   },
   "metals": {
     "dataCredit": "البيانات: {{name}}",
@@ -985,7 +997,8 @@
     "hide": "إخفاء",
     "product": "المنتج",
     "dealerPays": "يدفع الصائغ",
-    "dealerCharges": "يطلب الصائغ"
+    "dealerCharges": "يطلب الصائغ",
+    "gainSincePurchase": "الربح منذ الشراء"
   },
   "networth": {
     "title": "صافي الثروة",
@@ -1367,7 +1380,10 @@
     "stalePrompt_few": "{{count}} أصول لم تُقيَّم منذ {{months}} أشهر.",
     "stalePrompt_many": "{{count}} أصلاً لم تُقيَّم منذ {{months}} أشهر.",
     "stalePrompt_other": "{{count}} أصول، منها {{name}}، لم تُقيَّم من جديد منذ {{months}} أشهر.",
-    "tco": "تكاليف التشغيل {{costs}} · تكلفة الامتلاك الكلية حتى الآن {{total}}"
+    "tco": "تكاليف التشغيل {{costs}} · تكلفة الامتلاك الكلية حتى الآن {{total}}",
+    "sincePurchaseLabel": "منذ الشراء",
+    "soldBadge": "مباع",
+    "history": "سجل التقييمات"
   },
   "privacy": {
     "title": "الخصوصية",

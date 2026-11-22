@@ -427,7 +427,9 @@
     },
     "adjustmentNote": "Reason for the change",
     "adjustments": "Balance changes",
-    "adjustmentLine": "{{date}}: {{from}} → {{to}}"
+    "adjustmentLine": "{{date}}: {{from}} → {{to}}",
+    "count_one": "{{count}} account",
+    "count_other": "{{count}} accounts"
   },
   "sync": {
     "title": "Sync",
@@ -804,7 +806,10 @@
     "strategyDifference": "The difference between the two orders is {{amount}} in interest.",
     "receivedInto": "Money went into",
     "takenFrom": "Money came from",
-    "repaidInto": "Received into"
+    "repaidInto": "Received into",
+    "sooner": "Debt-free sooner",
+    "lessInterest": "Less interest",
+    "paidOff": "{{paid}} of {{total}} paid off"
   },
   "goals": {
     "title": "Goals",
@@ -832,7 +837,10 @@
     "backingAssetHint": "When set, progress follows the asset's value instead of deposits.",
     "alreadySaved": "Already saved ({{currency}})",
     "alreadySavedHint": "Money you had set aside before adding this goal. It counts toward the goal without a deposit, so this month's plan is not touched.",
-    "includesSaved": "Includes {{amount}} saved before"
+    "includesSaved": "Includes {{amount}} saved before",
+    "onTrack": "On track",
+    "behind": "Behind",
+    "ofTarget": "of {{amount}}"
   },
   "metals": {
     "dataCredit": "Data: {{name}}",
@@ -969,7 +977,8 @@
     "hide": "Hide",
     "product": "Product",
     "dealerPays": "Dealer pays",
-    "dealerCharges": "Dealer charges"
+    "dealerCharges": "Dealer charges",
+    "gainSincePurchase": "Gain since purchase"
   },
   "networth": {
     "title": "Net worth",
@@ -1339,7 +1348,10 @@
     "deleted": "Asset deleted",
     "stalePrompt_one": "{{name}} has no new valuation in {{months}} months.",
     "stalePrompt_other": "{{count}} assets, including {{name}}, have no new valuation in {{months}} months.",
-    "tco": "Running costs {{costs}} · total cost of ownership so far {{total}}"
+    "tco": "Running costs {{costs}} · total cost of ownership so far {{total}}",
+    "sincePurchaseLabel": "Since purchase",
+    "soldBadge": "Sold",
+    "history": "Valuation history"
   },
   "privacy": {
     "title": "Privacy",
