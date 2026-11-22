@@ -71,6 +71,23 @@ export function Line({ label, value, strong }: { label: string; value: string; s
   )
 }
 
+/** A progress track; `colour` overrides the template's main colour, `thick` is the hero weight. */
+export function Bar({ percent, colour, tone, thick }: { percent: number; colour?: string | null; tone?: "ok" | "danger" | "gold"; thick?: boolean }) {
+  const styles = useStyles()
+  const width = `${Math.max(0, Math.min(100, percent))}%` as const
+  return (
+    <View style={[styles.track, thick ? styles.thick : null]} accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: Math.round(percent) }}>
+      <View style={[styles.fill, tone ? styles[`${tone}Fill`] : null, colour ? { backgroundColor: colour } : null, { width }]} />
+    </View>
+  )
+}
+
+/** The one large figure of a screen. */
+export function HeroAmount({ children, tone, testID }: { children: string; tone?: "ok" | "danger" | "gold"; testID?: string }) {
+  const styles = useStyles()
+  return <ThemedText testID={testID} style={[styles.hero, tone ? styles[`${tone}Text`] : null]} numberOfLines={1} adjustsFontSizeToFit>{children}</ThemedText>
+}
+
 const useStyles = makeStyles((colors) => ({
   card: { backgroundColor: colors.surface, borderRadius: radius.md, borderCurve: "continuous", padding: spacing.md, gap: spacing.sm, boxShadow: "0 1px 2px rgba(16, 40, 48, 0.12)" },
   badge: { alignSelf: "flex-start", borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 2 },
@@ -97,4 +114,11 @@ const useStyles = makeStyles((colors) => ({
   line: { flexDirection: "row", alignItems: "baseline", gap: spacing.sm },
   lineValue: { fontSize: 15, fontVariant: ["tabular-nums"], color: colors.label },
   strong: { fontWeight: "600" },
+  track: { height: 6, borderRadius: radius.full, backgroundColor: colors.fill, overflow: "hidden" },
+  thick: { height: 10 },
+  fill: { height: "100%", borderRadius: radius.full, backgroundColor: colors.primary },
+  okFill: { backgroundColor: colors.success },
+  dangerFill: { backgroundColor: colors.destructive },
+  goldFill: { backgroundColor: colors.gold },
+  hero: { fontSize: 30, fontWeight: "600", fontVariant: ["tabular-nums"], color: colors.label },
 }))
