@@ -47,7 +47,11 @@
     "offlineNeedsSession": "Sign in once while online; after that Mizan works offline.",
     "country": "Country",
     "baseCurrency": "Main currency",
-    "baseCurrencyHint": "Totals, plans and net worth are counted in it. You can still record amounts in any currency."
+    "baseCurrencyHint": "Totals, plans and net worth are counted in it. You can still record amounts in any currency.",
+    "welcomeBack": "Welcome back.",
+    "brandBody": "Every currency you hold, gold and silver at today's price, and the whole household in one place.",
+    "brandEncrypted": "Encrypted on your devices",
+    "brandOffline": "Works offline"
   },
   "admin": {
     "nav": "Admin",
@@ -528,7 +532,8 @@
     "showHijri": "Show Hijri dates alongside",
     "languageSystem": "Phone's language",
     "restartForDirection": "Close and reopen Mizan to switch the screen direction.",
-    "valuationReminder": "Remind me to revalue assets after (months)"
+    "valuationReminder": "Remind me to revalue assets after (months)",
+    "languageAndTheme": "Language and theme"
   },
   "common": {
     "done": "Done",
@@ -1425,7 +1430,12 @@
     "accessDaysHint": "Leave empty for no end date; advisors get 30 days by default.",
     "until": "until {{date}}",
     "shareLink": "Share link",
-    "memberActions": "Member actions"
+    "memberActions": "Member actions",
+    "table": {
+      "name": "Name",
+      "contact": "Email",
+      "joined": "Joined"
+    }
   },
   "notifications": {
     "onThisDevice": "Push notifications on this device",
@@ -1725,7 +1735,12 @@
     "reporter": "Reporter",
     "closeImage": "Close image",
     "imageRemoved": "Photo removed after the report had been resolved for 6 months",
-    "imageRemovedShort": "Photo removed"
+    "imageRemovedShort": "Photo removed",
+    "table": {
+      "report": "Report",
+      "updated": "Last update",
+      "status": "Status"
+    }
   },
   "currency": {
     "all": "All currencies",
@@ -1808,5 +1823,12 @@
     "gateBody": "You are using simple mode, which leaves this screen out. Switching shows it again, with everything you recorded.",
     "switchToAdvanced": "Switch to advanced",
     "includesAdvanced": "Includes gold or other assets recorded in advanced mode."
+  },
+  "more": {
+    "groups": {
+      "money": "Money",
+      "own": "What you own",
+      "app": "Household and app"
+    }
   }
 }
