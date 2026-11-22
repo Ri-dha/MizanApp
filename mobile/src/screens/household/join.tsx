@@ -1,51 +1,23 @@
-import { router, Stack } from "expo-router"
-import { useEffect, useState } from "react"
+import { Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
 
-import { acceptInvitation, previewInvitation } from "@mizan/core/auth/household"
-import { Button } from "@/components/button"
-import { Notice } from "@/components/notice"
+import { viewFor } from "@mizan/core/domain/appStyle"
 import { Screen } from "@/components/screen"
-import { ThemedText } from "@/components/themed-text"
-import { describeError } from "@/utils/errors"
-import { DATE, formatWhen } from "@/utils/dates"
+import { useAppStyle } from "@/theme"
+import { useJoinScreen } from "./use-join-screen"
+import { JoinSoft } from "./views/join-soft"
 
-type Preview = Awaited<ReturnType<typeof previewInvitation>>
+/** ADR styles-1: each template draws the sheet its own way; a template without a view of its own gets Soft. */
+const VIEWS = { soft: JoinSoft }
 
-/** Where an invitation link lands: who invited you, to which household, as what. */
 export function JoinHousehold({ token }: { token: string }) {
-  const { t, i18n } = useTranslation()
-  const [preview, setPreview] = useState<Preview | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
-  const date = (iso: string) => formatWhen(iso, i18n.language, DATE)
-
-  useEffect(() => {
-    previewInvitation(token).then(setPreview).catch((e) => setError(describeError(e)))
-  }, [token])
-
-  async function join() {
-    setBusy(true)
-    try {
-      await acceptInvitation(token)
-      router.dismissTo("/")
-    } catch (e) {
-      setError(describeError(e))
-      setBusy(false)
-    }
-  }
-
+  const { t } = useTranslation()
+  const model = useJoinScreen(token)
+  const View = viewFor(VIEWS, useAppStyle())
   return (
     <Screen sheet>
       <Stack.Screen options={{ title: t("household.joinTitle") }} />
-      {error ? <Notice tone="error">{error}</Notice> : null}
-      {preview ? (
-        <>
-          <ThemedText testID="join-preview">{t("household.joinBody", { household: preview.householdName, by: preview.invitedBy, role: t(`household.roles.${preview.role}`) })}</ThemedText>
-          <ThemedText variant="caption">{t("household.expires", { date: date(preview.expiresAt) })}</ThemedText>
-          <Button testID="confirm-join" title={t("household.join")} loading={busy} onPress={() => void join()} />
-        </>
-      ) : null}
+      <View model={model} />
     </Screen>
   )
 }
