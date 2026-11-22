@@ -4,7 +4,7 @@ import { Pressable, View } from "react-native"
 import type { HomeWidget } from "@mizan/core/db/homeLayout"
 import { Button } from "@/components/button"
 import { Chips } from "@/components/chips"
-import { SoftCard } from "@/components/soft"
+import { Card } from "@/components/soft-kit"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { makeStyles, radius, spacing } from "@/theme"
@@ -32,7 +32,7 @@ function CardEditor({ model, widget, index }: { model: HomeLayoutModel; widget: 
   const card = useCardEditor(model, widget)
   const last = index === model.shown.length - 1
   return (
-    <SoftCard style={styles.card}>
+    <Card style={styles.card}>
       <View style={styles.top}>
         <View style={styles.place}><ThemedText style={styles.placeText}>{formatCount(index + 1, i18n.language)}</ThemedText></View>
         <ThemedText numberOfLines={1} style={styles.name}>{widget.title || card.templateName}</ThemedText>
@@ -71,7 +71,7 @@ function CardEditor({ model, widget, index }: { model: HomeLayoutModel; widget: 
       <Pressable testID={`card-${widget.id}-remove`} accessibilityRole="button" onPress={card.remove} style={({ pressed }) => [styles.remove, pressed ? styles.pressed : null]}>
         <ThemedText style={styles.removeText}>{t("homeLayout.remove", { card: widget.title || card.templateName })}</ThemedText>
       </Pressable>
-    </SoftCard>
+    </Card>
   )
 }
 

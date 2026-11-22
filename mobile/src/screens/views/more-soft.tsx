@@ -2,7 +2,7 @@ import { Link } from "expo-router"
 import { useTranslation } from "react-i18next"
 import { Pressable, View } from "react-native"
 
-import { Lead, SectionTitle } from "@/components/soft"
+import { Lead, SectionTitle } from "@/components/soft-kit"
 import { ThemedText } from "@/components/themed-text"
 import { makeStyles, radius, spacing, useColors } from "@/theme"
 import type { MoreScreenModel } from "../use-more-screen"

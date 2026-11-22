@@ -9,7 +9,7 @@ import { CurrencyField } from "@/components/currency-field"
 import { DatePicker } from "@/components/date-picker"
 import { Notice } from "@/components/notice"
 import { ReceiptField } from "@/components/receipt-field"
-import { SoftCard } from "@/components/soft"
+import { Card } from "@/components/soft-kit"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
@@ -30,7 +30,7 @@ export function TransactionEditorSoft({ model }: { model: TransactionEditorModel
         selectedIndex={model.types.indexOf(type)}
         onChange={(event) => model.setType(model.types[event.nativeEvent.selectedSegmentIndex])}
       />
-      <SoftCard style={styles.card}>
+      <Card style={styles.card}>
         <View style={styles.amountRow}>
           <View style={styles.amount}>
             <TextField testID="new-amount" label={t("transactions.amount")} keyboardType="decimal-pad" value={model.amount} onChangeText={model.setAmount} autoFocus={!model.editing} />
@@ -44,9 +44,9 @@ export function TransactionEditorSoft({ model }: { model: TransactionEditorModel
           <ThemedText style={styles.label}>{t("transactions.date")}</ThemedText>
           <DatePicker testID="transaction-date" value={model.occurredOn} onChange={model.setOccurredOn} />
         </View>
-      </SoftCard>
+      </Card>
 
-      <SoftCard style={styles.card}>
+      <Card style={styles.card}>
         {type !== "INCOME" && !model.split && !model.bucketless ? (
           <View style={styles.field}>
             <ThemedText style={styles.label}>{type === "TRANSFER" ? t("transactions.fromBucket") : t("transactions.bucket")}</ThemedText>
@@ -76,16 +76,16 @@ export function TransactionEditorSoft({ model }: { model: TransactionEditorModel
             <Button variant="secondary" title={t("transactions.addPart")} onPress={model.addPart} />
           </View>
         ) : null}
-      </SoftCard>
+      </Card>
 
-      <SoftCard style={styles.card}>
+      <Card style={styles.card}>
         <TextField testID="new-payee" label={t("transactions.payee")} value={model.payee} onChangeText={model.setPayee} />
         <TextField testID="new-category" label={t("transactions.category")} value={model.category} onChangeText={model.setCategory} />
         {model.showSuggested ? <ThemedText variant="caption">{t("transactions.suggested")}</ThemedText> : null}
         <TextField testID="new-note" label={t("income.note")} value={model.note} onChangeText={model.setNote} multiline />
         <ReceiptField attachmentId={model.attachmentId} ownerType="TRANSACTION" ownerRecordId={model.draftId} onChange={model.setAttachmentId} />
         <ToggleRow testID="private" label={t("accounts.private")} value={model.isPrivate} onChange={model.setIsPrivate} />
-      </SoftCard>
+      </Card>
       {model.problem ? <Notice tone="error" testID="editor-problem">{model.problem}</Notice> : null}
       {model.editing ? <Button testID="delete-transaction" variant="destructive" title={t("accounts.delete")} onPress={model.remove} /> : null}
     </>

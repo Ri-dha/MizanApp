@@ -6,7 +6,7 @@ import { Pressable, SectionList, View } from "react-native"
 import { Button } from "@/components/button"
 import { MonthSwitcher } from "@/components/month-switcher"
 import { Notice } from "@/components/notice"
-import { Badge, Lead, SectionTitle, SoftCard } from "@/components/soft"
+import { Badge, Lead, SectionTitle, Card } from "@/components/soft-kit"
 import { ThemedText } from "@/components/themed-text"
 import { makeStyles, radius, spacing, type } from "@/theme"
 import { TYPE_FILTERS, type LedgerScreenModel } from "../use-ledger-screen"
@@ -38,14 +38,14 @@ export function LedgerSoft({ model }: { model: LedgerScreenModel }) {
             onChange={(event) => model.setTypeFilter(TYPE_FILTERS[event.nativeEvent.selectedSegmentIndex])}
           />
           <View style={styles.tiles}>
-            <SoftCard style={styles.tile}>
+            <Card style={styles.tile}>
               <SectionTitle>{t("home.monthReceived")}</SectionTitle>
               <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={[styles.figure, styles.positive]}>{model.received}</ThemedText>
-            </SoftCard>
-            <SoftCard style={styles.tile}>
+            </Card>
+            <Card style={styles.tile}>
               <SectionTitle>{t("home.monthSpent")}</SectionTitle>
               <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.figure}>{model.spent}</ThemedText>
-            </SoftCard>
+            </Card>
           </View>
           <Link href="/sync" testID="sync-status" style={[type.subhead, styles.status]}>{model.statusText}</Link>
         </View>

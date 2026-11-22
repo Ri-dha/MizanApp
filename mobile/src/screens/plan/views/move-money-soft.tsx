@@ -3,7 +3,7 @@ import { View } from "react-native"
 
 import { Chips } from "@/components/chips"
 import { DatePicker } from "@/components/date-picker"
-import { Banner, SoftCard } from "@/components/soft"
+import { Banner, Card } from "@/components/soft-kit"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { makeStyles, radius, spacing } from "@/theme"
@@ -15,7 +15,7 @@ export function MoveMoneySoft({ model }: { model: MoveMoneyModel }) {
   const styles = useStyles()
   return (
     <>
-      <SoftCard style={styles.card}>
+      <Card style={styles.card}>
         <View style={styles.field}>
           <ThemedText style={styles.label}>{t("transactions.fromBucket")}</ThemedText>
           <Chips testID="move-from" options={model.fromOptions} value={model.fromId} onChange={model.setFromId} />
@@ -29,7 +29,7 @@ export function MoveMoneySoft({ model }: { model: MoveMoneyModel }) {
           <ThemedText style={styles.label}>{t("transactions.to")}</ThemedText>
           <Chips testID="move-to" options={model.toOptions} value={model.toId} onChange={model.setToId} />
         </View>
-      </SoftCard>
+      </Card>
       <TextField testID="move-amount" label={t("transactions.amount")} keyboardType="decimal-pad" value={model.amount} onChangeText={model.setAmount} />
       <View style={styles.dateRow}>
         <ThemedText style={styles.label}>{t("transactions.date")}</ThemedText>

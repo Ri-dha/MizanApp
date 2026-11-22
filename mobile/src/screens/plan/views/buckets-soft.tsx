@@ -3,7 +3,7 @@ import { Pressable, View } from "react-native"
 
 import { Button } from "@/components/button"
 import { Notice } from "@/components/notice"
-import { SoftCard } from "@/components/soft"
+import { Card } from "@/components/soft-kit"
 import { TextField } from "@/components/text-field"
 import { ThemedText } from "@/components/themed-text"
 import { ToggleRow } from "@/components/toggle-row"
@@ -18,7 +18,7 @@ export function BucketsSoft({ model }: { model: BucketsScreenModel }) {
     <>
       <ThemedText style={styles.body}>{model.versionNote}</ThemedText>
       {model.editing.map((bucket, index) => (
-        <SoftCard key={bucket.id ?? `new-${index}`} style={styles.card}>
+        <Card key={bucket.id ?? `new-${index}`} style={styles.card}>
           <View style={styles.nameRow}>
             <Pressable accessibilityRole="button" accessibilityLabel={t("plan.colour")} onPress={() => model.stepColour(index)} style={[styles.swatch, { backgroundColor: bucket.colour }]} />
             <View style={styles.flex}>
@@ -35,7 +35,7 @@ export function BucketsSoft({ model }: { model: BucketsScreenModel }) {
           <Pressable accessibilityRole="button" onPress={() => model.remove(index)} style={({ pressed }) => [styles.remove, pressed ? styles.pressed : null]}>
             <ThemedText style={styles.removeText}>{t("plan.remove")}</ThemedText>
           </Pressable>
-        </SoftCard>
+        </Card>
       ))}
       <Button testID="add-bucket" variant="secondary" title={t("plan.addBucket")} onPress={model.add} />
       {model.balanced ? null : <Button testID="rebalance" variant="secondary" title={t("plan.rebalance")} onPress={model.rebalance} />}
