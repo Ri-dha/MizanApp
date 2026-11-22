@@ -22,8 +22,8 @@ export default function YearReportSoft({ model }: { model: YearReportPageModel }
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="min-w-0 flex-1 text-[28px] leading-9">{t("report.yearTitle", { year: model.year })}</h1>
-        <div className="flex items-center gap-2 print:hidden">
+        <h1 className="min-w-0 flex-1 basis-60 text-[28px] leading-9">{t("report.yearTitle", { year: model.year })}</h1>
+        <div className="flex flex-wrap items-center gap-2 print:hidden">
           <Button variant="outline" size="icon" aria-label={t("report.previousYear")} onClick={model.previousYear}><ChevronLeft className="rtl:-scale-x-100" /></Button>
           <span className="min-w-12 text-center font-semibold tabular-nums">{model.year}</span>
           <Button variant="outline" size="icon" aria-label={t("report.nextYear")} onClick={model.nextYear}><ChevronRight className="rtl:-scale-x-100" /></Button>

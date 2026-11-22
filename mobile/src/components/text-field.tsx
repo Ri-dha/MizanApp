@@ -19,6 +19,8 @@ const useStyles = makeStyles((colors) => ({
   field: { gap: spacing.xs },
   input: {
     ...type.body, color: colors.label, backgroundColor: colors.surface, borderRadius: radius.md, borderCurve: "continuous",
+    // Soft puts fields on cards of the same colour, so the field needs its own edge to be seen.
+    borderWidth: 1, borderColor: colors.outline,
     paddingHorizontal: spacing.md, paddingVertical: spacing.sm + spacing.xs, textAlign: "auto",
   },
 }))
