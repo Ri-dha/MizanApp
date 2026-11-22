@@ -1,123 +1,23 @@
-import { router, Stack } from "expo-router"
-import { zipSync } from "fflate"
-import { useState } from "react"
+import { Stack } from "expo-router"
 import { useTranslation } from "react-i18next"
-import { Alert, StyleSheet, View } from "react-native"
 
-import { applyImport, buildExport, ImportError, validateImport } from "@mizan/core/data/export"
-import { EXPORT_COLUMNS, EXPORT_KINDS, exportTableFor, type ExportKind } from "@mizan/core/data/exportTables"
-import { toCsv, toXlsx } from "@mizan/core/data/tabular"
-import { mayWriteRecords } from "@mizan/core/roles"
-import { Button } from "@/components/button"
-import { Notice } from "@/components/notice"
-import { Group, Row } from "@/components/row"
+import { viewFor } from "@mizan/core/domain/appStyle"
 import { Screen } from "@/components/screen"
-import { ThemedText } from "@/components/themed-text"
-import { useSession } from "@/hooks/use-core"
-import { pickTextFile, shareFile } from "@/platform/files"
-import { spacing } from "@/theme"
-import { describeError } from "@/utils/errors"
-import { setPendingCsv } from "./csv-pending"
+import { useAppStyle } from "@/theme"
+import { useDataScreen } from "./use-data-screen"
+import { DataSoft } from "./views/data-soft"
 
-const JSON_MIME = "application/json"
-const CSV_MIME = "text/csv"
-const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+/** ADR styles-1: each template draws the screen its own way; a template without a view of its own gets Soft. */
+const VIEWS = { soft: DataSoft }
 
-const stamp = () => new Date().toISOString().slice(0, 10)
-
-/** FR-DAT: the whole household as one file, spreadsheets per record kind, and CSV bank statements in. */
 export function DataSettings() {
-  const { t, i18n } = useTranslation()
-  const session = useSession()
-  const writes = mayWriteRecords(session?.role ?? "OWNER")
-  const [message, setMessage] = useState<string | null>(null)
-
-  async function run(action: () => Promise<unknown>) {
-    try {
-      await action()
-    } catch (e) {
-      setMessage(describeError(e))
-    }
-  }
-
-  async function exportAll() {
-    if (!session) return
-    const name = `mizan-${session.householdName.replace(/\s+/g, "-")}-${stamp()}.json`
-    await shareFile(name, JSON.stringify(await buildExport(session), null, 2), JSON_MIME)
-  }
-
-  async function importAll() {
-    const text = await pickTextFile([JSON_MIME, "public.json"])
-    if (text === null) return
-    let preview
-    try {
-      preview = validateImport(JSON.parse(text))
-    } catch (e) {
-      setMessage(e instanceof ImportError ? t("data.invalid", { reason: e.message }) : t("data.notJson"))
-      return
-    }
-    const name = (table: string) => t(`sync.tables.${table}`, { defaultValue: table })
-    const lines = Object.entries(preview.counts).map(([table, count]) => `${name(table)}: ${count}`)
-    if (preview.skipped.length > 0) lines.push(t("data.skipped", { tables: preview.skipped.map(name).join(", ") }))
-    Alert.alert(t("data.previewTitle"), `${t("data.previewBody")}\n\n${lines.join("\n")}`, [
-      { text: t("common.cancel"), style: "cancel" },
-      { text: t("data.confirmImport"), onPress: () => void run(async () => setMessage(t("data.imported", { count: await applyImport(preview) }))) },
-    ])
-  }
-
-  async function exportTable(kind: ExportKind, format: "csv" | "xlsx") {
-    const table = await exportTableFor(kind, EXPORT_COLUMNS[kind].map((key) => t(`exports.columns.${key}`)))
-    const name = `mizan-${kind}-${stamp()}.${format}`
-    if (format === "csv") await shareFile(name, toCsv(table), CSV_MIME)
-    else await shareFile(name, toXlsx(table, t(`exports.${kind}`), i18n.language === "ar", zipSync), XLSX_MIME)
-  }
-
-  async function importCsv() {
-    const text = await pickTextFile([CSV_MIME, "text/comma-separated-values", "public.comma-separated-values-text"])
-    if (text === null) return
-    setPendingCsv(text)
-    router.push("/csv-import")
-  }
-
+  const { t } = useTranslation()
+  const model = useDataScreen()
+  const View = viewFor(VIEWS, useAppStyle())
   return (
     <Screen>
       <Stack.Screen options={{ title: t("data.title") }} />
-      {message ? <Notice>{message}</Notice> : null}
-      <ThemedText variant="subhead">{t("data.body")}</ThemedText>
-      <View style={styles.buttons}>
-        <Button testID="data-export" variant="secondary" title={t("data.export")} onPress={() => void run(exportAll)} />
-        {writes ? (
-          <>
-            <Button testID="data-import" variant="secondary" title={t("data.import")} onPress={() => void run(importAll)} />
-            <Button testID="data-csv" variant="secondary" title={t("csv.button")} onPress={() => void run(importCsv)} />
-          </>
-        ) : null}
-      </View>
-      <View style={styles.section}>
-        <ThemedText variant="caption">{t("exports.body")}</ThemedText>
-        <Group>
-          {EXPORT_KINDS.map((kind, index) => (
-            <Row
-              key={kind}
-              last={index === EXPORT_KINDS.length - 1}
-              trailing={
-                <View style={styles.formats}>
-                  <Button testID={`export-${kind}-csv`} variant="ghost" title="CSV" onPress={() => void run(() => exportTable(kind, "csv"))} />
-                  <Button testID={`export-${kind}-xlsx`} variant="ghost" title="Excel" onPress={() => void run(() => exportTable(kind, "xlsx"))} />
-                </View>
-              }
-            >
-              <ThemedText>{t(`exports.${kind}`)}</ThemedText>
-            </Row>
-          ))}
-        </Group>
-      </View>
+      <View model={model} />
     </Screen>
   )
 }
-
-const styles = StyleSheet.create({
-  section: { gap: spacing.sm },
-  buttons: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  formats: { flexDirection: "row" },
-})
