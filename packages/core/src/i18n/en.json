@@ -702,7 +702,11 @@
     "takePhoto": "Take photo",
     "choosePhoto": "Choose photo",
     "removeReceipt": "Remove photo",
-    "note": "Note"
+    "note": "Note",
+    "moneyIn": "Money in",
+    "moneyOut": "Money out",
+    "moved": "Moved",
+    "movedDay": "{{amount}} moved"
   },
   "bills": {
     "title": "Bills",

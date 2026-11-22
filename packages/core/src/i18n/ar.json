@@ -714,7 +714,11 @@
     "takePhoto": "التقاط صورة",
     "choosePhoto": "اختيار صورة",
     "removeReceipt": "إزالة الصورة",
-    "note": "ملاحظة"
+    "note": "ملاحظة",
+    "moneyIn": "الوارد",
+    "moneyOut": "الصادر",
+    "moved": "المنقول",
+    "movedDay": "نُقل {{amount}}"
   },
   "bills": {
     "title": "الفواتير",
