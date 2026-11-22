@@ -1394,7 +1394,12 @@
     "accessDaysHint": "Leave empty for no end date; advisors get 30 days by default.",
     "until": "until {{date}}",
     "shareLink": "Share link",
-    "memberActions": "Member actions"
+    "memberActions": "Member actions",
+    "table": {
+      "name": "Name",
+      "contact": "Email",
+      "joined": "Joined"
+    }
   },
   "notifications": {
     "onThisDevice": "Push notifications on this device",
