@@ -136,11 +136,13 @@ describe("simple and advanced modes (ADR mode-1)", () => {
   it("reads the mode from the row and ignores a value it does not know", () => {
     expect(syncedPreferencesOf({ appMode: "simple" } as unknown as HomeLayout)).toEqual({ appMode: "simple" })
     expect(syncedPreferencesOf({ appMode: "expert" } as unknown as HomeLayout)).toEqual({})
+    expect(syncedPreferencesOf({ appStyle: "clear" } as unknown as HomeLayout)).toEqual({ appStyle: "clear" })
+    expect(syncedPreferencesOf({ appStyle: "fluent" } as unknown as HomeLayout)).toEqual({})
   })
 })
 
 describe("reconciling a device with the row", () => {
-  const defaults = { digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, appMode: "advanced" } as const
+  const defaults = { digitStyle: "western", showUsd: false, showHijri: false, valuationReminderMonths: 6, appMode: "advanced", appStyle: "mizan" } as const
   const local = { ...defaults, digitStyle: "eastern", showHijri: true } as const
 
   it("takes the row's values over the device's", () => {

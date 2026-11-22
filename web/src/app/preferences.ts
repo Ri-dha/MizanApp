@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react"
 
 import { saveSyncedPreferences } from "@mizan/core/db/homeLayout"
 import type { AppMode } from "@mizan/core/domain/appMode"
+import { DEFAULT_APP_STYLE, isAppStyle, type AppStyle } from "@mizan/core/domain/appStyle"
 
 export type DigitStyle = "western" | "eastern"
 
@@ -18,6 +19,8 @@ export interface Preferences {
   displayCurrency: string | null
   /** ADR mode-1: simple hides the planning and wealth screens; nothing stored changes. */
   appMode: AppMode
+  /** ADR styles-1: the template; `public/theme-boot.js` reads it from this record before the first paint. */
+  appStyle: AppStyle
 }
 
 
@@ -31,6 +34,7 @@ export const DEFAULTS: Preferences = {
   displayCurrency: null,
   // Advanced, so a person from before the choice existed sees no change.
   appMode: "advanced",
+  appStyle: DEFAULT_APP_STYLE,
 }
 
 let current: Preferences = load()
@@ -39,7 +43,9 @@ const listeners = new Set<() => void>()
 function load(): Preferences {
   try {
     const stored = localStorage.getItem(KEY)
-    return stored ? { ...DEFAULTS, ...JSON.parse(stored) } : DEFAULTS
+    if (!stored) return DEFAULTS
+    const merged = { ...DEFAULTS, ...JSON.parse(stored) }
+    return isAppStyle(merged.appStyle) ? merged : { ...merged, appStyle: DEFAULT_APP_STYLE }
   } catch {
     return DEFAULTS
   }
@@ -70,6 +76,12 @@ export function refreshPreferences() {
 export function setPreferences(patch: Partial<Preferences>) {
   applyLocal(patch)
   void saveSyncedPreferences(patch).catch(() => undefined)
+}
+
+/** For code outside React that follows a preference, such as the template on the page element. */
+export function subscribePreferences(listener: () => void) {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
 }
 
 export function usePreferences(): Preferences {

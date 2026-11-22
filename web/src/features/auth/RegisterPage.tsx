@@ -14,8 +14,10 @@ import { CurrencySelect } from "@/features/currency/CurrencySelect"
 import { useCatalogue } from "@/features/currency/useCurrencies"
 import { IRAQ } from "@mizan/core/market/currency"
 import type { AppMode } from "@mizan/core/domain/appMode"
-import { applyLocal } from "@/app/preferences"
+import type { AppStyle } from "@mizan/core/domain/appStyle"
+import { applyLocal, preferences } from "@/app/preferences"
 import { AppModeChoice } from "@/features/settings/AppModeChoice"
+import { AppStyleChoice } from "@/features/settings/AppStyleChoice"
 import { Label } from "@/components/ui/label"
 
 export function RegisterPage() {
@@ -27,6 +29,7 @@ export function RegisterPage() {
   const [country, setCountry] = useState(IRAQ)
   const [currency, setCurrency] = useState("IQD")
   const [mode, setMode] = useState<AppMode>("simple")
+  const [style, setStyle] = useState<AppStyle>(() => preferences().appStyle)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -37,7 +40,7 @@ export function RegisterPage() {
     try {
       await register(identifier, password, displayName, i18n.language.startsWith("ar") ? "ar" : "en", country, currency)
       // Kept on this device now; it reaches the person's synced row once the first sync has run (ADR home-2).
-      applyLocal({ appMode: mode })
+      applyLocal({ appMode: mode, appStyle: style })
     } catch (e) {
       setError(describeError(e))
     } finally {
@@ -69,6 +72,11 @@ export function RegisterPage() {
         <div className="flex flex-col gap-1.5">
           <Label>{t("appMode.label")}</Label>
           <AppModeChoice value={mode} onChange={setMode} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label>{t("appStyle.label")}</Label>
+          {/* Applied at once, so the person sees the template before the account exists. */}
+          <AppStyleChoice value={style} onChange={(next) => { setStyle(next); applyLocal({ appStyle: next }) }} />
         </div>
         {error && (
           <Alert>

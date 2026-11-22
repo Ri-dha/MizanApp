@@ -639,7 +639,20 @@
     "reason": "Reason",
     "reasonHint": "e.g. Generator repair",
     "moveHint": "The move is a transfer, not spending: it leaves one bucket and arrives in the other, and stays in this month's audit trail.",
-    "moved": "Moved {{amount}} from {{from}} to {{to}}"
+    "moved": "Moved {{amount}} from {{from}} to {{to}}",
+    "used": "Used",
+    "noChanges": "No changes to save",
+    "presets": "Presets",
+    "freeToSpend": "Free to spend this month",
+    "ofPlanned": "of {{amount}} income planned · {{percent}}% used",
+    "shareOfIncome": "{{percent}}% of income",
+    "overspentBy": "Overspent by {{amount}}. Move money to cover it.",
+    "fullyCommitted": "Fully committed",
+    "onTrack": "On track",
+    "overPlan": "Over plan",
+    "carries": "Carries over",
+    "resets": "Resets",
+    "monthLine": "Planned {{planned}} · Received {{received}}"
   },
   "transactions": {
     "title": "Ledger",
@@ -1720,6 +1733,22 @@
     "receivedHint": "What actually arrived; the exchange office's rate is often not the market's.",
     "transferHint": "Moving your own money is not income or spending, so the plan and the report are not touched.",
     "needTwoAccounts": "Add a second cash account to move money between them."
+  },
+  "appStyle": {
+    "title": "Template",
+    "body": "Choose how Mizan looks. Each template has its own layout and colours; your records stay the same and you can switch at any time.",
+    "label": "How Mizan looks",
+    "styles": {
+      "mizan": "Mizan",
+      "clear": "Clear",
+      "soft": "Soft"
+    },
+    "hints": {
+      "mizan": "Deep blue and navy with a gold accent",
+      "clear": "Light and airy, with bold headline cards",
+      "soft": "Calm teal, compact tables and lists"
+    },
+    "offline": "This template has not been saved on this device yet. Connect to the internet once to switch to it."
   },
   "appMode": {
     "title": "Simple or advanced",

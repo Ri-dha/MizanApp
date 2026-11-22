@@ -40,6 +40,7 @@ import { PRIVACY_KINDS, savePrivacyDefault, usePrivacyDefaults } from "@/db/priv
 import { DATE, formatWhen } from "@/app/dates"
 import { CurrencyCard } from "./CurrencyCard"
 import { AppModeChoice } from "./AppModeChoice"
+import { AppStyleChoice } from "./AppStyleChoice"
 import { useAppMode } from "@/app/appMode"
 import { CurrencySelect } from "@/features/currency/CurrencySelect"
 
@@ -237,6 +238,14 @@ export function SettingsPage() {
       <RecoveryCodeCard />
 
       <CurrencyCard />
+
+      <Card>
+        <CardHeader><CardTitle>{t("appStyle.title")}</CardTitle></CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <p className="text-sm text-muted-foreground">{t("appStyle.body")}</p>
+          <AppStyleChoice value={prefs.appStyle} onChange={(next) => setPreferences({ appStyle: next })} />
+        </CardContent>
+      </Card>
 
       {!restricted && <Card>
         <CardHeader><CardTitle>{t("appMode.title")}</CardTitle></CardHeader>

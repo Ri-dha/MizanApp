@@ -89,7 +89,7 @@ export function AppShell() {
           <span className="text-xl font-semibold">{t("app.name")}</span>
           <span className="flex items-center gap-1"><ShownCurrencyBadge /><SyncBadge /></span>
         </div>
-        {canWrite && <Button onClick={() => setAdding(true)} className="mb-2" data-tour="quick-add-desktop"><Plus /> {t("transactions.add")}</Button>}
+        {canWrite && <Button onClick={() => setAdding(true)} className="mb-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90" data-tour="quick-add-desktop"><Plus /> {t("transactions.add")}</Button>}
         {sidebar.map((item) => (
           <NavLink key={item.to} to={item.to} end={item.end} className={linkClass}>
             <item.icon className="size-4" />

@@ -342,6 +342,8 @@ export interface HomeLayout extends Syncable {
   valuationReminderMonths?: number
   /** ADR mode-1: "simple" or "advanced". */
   appMode?: string
+  /** ADR styles-1: "mizan", "clear" or "soft". */
+  appStyle?: string
 }
 
 export type WidgetKind = "netWorth" | "month" | "dollar" | "plan" | "metals" | "bills" | "cash" | "goals" | "debts"

@@ -1,6 +1,7 @@
 import { rows } from "../store/store"
 import type { HomeLayout, HomeWidget, WidgetKind, WidgetSize } from "../schema"
 import { isAppMode, shows, type AdvancedArea, type AppMode } from "../domain/appMode"
+import { isAppStyle, type AppStyle } from "../domain/appStyle"
 import type { DigitStyle } from "../domain/digits"
 import { writeFields } from "./write"
 
@@ -175,9 +176,11 @@ export interface SyncedPreferences {
   valuationReminderMonths: number
   /** ADR mode-1. */
   appMode: AppMode
+  /** ADR styles-1. */
+  appStyle: AppStyle
 }
 
-export const SYNCED_KEYS = ["digitStyle", "showUsd", "showHijri", "valuationReminderMonths", "appMode"] as const satisfies readonly (keyof SyncedPreferences)[]
+export const SYNCED_KEYS = ["digitStyle", "showUsd", "showHijri", "valuationReminderMonths", "appMode", "appStyle"] as const satisfies readonly (keyof SyncedPreferences)[]
 
 const MAX_REMINDER_MONTHS = 120
 
@@ -191,6 +194,7 @@ export function syncedPreferencesOf(row: HomeLayout | undefined): Partial<Synced
   const months = row.valuationReminderMonths
   if (typeof months === "number" && Number.isInteger(months) && months >= 1 && months <= MAX_REMINDER_MONTHS) found.valuationReminderMonths = months
   if (isAppMode(row.appMode)) found.appMode = row.appMode
+  if (isAppStyle(row.appStyle)) found.appStyle = row.appStyle
   return found
 }
 
