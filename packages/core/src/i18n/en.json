@@ -1318,7 +1318,10 @@
     "deleted": "Asset deleted",
     "stalePrompt_one": "{{name}} has no new valuation in {{months}} months.",
     "stalePrompt_other": "{{count}} assets, including {{name}}, have no new valuation in {{months}} months.",
-    "tco": "Running costs {{costs}} · total cost of ownership so far {{total}}"
+    "tco": "Running costs {{costs}} · total cost of ownership so far {{total}}",
+    "sincePurchaseLabel": "Since purchase",
+    "soldBadge": "Sold",
+    "history": "Valuation history"
   },
   "privacy": {
     "title": "Privacy",
