@@ -792,7 +792,10 @@
     "strategyDifference": "The difference between the two orders is {{amount}} in interest.",
     "receivedInto": "Money went into",
     "takenFrom": "Money came from",
-    "repaidInto": "Received into"
+    "repaidInto": "Received into",
+    "sooner": "Debt-free sooner",
+    "lessInterest": "Less interest",
+    "paidOff": "{{paid}} of {{total}} paid off"
   },
   "goals": {
     "title": "Goals",

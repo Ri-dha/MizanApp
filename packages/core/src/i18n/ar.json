@@ -808,7 +808,10 @@
     "strategyDifference": "الفرق بين الترتيبين {{amount}} من الفائدة.",
     "receivedInto": "دخل المال إلى",
     "takenFrom": "خرج المال من",
-    "repaidInto": "استُلم في"
+    "repaidInto": "استُلم في",
+    "sooner": "سداد أسرع",
+    "lessInterest": "فائدة أقل",
+    "paidOff": "سُدّد {{paid}} من {{total}}"
   },
   "goals": {
     "title": "الأهداف",

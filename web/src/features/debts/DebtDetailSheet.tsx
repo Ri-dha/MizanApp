@@ -1,118 +1,21 @@
-import { useState, type FormEvent } from "react"
-import { useTranslation } from "react-i18next"
+import { lazy } from "react"
 
-import { Field } from "@/components/Field"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { styleViews } from "@/app/style"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { balanceOf, recordPayment, undoPayment } from "@mizan/core/db/debts"
-import type { Debt, DebtPayment } from "@/db/schema"
-import { monthKeyFor, todayIso } from "@mizan/core/domain/calendar/month"
-import { debtPayoff } from "@mizan/core/domain/debt/payoff"
-import { formatMoney, fromMinorUnits, toMinorUnits } from "@/app/money"
-import { formatWhen } from "@/app/dates"
-import { useLiveQuery } from "dexie-react-hooks"
-import { AccountPicker } from "@/features/accounts/AccountPicker"
-import { lastAccount, pickedAccount, rememberAccount } from "@/features/accounts/lastAccount"
-import { liveCashAccounts } from "@mizan/core/db/cashAccounts"
+import { useDebtDetail, type DebtDetailModel, type DebtDetailProps } from "./useDebtDetail"
 
-interface Props {
-  debt: Debt | null
-  payments: DebtPayment[]
-  startDay: number
-  onClose: () => void
-  onEdit: (debt: Debt) => void
-}
+const DebtDetailView = styleViews<{ model: DebtDetailModel }>({
+  soft: lazy(() => import("./views/DebtDetailSoft")),
+})
 
-export function DebtDetailSheet({ debt, payments, startDay, onClose, onEdit }: Props) {
-  const { t, i18n } = useTranslation()
-  const [amount, setAmount] = useState("")
-  const [paidOn, setPaidOn] = useState(todayIso())
-  const [extra, setExtra] = useState("")
-  const [accountId, setAccountId] = useState(lastAccount)
-  const accounts = useLiveQuery(liveCashAccounts, [], [])
-
-  if (!debt) return <Sheet open={false}><SheetContent /></Sheet>
-
-  const money = (value: number) => formatMoney(value, debt.currency, i18n.language)
-  const date = (iso: string) => formatWhen(iso, i18n.language, { day: "numeric", month: "short", year: "numeric" })
-  const balance = balanceOf(debt, payments)
-  const ledger = payments.filter((p) => p.debtId === debt.id).reverse()
-  const payoff = debtPayoff(balance, debt.annualRateBasisPoints, debt.monthlyPayment)
-  const extraMinor = extra ? toMinorUnits(extra, debt.currency) : 0
-  const withExtra = extraMinor > 0 ? debtPayoff(balance, debt.annualRateBasisPoints, debt.monthlyPayment + extraMinor) : null
-
-  async function submit(event: FormEvent) {
-    event.preventDefault()
-    if (!debt) return
-    const paid = toMinorUnits(amount || fromMinorUnits(debt.monthlyPayment, debt.currency), debt.currency)
-    const cashAccountId = pickedAccount(accountId, accounts)
-    rememberAccount(accountId)
-    await recordPayment(debt, payments, paid, paidOn, monthKeyFor(paidOn, startDay), null, cashAccountId)
-    setAmount("")
-  }
-
+export function DebtDetailSheet(props: DebtDetailProps) {
+  const model = useDebtDetail(props)
+  if (!model) return <Sheet open={false}><SheetContent /></Sheet>
   return (
-    <Sheet open onOpenChange={(next) => !next && onClose()}>
+    <Sheet open onOpenChange={(next) => !next && props.onClose()}>
       <SheetContent className="overflow-y-auto">
-        <SheetHeader><SheetTitle>{debt.name}</SheetTitle></SheetHeader>
-        <div className="flex flex-col gap-4 px-4">
-          <div className="rounded-lg border p-3">
-            <p className="text-sm opacity-70">{t("debts.balance")}</p>
-            <p className="text-2xl font-semibold tabular-nums">{money(balance)}</p>
-            <p className="text-sm">
-              {debt.status === "SETTLED"
-                ? t("debts.settled")
-                : payoff.neverClears
-                  ? t("debts.neverClearsLong", { payment: money(debt.monthlyPayment) })
-                  : t("debts.payoffLong", { months: payoff.months, total: money(payoff.totalPaid), interest: money(payoff.totalInterest) })}
-            </p>
-          </div>
-
-          {debt.status === "ACTIVE" && (
-            <form onSubmit={submit} className="flex flex-col gap-3 rounded-lg border p-3">
-              <p className="font-semibold">{t("debts.recordPayment")}</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Field id="amount" label={t("income.amount")}>
-                  <Input id="amount" inputMode="decimal" dir="ltr" placeholder={fromMinorUnits(debt.monthlyPayment, debt.currency)} value={amount} onChange={(e) => setAmount(e.target.value)} />
-                </Field>
-                <Field id="paidOn" label={t("bills.paidOnLabel")}>
-                  <Input id="paidOn" type="date" dir="ltr" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} required />
-                </Field>
-              </div>
-              <AccountPicker id="paymentAccount" label={debt.direction === "OWING" ? t("cashMovements.paidFrom") : t("debts.repaidInto")}
-                value={accountId} onChange={setAccountId} accounts={accounts} />
-              <Button type="submit" className="self-start">{t("debts.recordPayment")}</Button>
-            </form>
-          )}
-
-          {debt.status === "ACTIVE" && !payoff.neverClears && (
-            <div className="flex flex-col gap-2 rounded-lg border p-3">
-              <p className="font-semibold">{t("debts.whatIf")}</p>
-              <Field id="extra" label={t("debts.extraPerMonth")}>
-                <Input id="extra" inputMode="decimal" dir="ltr" value={extra} onChange={(e) => setExtra(e.target.value)} />
-              </Field>
-              {withExtra && !withExtra.neverClears && (
-                <p className="text-sm">{t("debts.whatIfResult", { months: payoff.months - withExtra.months, interest: money(payoff.totalInterest - withExtra.totalInterest) })}</p>
-              )}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-2">
-            <p className="font-semibold">{t("debts.ledger")}</p>
-            {ledger.length === 0 && <p className="text-sm opacity-70">{t("debts.noPayments")}</p>}
-            {ledger.map((p) => (
-              <div key={p.id} className="flex items-center justify-between gap-2 rounded-lg border p-2 text-sm">
-                <span>{date(p.paidOn)} · {t("debts.principalPart", { amount: money(p.principalComponent) })}{p.interestComponent ? ` · ${t("debts.interestPart", { amount: money(p.interestComponent) })}` : ""}</span>
-                <span className="flex items-center gap-2 tabular-nums font-semibold">{money(p.amount)}
-                  <Button size="sm" variant="outline" onClick={() => void undoPayment(p)}>{t("bills.undo")}</Button>
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <Button variant="outline" onClick={() => onEdit(debt)}>{t("debts.edit")}</Button>
-        </div>
+        <SheetHeader><SheetTitle>{model.debt.name}</SheetTitle></SheetHeader>
+        <DebtDetailView model={model} />
       </SheetContent>
     </Sheet>
   )
