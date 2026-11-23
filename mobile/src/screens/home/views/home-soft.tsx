@@ -4,6 +4,7 @@ import { Pressable, View } from "react-native"
 
 import type { HomeWidget } from "@mizan/core/db/homeLayout"
 import { Announcements } from "@/components/announcements"
+import { Button } from "@/components/button"
 import { AwaitingKey } from "@/components/awaiting-key"
 import { LinkRow } from "@/components/link-row"
 import { Notice } from "@/components/notice"
@@ -40,6 +41,16 @@ export function HomeSoft({ model }: { model: HomeScreenModel }) {
         </Link>
       ) : null}
       <AwaitingKey />
+      {model.recoveryReminder ? (
+        <SoftCard testID="recovery-reminder">
+          <ThemedText style={styles.reminderTitle}>{t("vault.reminderTitle")}</ThemedText>
+          <ThemedText variant="caption">{t("vault.reminderBody")}</ThemedText>
+          <View style={styles.reminderActions}>
+            <Button testID="recovery-kept" title={t("vault.reminderKept")} onPress={model.keepRecoveryCode} />
+            <Button testID="recovery-new" variant="ghost" title={t("vault.reminderNew")} onPress={model.newRecoveryCode} />
+          </View>
+        </SoftCard>
+      ) : null}
       <ShownCurrencyBadge />
       <Announcements />
       {model.staleNotice ? (
@@ -153,6 +164,8 @@ const useStyles = makeStyles((colors) => ({
   tileCard: { flex: 1, gap: spacing.xs, padding: spacing.md - 2 },
   tileFigure: { fontSize: 22, lineHeight: 28, fontWeight: "600", fontVariant: ["tabular-nums"] },
   pressed: { opacity: 0.7 },
+  reminderTitle: { fontWeight: "600" },
+  reminderActions: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.sm },
   chevron: { color: colors.tertiaryLabel, fontSize: 17 },
   heroFigure: { fontSize: 34, lineHeight: 40, fontWeight: "700", fontVariant: ["tabular-nums"] },

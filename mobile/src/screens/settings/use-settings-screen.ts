@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Alert } from "react-native"
+import { useLocalSearchParams } from "expo-router"
+import { Alert, type LayoutChangeEvent, type ScrollViewInstance } from "react-native"
 
 import { cancelAccountDeletion, logout, requestAccountDeletion } from "@mizan/core/auth/session"
 import { META_KEYS, readMeta, writeMeta } from "@mizan/core/db/meta"
@@ -26,6 +27,15 @@ const DAY_MS = 86_400_000
 export function useSettingsScreen() {
   const { t, i18n } = useTranslation()
   useScreenTour("settings")
+  const { section } = useLocalSearchParams<{ section?: string }>()
+  const scrollRef = useRef<ScrollViewInstance>(null)
+  const scrolledToSection = useRef(false)
+  // Home's recovery reminder opens Settings at the code, which otherwise sits a few screens down.
+  const showRecoverySection = (event: LayoutChangeEvent) => {
+    if (section !== "recovery" || scrolledToSection.current) return
+    scrolledToSection.current = true
+    scrollRef.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: true })
+  }
   const session = useSession()
   // §4.2: an advisor has no records, Home or reminders; a viewer cannot write records.
   const advisor = session?.role === "ADVISOR"
@@ -105,6 +115,8 @@ export function useSettingsScreen() {
 
   const pendingDeletion = session?.deletionRequestedAt ? new Date(session.deletionRequestedAt).getTime() + ACCOUNT_GRACE_DAYS * DAY_MS : null
   return {
+    scrollRef,
+    showRecoverySection,
     message, advisor, restricted, mode, writes, prefs, privacy, notify, push, biometrics, lockAfter,
     unlocked: lockState === "unlocked",
     householdBody: t("settings.householdBody", { name: session?.householdName ?? "", role: t(`household.roles.${session?.role ?? "OWNER"}`) }),

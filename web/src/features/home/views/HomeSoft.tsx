@@ -1,4 +1,4 @@
-import { ChevronRight, Download, Gem, Info, TriangleAlert } from "lucide-react"
+import { ChevronRight, Download, Gem, Info, KeyRound, TriangleAlert } from "lucide-react"
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router"
@@ -266,9 +266,19 @@ export default function HomeSoft({ model }: { model: HomePageModel }) {
         <HelpButton tour="welcome" />
       </div>
 
-      {(model.needsVerify || model.canInstall || model.stale) && (
+      {(model.needsVerify || model.recoveryReminder || model.canInstall || model.stale) && (
         <div className="flex flex-col gap-2">
           {model.needsVerify && <Banner icon={<Info />} action={<Button asChild size="sm" variant="secondary" className="bg-accent text-accent-foreground hover:bg-accent/80"><Link to="/verify">{t("auth.verify")}</Link></Button>}>{t("auth.verifyTitle")}</Banner>}
+          {model.recoveryReminder && (
+            <Banner icon={<KeyRound />} action={
+              <span className="flex flex-wrap gap-2">
+                <Button size="sm" variant="secondary" className="bg-accent text-accent-foreground hover:bg-accent/80" onClick={model.keepRecoveryCode}>{t("vault.reminderKept")}</Button>
+                <Button asChild size="sm" variant="ghost" className="text-link"><Link to="/settings#s-recovery">{t("vault.reminderNew")}</Link></Button>
+              </span>
+            }>
+              <span className="font-semibold">{t("vault.reminderTitle")}</span> {t("vault.reminderBody")}
+            </Banner>
+          )}
           {model.canInstall && <Banner icon={<Download />} action={<InstallButton size="sm" />}>{t("install.homePrompt")}</Banner>}
           {model.stale && <Banner tone="warn" icon={<TriangleAlert />} action={<Button asChild size="sm" variant="ghost" className="text-link"><Link to="/assets">{t("nav.assets")}</Link></Button>}>{t("assets.stalePrompt", model.stale)}</Banner>}
         </div>

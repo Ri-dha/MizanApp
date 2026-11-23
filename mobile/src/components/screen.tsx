@@ -1,5 +1,5 @@
-import { useContext, type ReactNode } from "react"
-import { KeyboardAvoidingView, ScrollView } from "react-native"
+import { useContext, type ReactNode, type RefObject } from "react"
+import { KeyboardAvoidingView, ScrollView, type ScrollViewInstance } from "react-native"
 import { HeaderHeightContext } from "expo-router/react-navigation"
 
 import { spacing, makeStyles } from "@/theme"
@@ -9,7 +9,7 @@ import { spacing, makeStyles } from "@/theme"
  * itself; a sheet does not, because the system already lifts the sheet and a second inset
  * pushes its fields out of view.
  */
-export function Screen({ children, centered, sheet }: { children: ReactNode; centered?: boolean; sheet?: boolean }) {
+export function Screen({ children, centered, sheet, scrollRef }: { children: ReactNode; centered?: boolean; sheet?: boolean; scrollRef?: RefObject<ScrollViewInstance | null> }) {
   const styles = useStyles()
   // The avoiding view measures itself from below the navigation header, so without the header's
   // height it lifts the page too little. Outside a stack (the lock screen) there is no header.
@@ -17,6 +17,7 @@ export function Screen({ children, centered, sheet }: { children: ReactNode; cen
   const headerHeight = useContext(HeaderHeightContext) ?? 0
   const scroll = (
     <ScrollView
+      ref={scrollRef}
       style={sheet ? styles.sheet : styles.fill}
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"

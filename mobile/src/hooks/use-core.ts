@@ -3,12 +3,13 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { currentSession, subscribeSession, type LocalSession } from "@mizan/core/auth/session"
 import { lockState, subscribeLock, type LockState } from "@mizan/core/lock/store"
 import { subscribeSyncStatus, syncStatus, type SyncStatus } from "@mizan/core/sync/engine"
-import { recoveryCodeToShow, subscribeVault, vaultState, type VaultState } from "@mizan/core/vault/account"
+import { recoveryCodeToShow, recoveryReminderShown, subscribeVault, vaultState, type VaultState } from "@mizan/core/vault/account"
 import { onStoreChange } from "@/platform/sqlite-store"
 
 export const useSession = (): LocalSession | null | undefined => useSyncExternalStore(subscribeSession, currentSession)
 export const useVaultState = (): VaultState => useSyncExternalStore(subscribeVault, vaultState)
 export const useRecoveryCodeToShow = (): string | null => useSyncExternalStore(subscribeVault, recoveryCodeToShow)
+export const useRecoveryReminder = (): boolean => useSyncExternalStore(subscribeVault, recoveryReminderShown)
 export const useLockState = (): LockState => useSyncExternalStore(subscribeLock, lockState)
 export const useSyncStatus = (): SyncStatus => useSyncExternalStore(subscribeSyncStatus, syncStatus)
 

@@ -362,7 +362,11 @@
     "copied": "Recovery code copied",
     "settingsTitle": "Recovery code",
     "settingsBody": "Make a new recovery code if you lost the old one or think someone has seen it. The old code stops working at once.",
-    "regenerate": "Make a new recovery code"
+    "regenerate": "Make a new recovery code",
+    "reminderTitle": "Do you still have your recovery code?",
+    "reminderBody": "If you forget your password, it is the only way back to your records.",
+    "reminderKept": "I have it",
+    "reminderNew": "Make a new one"
   },
   "lock": {
     "title": "Locked",

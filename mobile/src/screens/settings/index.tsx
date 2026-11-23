@@ -15,7 +15,7 @@ export function Settings() {
   const model = useSettingsScreen()
   const View = viewFor(VIEWS, useAppStyle())
   return (
-    <Screen>
+    <Screen scrollRef={model.scrollRef}>
       <Stack.Screen options={{ title: t("settings.title") }} />
       <View model={model} />
     </Screen>

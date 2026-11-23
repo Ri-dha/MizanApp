@@ -10,10 +10,15 @@ import { hasAccountKeys, loadKeyring, openAccount, setAccount } from "./keyring"
 export type VaultState = "unknown" | "ready" | "needs-recovery" | "missing"
 
 const RECOVERY_TO_SHOW = "vault.recoveryToShow"
+const RECOVERY_CHECKED_AT = "vault.recoveryCheckedAt"
+const DAY_MS = 86_400_000
+/** How long a "yes, I still have it" holds before Home asks again. */
+export const RECOVERY_REMINDER_DAYS = 180
 
 let state: VaultState = "unknown"
 let pendingWrapSecret: Uint8Array<ArrayBuffer> | null = null
 let recoveryToShow: string | null = null
+let recoveryCheckedAt: string | null = null
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -44,12 +49,32 @@ export const vaultState = (): VaultState => state
 
 export const recoveryCodeToShow = (): string | null => recoveryToShow
 
+/**
+ * The code is the only way back after a forgotten password (ADR e2e-1), so Home asks on each
+ * device until the person says they have it, and again after a while. A device that never saw
+ * the answer asks too, because the code may have been lost since.
+ */
+export function recoveryReminderDue(checkedAt: string | null, now: number): boolean {
+  return checkedAt === null || now - Date.parse(checkedAt) > RECOVERY_REMINDER_DAYS * DAY_MS
+}
+
+/** Only once the keys are open and no new code is waiting to be shown. */
+export const recoveryReminderShown = (): boolean =>
+  state === "ready" && recoveryToShow === null && recoveryReminderDue(recoveryCheckedAt, Date.now())
+
+export async function confirmRecoveryCodeKept() {
+  recoveryCheckedAt = new Date().toISOString()
+  await writeMeta(RECOVERY_CHECKED_AT, recoveryCheckedAt)
+  emit()
+}
+
 export function vaultReady(): boolean {
   return state === "ready"
 }
 
 export async function initialiseVault() {
   recoveryToShow = (await readMeta<string>(RECOVERY_TO_SHOW)) ?? null
+  recoveryCheckedAt = (await readMeta<string>(RECOVERY_CHECKED_AT)) ?? null
   set((await loadKeyring()) ? "ready" : "missing")
 }
 
@@ -62,7 +87,7 @@ async function showRecoveryCode(code: string) {
 export async function acknowledgeRecoveryCode() {
   recoveryToShow = null
   await deleteMeta(RECOVERY_TO_SHOW)
-  emit()
+  await confirmRecoveryCodeKept()
 }
 
 /** Keys for a brand-new account, created before registering so the server stores them with it. */

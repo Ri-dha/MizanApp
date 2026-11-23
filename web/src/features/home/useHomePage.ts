@@ -3,6 +3,7 @@ import { useAppMode } from "@/app/appMode"
 import { usePreferences } from "@/app/preferences"
 import { useNetWorth } from "@/features/networth/useNetWorth"
 import { useInstallState } from "@/pwa/register"
+import { confirmRecoveryCodeKept, useRecoveryReminder } from "@/vault/account"
 import { useScreenTour } from "@/tours/useTour"
 import { staleAssets } from "@mizan/core/db/assets"
 import { shownWidgets, widgetsFor, type HomeWidget } from "@mizan/core/db/homeLayout"
@@ -16,6 +17,8 @@ export interface HomePageModel {
   householdName: string | undefined
   today: string
   needsVerify: boolean
+  recoveryReminder: boolean
+  keepRecoveryCode: () => void
   canInstall: boolean
   stale: { count: number; name: string; months: number } | null
   widgets: HomeWidget[]
@@ -28,6 +31,7 @@ export function useHomePage(): HomePageModel {
   const installState = useInstallState()
   const layout = useHomeLayout()
   const mode = useAppMode()
+  const recoveryReminder = useRecoveryReminder()
   useScreenTour("welcome", session !== undefined)
   const today = todayIso()
   const stale = staleAssets(worth.assets, worth.valuations, today, prefs.valuationReminderMonths)
@@ -38,6 +42,8 @@ export function useHomePage(): HomePageModel {
     householdName: session?.householdName,
     today,
     needsVerify: session !== undefined && !session.verified,
+    recoveryReminder,
+    keepRecoveryCode: () => void confirmRecoveryCodeKept(),
     canInstall: installState !== "installed",
     stale: stale.length > 0 && mode !== "simple" ? { count: stale.length, name: stale[0].name, months: prefs.valuationReminderMonths } : null,
     widgets: widgetsFor(mode, shownWidgets(layout)),

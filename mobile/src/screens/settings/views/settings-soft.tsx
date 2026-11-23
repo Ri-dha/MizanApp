@@ -100,9 +100,11 @@ export function SettingsSoft({ model }: { model: SettingsScreenModel }) {
         </View>
       </Section>
 
-      <Section title={t("vault.settingsTitle")} note={t("vault.settingsBody")}>
-        <Button testID="settings-recovery" variant="secondary" title={t("vault.regenerate")} onPress={model.regenerateRecovery} />
-      </Section>
+      <View testID="settings-recovery-section" onLayout={model.showRecoverySection}>
+        <Section title={t("vault.settingsTitle")} note={t("vault.settingsBody")}>
+          <Button testID="settings-recovery" variant="secondary" title={t("vault.regenerate")} onPress={model.regenerateRecovery} />
+        </Section>
+      </View>
 
       <Section title={t("currency.title")} note={t("currency.body")}>
         <CurrencySettings />
