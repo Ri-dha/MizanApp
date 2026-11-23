@@ -5,7 +5,8 @@ import { toast } from "sonner"
 import { EXPORT_COLUMNS, exportTableFor } from "@mizan/core/data/exportTables"
 import { META_KEYS, readMeta, writeMeta } from "@mizan/core/db/meta"
 import { mayWriteRecords } from "@mizan/core/roles"
-import { cancelAccountDeletion, logout, requestAccountDeletion, useSession } from "@/api/auth"
+import { cancelAccountDeletion, requestAccountDeletion, useSession } from "@/api/auth"
+import { signOut } from "@/app/signOut"
 import { useAppMode } from "@/app/appMode"
 import { describeError } from "@/app/errors"
 import { usePreferences } from "@/app/preferences"
@@ -16,10 +17,9 @@ import { downloadBlob, toCsv, toXlsx } from "@/data/tabular"
 import { useNotificationSettings } from "@/db/notifications"
 import { usePrivacyDefaults } from "@/db/privacy"
 import type { Attachment } from "@/db/schema"
-import { clearLock, currentDataKey, DEFAULT_LOCK_AFTER_SECONDS, useLockState } from "@/lock/store"
+import { currentDataKey, DEFAULT_LOCK_AFTER_SECONDS, useLockState } from "@/lock/store"
 import { enrollWebAuthn, hasWebAuthnUnlock, removeWebAuthn, webAuthnAvailable } from "@/lock/webauthn"
 import { disablePush, enablePush, pushState, sendTestPush, type PushState } from "@/notifications/push"
-import { resetSyncState } from "@/sync/engine"
 import { forgetAllTours } from "@/tours/store"
 import { useScreenTour } from "@/tours/useTour"
 
@@ -168,12 +168,6 @@ export function useSettingsPage() {
 
   function cancelDeletion() {
     void cancelAccountDeletion().then(() => toast(t("account.deletionCancelled")))
-  }
-
-  async function signOut() {
-    await clearLock()
-    await resetSyncState()
-    await logout()
   }
 
   function replayTours() {

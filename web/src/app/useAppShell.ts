@@ -10,6 +10,7 @@ import { takePendingInvite } from "@/api/household"
 import { useAppMode } from "@/app/appMode"
 import { useShownCurrency } from "@/app/displayRates"
 import { setPreferences } from "@/app/preferences"
+import { signOut } from "@/app/signOut"
 import { MORE_LINKS } from "@/features/more/links"
 import { fetchLiveQuotes } from "@/market/store"
 import { useSyncStatus } from "@/sync/engine"
@@ -83,6 +84,7 @@ export function useAppShell() {
     restricted,
     operator: Boolean(session?.operator),
     householdName: session?.householdName,
+    signOut: () => void signOut(),
     adding,
     setAdding,
     shownCurrency,

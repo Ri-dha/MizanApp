@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, MoreHorizontal, Plus, RefreshCw, ShieldCheck } from "lucide-react"
+import { CircleAlert, CircleCheck, LogOut, MoreHorizontal, Plus, RefreshCw, ShieldCheck } from "lucide-react"
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, NavLink } from "react-router"
@@ -40,7 +40,13 @@ export default function ShellSoft({ model, children }: { model: AppShellModel; c
             <span className="truncate">{t("admin.nav")}</span>
           </NavLink>
         )}
-        <p className="mt-auto truncate border-t border-sidebar-border px-2 pt-3 text-xs text-sidebar-foreground/60">{model.householdName}</p>
+        <div className="mt-auto flex items-center gap-2 border-t border-sidebar-border px-2 pt-3">
+          <p className="min-w-0 flex-1 truncate text-xs text-sidebar-foreground/60">{model.householdName}</p>
+          <button type="button" onClick={model.signOut} data-testid="sidebar-sign-out"
+            className="flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2 text-xs text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none">
+            <LogOut className="size-4 rtl:-scale-x-100" /> {t("auth.logout")}
+          </button>
+        </div>
       </aside>
 
       <main className="min-w-0 flex-1 p-4 pb-28 md:px-9 md:pt-7 md:pb-12">
