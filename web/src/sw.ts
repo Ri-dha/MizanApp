@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from "workbox-precaching"
 import { NavigationRoute, registerRoute } from "workbox-routing"
-import { CacheFirst, NetworkOnly } from "workbox-strategies"
+import { CacheFirst } from "workbox-strategies"
 
 declare let self: ServiceWorkerGlobalScope
 
@@ -15,7 +15,8 @@ interface PushPayload {
 precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
 
-registerRoute(({ url }) => url.pathname.startsWith("/api/"), new NetworkOnly())
+// API requests are left to the browser. A route here would hold this worker busy through each
+// sync long-poll (ADR sync-4), and a new version cannot take over while it is, so updates hung.
 // Phase 4: the OCR worker and models are large and change rarely; keep them once fetched.
 // A missing file is answered with the app page and a 200, which must not be kept in place of the asset.
 const assetsOnly = { cacheWillUpdate: async ({ response }: { response: Response }) => (response.ok && !response.headers.get("content-type")?.includes("text/html") ? response : null) }
