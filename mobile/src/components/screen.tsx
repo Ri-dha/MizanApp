@@ -1,5 +1,6 @@
-import type { ReactNode } from "react"
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from "react-native"
+import { useContext, type ReactNode } from "react"
+import { KeyboardAvoidingView, ScrollView, StyleSheet } from "react-native"
+import { HeaderHeightContext } from "expo-router/react-navigation"
 
 import { colors, spacing } from "@/theme"
 
@@ -9,11 +10,16 @@ import { colors, spacing } from "@/theme"
  * pushes its fields out of view.
  */
 export function Screen({ children, centered, sheet }: { children: ReactNode; centered?: boolean; sheet?: boolean }) {
+  // The avoiding view measures itself from below the navigation header, so without the header's
+  // height it lifts the page too little. Outside a stack (the lock screen) there is no header.
+  // Android needs the padding too: drawn edge to edge, its window no longer resizes for the keyboard.
+  const headerHeight = useContext(HeaderHeightContext) ?? 0
   const scroll = (
     <ScrollView
       style={sheet ? styles.sheet : styles.fill}
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
       contentContainerStyle={[styles.content, centered ? styles.centered : null]}
     >
       {children}
@@ -21,7 +27,7 @@ export function Screen({ children, centered, sheet }: { children: ReactNode; cen
   )
   if (sheet) return scroll
   return (
-    <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView style={styles.fill} behavior="padding" keyboardVerticalOffset={headerHeight}>
       {scroll}
     </KeyboardAvoidingView>
   )
