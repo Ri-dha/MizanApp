@@ -9,13 +9,16 @@ export interface Chip {
   swatch?: string
 }
 
-/** One choice among a few, in a row that scrolls sideways; tapping the chosen chip again clears it. */
+const WRAP_UP_TO = 6
+
+/**
+ * One choice among a few; tapping the chosen chip again clears it. A short list wraps, because a row cut
+ * at the screen edge gave no sign that it scrolls; a long one scrolls sideways.
+ */
 export function Chips({ options, value, onChange, testID }: { options: Chip[]; value: string | null; onChange: (value: string | null) => void; testID?: string }) {
   const colors = useColors()
   const brand = useBrandColors()
-  return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row} testID={testID}>
-      {options.map((option) => {
+  const chips = options.map((option) => {
         const selected = option.value === value
         return (
           <Pressable
@@ -26,17 +29,22 @@ export function Chips({ options, value, onChange, testID }: { options: Chip[]; v
             onPress={() => onChange(selected ? null : option.value)}
             style={({ pressed }) => [styles.chip, { backgroundColor: selected ? brand.primary : colors.fill, opacity: pressed ? 0.7 : 1 }]}
           >
-            {option.swatch ? <View style={[styles.swatch, { backgroundColor: option.swatch }]} /> : null}
+            {option.swatch ? <View style={[styles.swatch, { backgroundColor: option.swatch, borderColor: selected ? brand.onPrimary : "transparent" }]} /> : null}
             <ThemedText style={{ color: selected ? brand.onPrimary : colors.label }}>{option.label}</ThemedText>
           </Pressable>
         )
-      })}
+      })
+  if (options.length <= WRAP_UP_TO) return <View style={[styles.row, styles.wrap]} testID={testID}>{chips}</View>
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row} testID={testID}>
+      {chips}
     </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  row: { gap: spacing.sm, paddingVertical: spacing.xs },
+  row: { flexDirection: "row", gap: spacing.sm, paddingVertical: spacing.xs },
+  wrap: { flexWrap: "wrap" },
   chip: { flexDirection: "row", alignItems: "center", gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.full },
-  swatch: { width: spacing.sm + spacing.xs, height: spacing.sm + spacing.xs, borderRadius: radius.full },
+  swatch: { width: spacing.sm + spacing.xs, height: spacing.sm + spacing.xs, borderRadius: radius.full, borderWidth: 1.5 },
 })

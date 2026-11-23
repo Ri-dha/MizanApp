@@ -54,6 +54,8 @@ export function useDebtDetail({ debt, payments, startDay, onEdit }: DebtDetailPr
     balance: money(balance),
     summary: debt.status === "SETTLED"
       ? t("debts.settled")
+      : debt.monthlyPayment <= 0
+        ? t("debts.noPaymentLong")
       : payoff.neverClears
         ? t("debts.neverClearsLong", { payment: money(debt.monthlyPayment) })
         : t("debts.payoffLong", { months: payoff.months, total: money(payoff.totalPaid), interest: money(payoff.totalInterest) }),

@@ -29,6 +29,7 @@ export function useDebtsScreen() {
   function summary(debt: Debt, balance: number) {
     if (debt.status === "SETTLED") return t("debts.settled")
     const payoff = debtPayoff(balance, debt.annualRateBasisPoints, debt.monthlyPayment)
+    if (debt.monthlyPayment <= 0) return t("debts.noPayment")
     return payoff.neverClears ? t("debts.neverClears") : t("debts.payoffSummary", { months: payoff.months, interest: money(payoff.totalInterest, debt.currency) })
   }
 

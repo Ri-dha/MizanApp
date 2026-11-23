@@ -19,7 +19,6 @@ export function SignInSoft({ model }: { model: SignInScreenModel }) {
       <FrontIntro title={t("app.name")} body={t("app.tagline")} />
       <View style={styles.field}>
         <TextField testID="identifier" label={t("auth.identifier")} autoCapitalize="none" autoComplete="username" keyboardType="email-address" value={model.identifier} onChangeText={model.setIdentifier} />
-        <ThemedText variant="caption">{t("auth.identifierHint")}</ThemedText>
       </View>
       <TextField testID="password" label={t("auth.password")} secureTextEntry autoComplete="current-password" value={model.password} onChangeText={model.setPassword} onSubmitEditing={model.submit} />
       {model.error ? <Notice tone="error" testID="sign-in-error">{model.error}</Notice> : null}

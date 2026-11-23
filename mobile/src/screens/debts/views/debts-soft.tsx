@@ -22,7 +22,7 @@ export function DebtsSoft({ model }: { model: DebtsScreenModel }) {
           {side.rows.map((debt, index) => (
             <LinkRow key={debt.id} testID={`debt-${debt.id}`} href={debt.href} last={index === side.rows.length - 1} trailing={<ThemedText style={[type.amount, owing && !debt.settled ? styles.negative : null]}>{debt.balance}</ThemedText>}>
               <ThemedText numberOfLines={1}>{debt.name}</ThemedText>
-              <ThemedText variant="caption" numberOfLines={1}>{debt.detail}</ThemedText>
+              <ThemedText variant="caption" numberOfLines={2}>{debt.detail}</ThemedText>
             </LinkRow>
           ))}
         </Group>

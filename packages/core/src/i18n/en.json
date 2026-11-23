@@ -789,6 +789,8 @@
     "balance": "Outstanding balance",
     "neverClears": "Will never clear at this payment",
     "neverClearsLong": "{{payment}} a month does not cover the interest. This balance will never clear.",
+    "noPayment": "No monthly payment set",
+    "noPaymentLong": "No monthly payment is set, so there is no payoff date.",
     "payoffSummary": "{{months}} months left · {{interest}} interest",
     "payoffLong": "Clears in {{months}} months. Total {{total}}, of which {{interest}} is interest.",
     "recordPayment": "Record payment",

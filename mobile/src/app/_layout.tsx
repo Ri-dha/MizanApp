@@ -1,5 +1,6 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
+import { StatusBar } from "expo-status-bar"
 import { useEffect, useMemo, useState } from "react"
 import { StyleSheet, Text, useColorScheme, View } from "react-native"
 
@@ -45,6 +46,7 @@ export default function RootLayout() {
   if (!info) return null
   return (
     <ThemeProvider value={navigation}>
+      <StatusBar style={dark ? "light" : "dark"} />
       <PlatformContext.Provider value={info}>
         <AccountGate>
           <Routes />

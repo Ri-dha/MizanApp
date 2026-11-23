@@ -13,7 +13,7 @@ export default function LoginSoft({ model }: { model: LoginPageModel }) {
     <AuthSplit>
       <AuthHeading title={t("auth.login")} body={t("auth.welcomeBack")} />
       <form onSubmit={model.submit} className="flex flex-col gap-4.5">
-        <Field id="identifier" label={t("auth.identifier")} hint={t("auth.identifierHint")}>
+        <Field id="identifier" label={t("auth.identifier")}>
           <Input id="identifier" className={authInput} type="email" dir="ltr" autoComplete="email" value={model.identifier} onChange={(e) => model.setIdentifier(e.target.value)} required />
         </Field>
         <Field id="password" label={t("auth.password")}>

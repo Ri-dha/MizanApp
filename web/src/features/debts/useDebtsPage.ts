@@ -43,6 +43,8 @@ export function useDebtsPage() {
         interestFree: debt.annualRateBasisPoints === 0,
         line: debt.status === "SETTLED"
           ? t("debts.settled")
+          : debt.monthlyPayment <= 0
+            ? t("debts.noPayment")
           : payoff.neverClears
             ? t("debts.neverClears")
             : t("debts.payoffSummary", { months: payoff.months, interest: money(payoff.totalInterest, debt.currency) }),

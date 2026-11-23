@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { StyleSheet, View, type LayoutChangeEvent } from "react-native"
-import Svg, { Line, Path } from "react-native-svg"
+import Svg, { Circle, Line, Path } from "react-native-svg"
 
 import { ThemedText } from "@/components/themed-text"
 import { spacing } from "@/theme"
@@ -40,6 +40,11 @@ function pathOf(values: (number | null)[], x: (i: number) => number, y: (v: numb
   return d
 }
 
+/** A value with no neighbour on either side makes no line, so it is drawn as a dot. */
+function lonePoints(values: (number | null)[]): number[] {
+  return values.flatMap((value, i) => (value !== null && (values[i - 1] ?? null) === null && (values[i + 1] ?? null) === null ? [i] : []))
+}
+
 /** Kept left to right in Arabic too, as on the web (charts are a `dir="ltr"` island). */
 export function LineChart({ series, labels, height = 220, formatY = compact, testID }: {
   series: LineSeries[]
@@ -65,6 +70,7 @@ export function LineChart({ series, labels, height = 220, formatY = compact, tes
             {series.map((s) => (
               <Path key={s.key} d={pathOf(s.values, x, y, !!s.step)} stroke={s.colour} strokeWidth={STROKE} fill="none" strokeDasharray={s.dashed ? DASH : undefined} strokeLinejoin="round" />
             ))}
+            {series.flatMap((s) => lonePoints(s.values).map((i) => <Circle key={`${s.key}-${i}`} cx={x(i)} cy={y(s.values[i] as number)} r={STROKE * 1.6} fill={s.colour} />))}
           </Svg>
         ) : null}
         {ticks.map((tick) => (

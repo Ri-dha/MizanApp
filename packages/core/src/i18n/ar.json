@@ -809,6 +809,8 @@
     "balance": "الرصيد المتبقي",
     "neverClears": "لن يُسدد بهذا القسط",
     "neverClearsLong": "{{payment}} شهرياً لا تغطي الفائدة. هذا الرصيد لن يُسدد أبداً.",
+    "noPayment": "لم يُحدد قسط شهري",
+    "noPaymentLong": "لم يُحدد قسط شهري، لذا لا يوجد موعد للسداد.",
     "payoffSummary": "{{months}} شهراً متبقية · فائدة {{interest}}",
     "payoffLong": "يُسدد خلال {{months}} شهراً. الإجمالي {{total}}، منها {{interest}} فائدة.",
     "recordPayment": "تسجيل دفعة",
