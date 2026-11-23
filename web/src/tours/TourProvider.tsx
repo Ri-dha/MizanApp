@@ -16,8 +16,13 @@ export function TourProvider() {
   if (!tour || blocked) return null
 
   const rtl = directionFor(i18n.language) === "rtl"
-  // A card the person hid from Home has no element to point at, so its step is left out.
-  const present = tour.steps.filter((s) => typeof s.target !== "string" || s.target === "body" || document.querySelector(s.target) !== null)
+  // A card hidden from Home, or a control hidden at this screen width, has nothing to point at;
+  // Joyride would wait on it for ever, so its step is left out.
+  const present = tour.steps.flatMap((s): Array<Omit<typeof s, "target"> & { target: string | HTMLElement }> => {
+    if (s.target === "body") return [s]
+    const shown = Array.from(document.querySelectorAll<HTMLElement>(s.target)).find((el) => el.getClientRects().length > 0)
+    return shown ? [{ ...s, target: shown }] : []
+  })
   const steps = present.map((s, i) => ({
     target: s.target,
     title: t(s.titleKey),
