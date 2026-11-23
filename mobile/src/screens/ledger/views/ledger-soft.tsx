@@ -1,4 +1,5 @@
 import { SegmentedControl } from "@expo/ui/community/segmented-control"
+import { ArrowDownLeft, ArrowLeftRight, Receipt } from "lucide-react-native"
 import { Link } from "expo-router"
 import { useTranslation } from "react-i18next"
 import { Pressable, SectionList, View } from "react-native"
@@ -62,7 +63,7 @@ export function LedgerSoft({ model }: { model: LedgerScreenModel }) {
             style={({ pressed }) => [styles.cell, first && styles.first, last && styles.last, pressed && !section.deleted ? styles.pressed : null]}
           >
             <View style={[styles.row, last ? null : styles.divider]}>
-              <Lead colour={item.bucketColour} />
+              <Lead icon={item.flow === "in" ? ArrowDownLeft : item.flow === "moved" ? ArrowLeftRight : Receipt} colour={item.bucketColour} />
               <View style={styles.main}>
                 <ThemedText numberOfLines={1} style={styles.title}>{item.title}</ThemedText>
                 <ThemedText numberOfLines={1} style={styles.detail}>{item.detail}</ThemedText>

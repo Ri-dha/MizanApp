@@ -2,7 +2,7 @@ import { Link } from "expo-router"
 import { useTranslation } from "react-i18next"
 import { Pressable, View } from "react-native"
 
-import type { SFSymbol } from "expo-symbols"
+import { Banknote, BarChart3, BookOpen, Car, ChartLine, Gem, HandCoins, LifeBuoy, PiggyBank, Receipt, RefreshCw, Scale, Settings, Stethoscope, Users, Wallet, type LucideIcon } from "lucide-react-native"
 
 import { Lead, SectionTitle } from "@/components/soft-kit"
 import { ThemedText } from "@/components/themed-text"
@@ -12,11 +12,10 @@ import type { MoreScreenModel } from "../use-more-screen"
 /** The tile colour of each destination, as a place in the template's bucket colours; net worth takes the main colour and the app's own screens the accent. */
 const TILES: Record<string, number> = { accounts: 4, income: 2, bills: 1, debts: 5, metals: 6, assets: 7, goals: 3, report: 0, prices: 4 }
 
-const SYMBOLS: Record<string, SFSymbol> = {
-  accounts: "banknote", income: "arrow.down.circle", bills: "doc.text", debts: "creditcard",
-  networth: "chart.line.uptrend.xyaxis", metals: "circle.hexagongrid", assets: "house", goals: "flag",
-  report: "chart.bar", prices: "dollarsign.circle", household: "person.2", settings: "gearshape",
-  sync: "arrow.triangle.2.circlepath", help: "questionmark.circle", support: "bubble.left", diagnostics: "stethoscope",
+/** The same icon per destination as the website's More page. */
+const ICONS: Record<string, LucideIcon> = {
+  accounts: Banknote, income: Wallet, bills: Receipt, debts: HandCoins, networth: Scale, metals: Gem, assets: Car, goals: PiggyBank,
+  report: BarChart3, prices: ChartLine, household: Users, settings: Settings, sync: RefreshCw, help: BookOpen, support: LifeBuoy, diagnostics: Stethoscope,
 }
 
 /** Soft: destinations in named groups, each row led by a coloured tile, and Sign out as a quiet button at the end. */
@@ -33,7 +32,7 @@ export function MoreSoft({ model }: { model: MoreScreenModel }) {
             {group.items.map((item, index) => (
               <Link key={item.id} href={item.href} asChild>
                 <Pressable testID={`more-${item.id}`} accessibilityRole="link" style={styles.row}>
-                  <Lead symbol={SYMBOLS[item.id]} colour={item.id === "networth" ? colors.primary : item.id in TILES ? colors.buckets[TILES[item.id] % colors.buckets.length] : null} />
+                  <Lead icon={ICONS[item.id]} colour={item.id === "networth" ? colors.primary : item.id in TILES ? colors.buckets[TILES[item.id] % colors.buckets.length] : null} />
                   <View style={[styles.main, index === group.items.length - 1 ? null : styles.divider]}>
                     <ThemedText numberOfLines={1} style={styles.label}>{item.label}</ThemedText>
                     <ThemedText style={styles.chevron}>›</ThemedText>

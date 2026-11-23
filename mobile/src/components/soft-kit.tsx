@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { SymbolView, type SFSymbol } from "expo-symbols"
+import type { LucideIcon } from "lucide-react-native"
 import { View, type StyleProp, type ViewStyle } from "react-native"
 
 import { makeStyles, radius, spacing, useColors } from "@/theme"
@@ -20,14 +20,12 @@ export function SectionTitle({ children, tone }: { children: string; tone?: "her
 }
 
 /** The rounded tile that leads a row. The phone app has no icon set, so it carries a colour, not a glyph. */
-export function Lead({ colour, size = 32, symbol }: { colour?: string | null; size?: number; symbol?: SFSymbol }) {
+export function Lead({ colour, size = 32, icon: Icon }: { colour?: string | null; size?: number; icon?: LucideIcon }) {
   const styles = useStyles()
   const colors = useColors()
-  const mark = <View style={[styles.leadMark, colour ? styles.leadMarkOnColour : null]} />
   return (
     <View style={[styles.lead, { width: size, height: size }, colour ? { backgroundColor: colour } : null]}>
-      {/* The symbol library is Apple-only, so Android keeps the plain mark. */}
-      {symbol ? <SymbolView name={symbol} size={size * 0.56} tintColor={colour ? "#ffffff" : colors.onAccent} type="monochrome" fallback={mark} /> : mark}
+      {Icon ? <Icon size={size * 0.56} color={colour ? colors.surface : colors.onAccent} strokeWidth={2} /> : <View style={[styles.leadMark, colour ? styles.leadMarkOnColour : null]} />}
     </View>
   )
 }
